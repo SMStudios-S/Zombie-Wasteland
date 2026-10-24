@@ -16,7 +16,7 @@
 <link rel="icon" type="image/png" sizes="32x32" href="icon-32.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
 <meta name="apple-mobile-web-app-title" content="Zombie Wasteland">
 <title>Zombie Wasteland</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -4247,4 +4247,55 @@ function fixUnits(){const re=/(-?\d*\.?\d+)(dvh|svh|lvh|vh|vw|vmin|vmax)\b/g,map
 {const _rs=renderSets;renderSets=function(){_rs();const r=$('vUI');if(r){r.value=Math.round(CFG.uis*100);$('vUIv').textContent=r.value+'%'}}}
 addEventListener('resize',()=>setTimeout(uiScale,80));
 uiScale();fixUnits();vpCheck();rs();uiScale();applyLang();
+// ================= v27: iOS 26 Balken unten (WebKit-Bug 301108) & Dynamic Island =================
+// ---------- Balken: Seite minimal höher als der Bildschirm -> iOS gibt die volle Fläche ----------
+// Den alten Ansatz (Körper vergrößern) abschalten: iOS zeichnet unterhalb der Kante nichts.
+FIXH=0;document.body.classList.remove('vpfix');
+vpCheck=function(){};
+{let tried=false,base=0;
+ const exp=()=>{if(!SA_||!screen.width)return 0;const a=Math.min(screen.width,screen.height),b=Math.max(screen.width,screen.height),land=innerWidth>realIH();if(Math.abs(innerWidth-(land?b:a))>2)return 0;return land?a:b};
+ function vpTry(){const e=exp(),h=realIH();if(!e){return}const gap=e-h;const R=document.documentElement;
+  if(gap>8&&gap<160&&!(document.activeElement&&/^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName))){
+   if(tried&&R.style.minHeight)return;tried=true;base=h;R.style.minHeight=e+'px';document.body.style.minHeight=e+'px';
+   setTimeout(()=>{const h2=realIH();if(h2<=base+2){R.style.minHeight='';document.body.style.minHeight='';}window.scrollTo(0,0);rs();uiScale()},450)}
+  else if(gap<=2){/* passt */}}
+ window.vpTry=vpTry;
+ addEventListener('orientationchange',()=>{tried=false;setTimeout(vpTry,500)});
+ addEventListener('resize',()=>setTimeout(()=>{rs();uiScale();vpTry()},120));
+ document.addEventListener('visibilitychange',()=>{if(!document.hidden){tried=false;setTimeout(vpTry,400)}});
+ document.addEventListener('focusout',()=>{tried=false;setTimeout(vpTry,400)});
+ setTimeout(vpTry,300);setTimeout(vpTry,1500)}
+// ---------- Ton: "ambient" wie bei Handyspielen -> kein Symbol in der Dynamic Island ----------
+if(CFG.loud==null)CFG.loud=0;
+T4('Ton trotz Stummschalter','Sound with silent switch','Sonido con modo silencio','Son malgré le mode silencieux');
+function setAudioMode(){try{if(navigator.audioSession)navigator.audioSession.type=CFG.loud?'playback':'ambient'}catch(e){}
+ if(!CFG.loud&&UNL){try{UNL.pause();UNL.removeAttribute('src');UNL.load()}catch(e){}UNL=null}}
+{const _u=unlockIOS;unlockIOS=function(){setAudioMode();if(navigator.audioSession)return;if(CFG.loud)_u()}}
+// Ohne Stummschalter-Modus: Medien-Infos leeren, damit iOS nichts als "Wiedergabe" anzeigt
+try{if('mediaSession' in navigator){navigator.mediaSession.metadata=null;navigator.mediaSession.playbackState='none'}}catch(e){}
+setAudioMode();
+if(typeof IOS!=='undefined'&&IOS){const set=document.querySelector('#sets .set');if(set){const d=document.createElement('div');d.className='tog';d.innerHTML='<span data-t>Ton trotz Stummschalter</span><button id="tLoud"></button>';set.appendChild(d)}
+ $('tLoud').onclick=()=>{CFG.loud=CFG.loud?0:1;saveCfg();setAudioMode();if(CFG.loud)unlockIOS();wakeAudio&&wakeAudio();S.ui();renderSets()};
+ const _rs=renderSets;renderSets=function(){_rs();const b=$('tLoud');if(b){b.textContent=tr(CFG.loud?'An':'Aus');b.classList.toggle('on',!!CFG.loud)}}}
+applyLang();
+// ---------- Inventar kompakt: nichts überlappt ----------
+{const st=document.createElement('style');st.textContent=`
+@media (orientation:landscape){
+ #inv .wrap{grid-template-columns:minmax(232px,292px) 1fr!important;grid-template-rows:auto auto auto auto minmax(0,1fr)!important;
+  grid-template-areas:"hdr hdr" "doll chips" "doll ig" "qrow ig" "det ig"!important;gap:6px 12px!important;align-content:start}
+ #inv.boxm .wrap{grid-template-areas:"hdr hdr" "box chips" "box ig" "qrow ig" "det ig"!important}
+ #inv #doll{min-height:0!important;height:auto!important;overflow:hidden!important;padding:4px 6px!important;gap:6px!important;align-items:center}
+ #inv .dcol{gap:4px!important}
+ #inv .sl.eqs{width:44px!important;height:44px!important;position:relative;overflow:hidden}
+ #inv .sl.eqs .lb{position:absolute!important;left:1px;right:1px;top:auto!important;bottom:4px!important;transform:none!important;margin:0!important;padding:0!important;font-size:6.5px!important;line-height:1.2!important;letter-spacing:0!important;white-space:nowrap;overflow:hidden;text-overflow:clip;text-align:center}
+ #inv .sl.eqs .ph{width:18px!important;height:18px!important;margin-top:-6px}
+ #inv #pv{width:44px!important;height:59px!important}
+ #inv #gst{font-size:9px!important;line-height:1.35;text-align:center}
+ #inv .qrow{gap:6px!important;flex-wrap:nowrap;min-width:0}
+ #inv .qrow small{white-space:nowrap;font-size:9px!important;letter-spacing:1px!important;flex-shrink:0}
+ #inv .qrow .sls{gap:5px}#inv .qrow .sls .sl{width:42px!important;height:42px!important}
+ #inv #det{max-height:none!important;min-height:0!important;overflow-y:auto;padding:5px 8px!important}
+ #inv #det b{font-size:12px!important}#inv #det p{font-size:10px!important;margin:2px 0 4px!important;line-height:1.35}
+ #inv #ich{gap:5px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}#inv #ich .ch{padding:5px 9px!important;font-size:10px!important;flex-shrink:0}
+ #inv #ig{grid-template-columns:repeat(auto-fill,minmax(50px,1fr))!important;gap:6px!important}}`;document.head.appendChild(st)}
 </script><script>if('serviceWorker'in navigator&&location.protocol.startsWith('http'))addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));</script></body></html>
