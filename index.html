@@ -925,7 +925,7 @@ const TN=['leer','baum','tanne','totbaum','busch','beeren','beeren_leer','pilze'
  'unkraut','distel','brennnessel','wildblume','loewenzahn','moos','gestruepp','efeu',
  'wellblech','bretterwand','zinnen','rolltor','rolltor_o','lagerregal','feuertonne','wachturm','betonsperre',
  'gitarre','teddy','kerzenst','totempfahl','reifenstapel','palettenst','keepout','oellampe','blumenkuebel','sonnenliege','gasflaschen','pflanzregal',
- 'treppe','treppe_ob','waffenstaender','wandhalter','solarpanel','lichtschalter','deckenlampe','deckenlampe_an','wandlampe','wandlampe_an','flutlicht','flutlicht_an','geschuetz_a','geschuetz_g'];
+ 'treppe','treppe_ob','waffenstaender','wandhalter','solarpanel','lichtschalter','deckenlampe','deckenlampe_an','wandlampe','wandlampe_an','flutlicht','flutlicht_an','geschuetz_a','geschuetz_g','stahlwand','stahltuer','stahltuer_o'];
 const T={};TN.forEach((n,i)=>T[n]=i);const COOK=new Uint8Array(256),XLIGHT={},XDRAW={},NOSWAY=new Uint8Array(256),CONN={};
 const flag=l=>{const a=new Uint8Array(256);l.forEach(n=>a[T[n]]=1);return a};
 const TSOL=flag(['baum','tanne','totbaum','stein','kiste','mkiste','kiste_offen','auto','auto_leer','fass','muell','muell_leer','laterne','hwand','hfassade','hfenster','htuer','schrank','schrank_leer','regal','regal_leer','kuehl','kuehl_leer','bett','tisch','sofa','herd','holzwand','steinwand','tuer','feuer','ziegelwand','metallwand','fensterwand','mtuer','zaun','stuhl','tv','tv_an','lampe','lampe_an','pflanze','regentonne','kiste_s','kiste_m','spind','auto_ausg',
@@ -1741,8 +1741,8 @@ function drive(v){const d=VT[v.k];let ix=jx,iy=jy;if(K.a||K.arrowleft)ix-=1;if(K
   else{steer=wrapA(ta-v.a);thr=brake?0:m*(1-.55*Math.min(1,Math.abs(steer)/2.2))}}
  else if(brake&&ok&&v.spd<=.12){thr=-.6;v.rev=1}
  // Lenkung: weich über Drehgeschwindigkeit, auch langsam wendig, bei hohem Tempo ruhiger
- const sp=Math.abs(v.spd),grip=Math.min(1,.42+sp/1.1)*(1-.32*Math.min(1,sp/d.max))*(road?1:.85),mt=d.turn*1.75*grip;
- const want=sp<.02&&thr===0?0:clamp(steer*.24,-mt,mt);v.av=lerp(v.av||0,want,.3);
+ const sp=Math.abs(v.spd),grip=Math.min(1,.42+sp/1.1)*(1-.32*Math.min(1,sp/d.max))*(road?1:.85),mt=d.turn*1.75*grip*(window.STEERK||1);
+ const want=sp<.02&&thr===0?0:clamp(steer*.24*(window.STEERK||1),-mt,mt);v.av=lerp(v.av||0,want,.3);
  if(Math.abs(v.av)>1e-4){const na=v.a+v.av;if(!vBlocked(v,v.x,v.y,na))v.a=wrapA(na);else{const h=v.a+v.av*.4;if(!vBlocked(v,v.x,v.y,h))v.a=wrapA(h);v.av*=.3}}
  // Gas, Bremse, Rückwärts
  if(brake&&v.spd>.12)v.spd=Math.max(0,v.spd-d.acc*4.5);
@@ -5058,5 +5058,305 @@ function deL(s){const o=newL();if(!s)return o;o.mods=new Map(s.m||[]);o.whp=new 
  powerTick();lvHud();return ok}}
 {const _n=newGame;newGame=function(s,cc){LV=0;LVS=[null,newL(),newL()];SWS=new Map();CEILR=null;const r=_n(s,cc);try{LS.del('zw4_x'+s)}catch(e){}lvHud();return r}}
 {const _tm=toMenu;toMenu=function(){const r=_tm.apply(this,arguments);if(LV){swapTo(0);RGHk=-1}lvHud();return r}}
+applyLang();
+// ================= v33: Treppe betreten = hoch/runter · Viele neue Ressourcen mit Seltenheit · Bausätze aus dem Inventar platzieren =================
+const V33={
+ goSt:T4('Auf die Treppe gehen','Step onto the stairs','Sube a la escalera','Monte sur l’escalier'),
+ goStL:L4('Geh auf die Treppe – oben baust du den Oberboden rund um die Treppe.','Walk onto the stairs – upstairs you build the floor around them.','Sube a la escalera: arriba construyes el suelo alrededor.','Monte l’escalier – en haut, construis le plancher autour.'),
+ upHint:L4('Oben! Bau jetzt Oberboden neben der Treppe – Feld für Feld.','Upstairs! Now build upper floor next to the stairs – tile by tile.','¡Arriba! Construye suelo junto a la escalera, casilla a casilla.','En haut ! Construis le plancher à côté de l’escalier, case par case.'),
+ place:T4('Platzieren','Place','Colocar','Placer'),
+ mat:T4('Materialien','Materials','Materiales','Matériaux'),
+ tier:T4('Seltenheit','Rarity','Rareza','Rareté')};
+// ================= 1. Treppe: einfach betreten =================
+function goStair(d,tx,ty){const k=tx*65536+ty;
+ if(d>0){const U=Lm(LV+1);if(U&&U.mods.get(k)!==T.treppe_ob){U.gmods.set(k,G.oboden);U.mods.set(k,T.treppe_ob);U.own.add(k)}}
+ const first=d>0&&!LVS.some((M,i)=>i===LV+1&&M&&[...M.gmods.values()].filter(v=>v!==G.luft).length>1);
+ setLevel(LV+d);P.x=tx*16+8;P.y=ty*16+9;cam.x=P.x;cam.y=P.y;P._stk=k;P.job=null;P.fx=0;P.fy=d>0?-1:1;P.ac=12;
+ if(BM)renderBbar();if(first)setTimeout(()=>toast(tr(V33.upHint)),350)}
+{const _st=step;step=function(){_st();if(state!==1||!P||P.veh||P.sit)return;const tx=Math.floor(P.x/16),ty=Math.floor(P.y/16),k=tx*65536+ty;if(k===P._stk)return;P._stk=k;
+ const tt=tile(tx,ty);if(tt===T.treppe&&LV<2)goStair(1,tx,ty);else if(tt===T.treppe_ob&&LV>0)goStair(-1,tx,ty)}}
+{const _ea=extraAct;extraAct=function(a){if(a.tt===T.treppe&&LV<2){goStair(1,a.tx,a.ty);return true}if(a.tt===T.treppe_ob&&LV>0){goStair(-1,a.tx,a.ty);return true}return _ea(a)}}
+{const _su=supported;supported=function(l,x,y){if(_su(l,x,y))return true;if(l<1)return true;for(let dx=-1;dx<=1;dx++)for(let dy=-1;dy<=1;dy++)if(tAt(l-1,x+dx,y+dy)===T.treppe)return true;return false}}
+{const _ba=buildAct;buildAct=function(){const a=_ba();if(a&&a.l===V32.onlyUp){a.l=V33.goSt;a.lvx=V33.goStL}return a}}
+// ================= 2. Neue Ressourcen =================
+const NM=[// id, Name, Stapel, Stufe 0-4, Herkunft
+ ['nagel',L4('Nägel','Nails','Clavos','Clous'),60,0,L4('Kisten, Regale, Müll – oder aus Metallschrott herstellen.','Crates, shelves, trash – or craft from scrap.','Cajas, estantes, basura, o fabrícalos con chatarra.','Caisses, étagères, poubelles – ou à fabriquer avec de la ferraille.')],
+ ['glas',L4('Glasscherben','Glass shards','Cristales','Éclats de verre'),40,0,L4('Autos verschrotten, Müll, Regale.','Scrapping cars, trash, shelves.','Desguazar coches, basura, estantes.','Démonter des voitures, poubelles, étagères.')],
+ ['seil',L4('Seil','Rope','Cuerda','Corde'),20,0,L4('Kisten, Schränke, Autos – oder aus 3 Stoff drehen.','Crates, wardrobes, cars – or twist from 3 cloth.','Cajas, armarios, coches, o hazla con 3 telas.','Caisses, armoires, voitures – ou avec 3 tissus.')],
+ ['leder',L4('Leder','Leather','Cuero','Cuir'),30,1,L4('Von gejagten Tieren – oder eine Lederjacke zerreißen.','From hunted animals – or tear up a leather jacket.','De animales cazados, o rasga una chaqueta de cuero.','Animaux chassés – ou déchire une veste en cuir.')],
+ ['kabel',L4('Kupferkabel','Copper wire','Cable de cobre','Fil de cuivre'),30,1,L4('Autos verschrotten, Regale, Kisten, Schrotthaufen.','Scrapping cars, shelves, crates, scrap heaps.','Desguazar coches, estantes, cajas, chatarra.','Voitures, étagères, caisses, tas de ferraille.')],
+ ['klebeband',L4('Klebeband','Duct tape','Cinta americana','Ruban adhésif'),20,1,L4('Kisten, Regale, Werkzeugschränke, Autos.','Crates, shelves, cabinets, cars.','Cajas, estantes, armarios, coches.','Caisses, étagères, armoires, voitures.')],
+ ['chemie',L4('Chemikalien','Chemicals','Químicos','Produits chimiques'),20,1,L4('Regale und Kisten in Häusern.','Shelves and crates in houses.','Estantes y cajas en casas.','Étagères et caisses des maisons.')],
+ ['elektronik',L4('Elektronik','Electronics','Electrónica','Électronique'),20,2,L4('Militärkisten, Autos – oder an der Werkbank aus Kabel bauen.','Military crates, cars – or build from wire at the workbench.','Cajas militares, coches, o fabrícala con cable.','Caisses militaires, voitures – ou avec du fil à l’établi.')],
+ ['batterie',L4('Batterie','Battery','Batería','Batterie'),20,2,L4('Autos verschrotten, Militärkisten – oder aus Chemikalien bauen.','Scrapping cars, military crates – or build from chemicals.','Desguazar coches, cajas militares, o con químicos.','Voitures, caisses militaires – ou avec des produits chimiques.')],
+ ['stahl',L4('Stahlplatte','Steel plate','Placa de acero','Plaque d’acier'),20,2,L4('Selten beim Verschrotten von Autos, Militärkisten, Airdrops.','Rarely from scrapping cars, military crates, airdrops.','Rara al desguazar coches, cajas militares, airdrops.','Rare en démontant des voitures, caisses militaires, largages.')],
+ ['kevlar',L4('Kevlarfaser','Kevlar fibre','Fibra de kevlar','Fibre de kevlar'),10,3,L4('Militärkisten, Soldaten-Zombies, Airdrops.','Military crates, soldier zombies, airdrops.','Cajas militares, zombis soldado, airdrops.','Caisses militaires, zombies soldats, largages.')],
+ ['titan',L4('Titanlegierung','Titanium alloy','Aleación de titanio','Alliage de titane'),10,3,L4('Sehr selten: Airdrops und Militärkisten.','Very rare: airdrops and military crates.','Muy rara: airdrops y cajas militares.','Très rare : largages et caisses militaires.')],
+ ['chip',L4('Militär-Chip','Military chip','Chip militar','Puce militaire'),5,4,L4('Legendär: fast nur in Airdrops.','Legendary: almost only in airdrops.','Legendario: casi solo en airdrops.','Légendaire : presque uniquement dans les largages.')]];
+const NMI={
+ nagel:P=>{for(const[x,y]of[[3,3],[7,2],[11,4]]){P('#c8ccd2',x,y,3,1);P('#9aa0a8',x+1,y+1,1,9);P('#6a7078',x+1,y+10,1,1)}},
+ glas:P=>{P('#a8d8e8',3,4,5,7);P('#d8f0f8',3,4,2,2);P('#88c0d8',9,7,4,6);P('#c8e8f0',9,7,1,3);P('#6aa0b8',6,11,3,3)},
+ seil:P=>{for(let i=0;i<4;i++){P('#c8a060',3+i,4+i*2,10-i*2,2);P('#9a7438',3+i,5+i*2,10-i*2,1)}P('#c8a060',12,12,2,3)},
+ leder:P=>{P('#8a5a32',2,3,12,10);P('#a87040',3,3,10,2);P('#6a4022',2,12,12,1);P('#6a4022',2,3,1,10);P('#c8925a',5,6,2,1);P('#c8925a',9,9,2,1)},
+ kabel:P=>{for(let i=0;i<5;i++){P('#d87838',3+i*2,4+(i%2)*4,2,5)}P('#e89858',3,4,1,1);P('#4a4e56',2,12,4,2);P('#c8ccd2',12,2,2,2)},
+ klebeband:P=>{P('#8a9098',2,4,12,9);P('#b8bec6',2,4,12,2);P('#2a2c30',6,7,4,3);P('#5a6068',2,12,12,1);P('#b8bec6',13,10,2,4)},
+ chemie:P=>{P('#3a7a3a',5,4,6,10);P('#5aa05a',5,4,6,2);P('#c8ccd2',6,1,4,3);P('#e8e4dc',6,8,4,3);P('#c03a2a',7,9,2,1)},
+ elektronik:P=>{P('#2a6a3a',2,3,12,10);P('#3a8a4a',2,3,12,1);P('#1a1a1a',5,6,6,4);P('#d8b450',3,5,1,1);P('#d8b450',12,5,1,1);P('#d8b450',3,10,1,1);P('#d8b450',12,10,1,1);for(let x=5;x<11;x+=2){P('#c8ccd2',x,5,1,1);P('#c8ccd2',x,10,1,1)}},
+ batterie:P=>{P('#2a2c30',4,3,8,11);P('#c89a3a',4,3,8,3);P('#8a8e96',6,1,4,2);P('#e8e4dc',6,8,4,1);P('#e8e4dc',7,7,2,3);P('#1a1a1a',4,13,8,1)},
+ stahl:P=>{P('#5a6068',1,3,14,10);P('#8a9098',1,3,14,1);P('#3a3e46',1,12,14,1);for(const[a,b]of[[3,5],[12,5],[3,10],[12,10]])P('#b8bec6',a,b,1,1);P('#6a7078',5,7,6,2)},
+ kevlar:P=>{P('#c8b04a',2,3,12,10);for(let y=3;y<13;y+=2)P('#a8902a',2,y,12,1);for(let x=2;x<14;x+=3)P('#d8c46a',x,3,1,10);P('#8a7420',2,12,12,1)},
+ titan:P=>{P('#7a8aa0',2,4,12,8);P('#b8c8dc',2,4,12,2);P('#5a6a80',2,11,12,1);P('#d8e4f0',4,5,3,1);P('#9aaabf',9,7,3,3)},
+ chip:P=>{P('#1a1a1a',3,3,10,10);P('#3a3c42',4,4,8,8);for(let i=4;i<12;i+=2){P('#ffb020',i,1,1,2);P('#ffb020',i,13,1,2);P('#ffb020',1,i,2,1);P('#ffb020',13,i,2,1)}P('#ffb020',6,6,4,4);P('#ffe080',7,7,1,1)}};
+for(const[id,n,st,tier,src]of NM){D[id]={n,c:'mat',st,tier,d:src};if(typeof LXSRC!=='undefined')LXSRC[id]=src;ICO[id]=outline(cv(16,16,NMI[id]));delete ICU[id]}
+// Stufen auch für vorhandene Rohstoffe und Teile
+Object.assign(D.holz,{tier:0});Object.assign(D.stein,{tier:0});Object.assign(D.stoff,{tier:0});Object.assign(D.schrott,{tier:0});
+for(const[id,ti]of[['mechanik',1],['feder',1],['pulver',1],['griff',1],['benzin',1],['lauf',2],['optik',2]])if(D[id])D[id].tier=ti;
+// Seltenheit am Gegenstand -> farbiger Rahmen, Name in Farbe, Fund-Meldung ab „Selten“
+const tierOf=id=>{const d=D[id];return d&&d.tier!=null?d.tier:null};
+let FORCE_R=null;
+{const _mk=mkItem;mkItem=function(id,n,r){const it=_mk(id,n,r);const d=D[id];if(d){const ti=tierOf(id);if(ti!=null)it.r=ti;else if(FORCE_R!=null&&d.rar)it.r=FORCE_R}return it}}
+{const _ai=addItem;addItem=function(it,noEq){const ti=it&&tierOf(it.id);if(ti!=null)it.r=ti;return _ai(it,noEq)}}
+function fixTiers(){const f=a=>{if(a)for(const it of a)if(it){const ti=tierOf(it.id);if(ti!=null)it.r=ti}};f(inv);f(qs);if(stor)for(const v of stor.values())if(v&&v.items)f(v.items);for(const o of Is||[])if(o.it){const ti=tierOf(o.it.id);if(ti!=null)o.it.r=ti}}
+{const _l=load;load=function(s){const r=_l(s);try{fixTiers()}catch(e){}return r}}
+// ---------- Fundorte ----------
+addL('kiste','nagel:14:3:8 glas:7:1:3 seil:8 klebeband:7 kabel:6:1:2 chemie:5 batterie:3 elektronik:2');
+addL('mkiste','klebeband:8 kabel:6:1:3 batterie:8 elektronik:8 stahl:6 kevlar:5 titan:2 chip:1');
+addL('schrank','seil:6 leder:3 nagel:5:2:5 klebeband:4');
+addL('regal','nagel:10:2:6 glas:6 chemie:9 klebeband:6 kabel:5 batterie:3');
+addL('muell','glas:12:1:2 nagel:8:1:4 kabel:5 batterie:2');
+addL('auto','glas:10:1:3 kabel:8:1:2 batterie:6 klebeband:4 seil:4');
+addL('zom','nagel:4 klebeband:2 kabel:2');
+addL('zsol','kevlar:5 batterie:5 elektronik:5 chip:1 klebeband:4');
+if(LT.drop)addL('drop','kevlar:9:1:2 titan:7:1:2 chip:5 elektronik:8:1:3 stahl:7:1:2');
+// Autos verschrotten & Schrotthaufen geben mehr
+{const _fa=finishAct;finishAct=function(a){const{tx,ty,tt}=a,cx_=tx*16+8,cy_=ty*16+8,r=_fa(a);
+ if(tt===T.auto_leer&&tile(tx,ty)!==T.auto_leer){if(rnd()<.65)give('glas',1+(rnd()*2|0),cx_,cy_);if(rnd()<.55)give('kabel',1+(rnd()*2|0),cx_,cy_);if(rnd()<.28)give('batterie',1,cx_,cy_);if(rnd()<.14)give('stahl',1,cx_,cy_);if(rnd()<.08)give('elektronik',1,cx_,cy_)}
+ if(tt===T.schrotthaufen&&tile(tx,ty)!==T.schrotthaufen){if(rnd()<.45)give('nagel',2+(rnd()*4|0),cx_,cy_);if(rnd()<.22)give('kabel',1,cx_,cy_);if(rnd()<.06)give('stahl',1,cx_,cy_)}
+ return r}}
+// Gejagte Tiere geben Leder
+{const _da=dmgA;dmgA=function(a,dm){const was=a.dead;_da(a,dm);if(!was&&a.dead){const n={hase:1,reh:2,wildschwein:3,ziege:2}[a.k];if(n)dropIt(mkItem('leder',n),a.x,a.y,1)}}}
+// Lederjacke zerreißen -> Leder
+document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('#det [data-rip]');if(!b)return;const it=isel&&getS(isel);if(!it||it.id!=='lederjacke')return;
+ e.stopPropagation();e.preventDefault();setS(isel,null);isel=null;const n=1+Math.round(((it.d==null?100:it.d)/100)*1.4);give('leder',n);S.cloth&&S.cloth();toast(tr(V32.ripD)+' · +'+n+' '+tr('Leder'),'good');hudDirty=1;renderInv()},true);
+{const _rd=renderDet;renderDet=function(){_rd();const it=isel&&getS(isel);if(!it||it.id!=='lederjacke')return;const b=document.querySelector('#det [data-rip]');if(b){const n=1+Math.round(((it.d==null?100:it.d)/100)*1.4);b.textContent=`${tr(V32.rip)} (+${n} ${tr('Leder')})`}}}
+// ================= 3. Neue Ausrüstung: je seltener das Material, desto besser =================
+Object.assign(D,{
+ nagelkeule:{n:L4('Nagelkeule','Nail club','Garrote con clavos','Massue à clous'),c:'waf',mel:1,dmg:3.8,cd:27,rg:17,nz:16,rar:1,d:L4('Holzkeule mit Nägeln – fies.','Wooden club with nails – nasty.','Garrote con clavos: brutal.','Massue cloutée – vicieuse.')},
+ stahlmachete:{n:L4('Stahlmachete','Steel machete','Machete de acero','Machette en acier'),c:'waf',mel:1,dmg:5.2,cd:21,rg:20,nz:12,chop:2,rar:1,len:9,d:L4('Scharf, stabil, fällt Bäume.','Sharp, sturdy, chops trees.','Afilada y robusta, tala árboles.','Tranchante, solide, coupe les arbres.')},
+ schockstab:{n:L4('Elektro-Schlagstock','Shock baton','Porra eléctrica','Matraque électrique'),c:'waf',mel:1,dmg:5.6,cd:17,rg:18,nz:9,rar:1,len:8,d:L4('Schnell und leise – Zombies zucken zurück.','Fast and quiet – zombies recoil.','Rápida y silenciosa: los zombis retroceden.','Rapide et discrète – les zombies reculent.')},
+ titankatana:{n:L4('Titan-Katana','Titanium katana','Katana de titanio','Katana en titane'),c:'waf',mel:1,dmg:7.4,cd:16,rg:23,nz:6,rar:1,len:11,d:L4('Die beste Klinge der Ödnis.','The finest blade of the wasteland.','La mejor hoja del páramo.','La meilleure lame du désert.')},
+ lederhose:{n:L4('Lederhose','Leather trousers','Pantalón de cuero','Pantalon en cuir'),c:'klei',slot:'beine',def:.09,rar:1},
+ kevlarweste:{n:L4('Kevlarweste','Kevlar vest','Chaleco de kevlar','Gilet en kevlar'),c:'klei',slot:'torso',def:.32,rar:1,d:L4('Hält Bisse ab wie nichts sonst.','Stops bites like nothing else.','Para mordiscos como nada.','Arrête les morsures comme rien d’autre.')},
+ titanhelm:{n:L4('Titanhelm','Titanium helmet','Casco de titanio','Casque en titane'),c:'klei',slot:'kopf',def:.22,rar:1},
+ exoweste:{n:L4('Exo-Weste','Exo vest','Exo-chaleco','Exo-gilet'),c:'klei',slot:'torso',def:.42,spd:.04,rar:1,d:L4('Militärprototyp: Schutz und Tempo.','Military prototype: protection and speed.','Prototipo militar: protección y velocidad.','Prototype militaire : protection et vitesse.')}});
+const NWI={
+ nagelkeule:P=>{for(let i=0;i<9;i++){const w=i<3?1:2;P(i<3?'#3a2414':'#8a5a2e',3+i,13-i,w,w)}for(const[x,y]of[[9,3],[12,5],[10,7],[13,2]])P('#c8ccd2',x,y,1,1)},
+ stahlmachete:P=>{for(let i=0;i<9;i++)P(i%2?'#d8dee6':'#a8b0ba',5+i,10-i,2,2);P('#5a3a1e',2,11,4,2);P('#3a2414',1,13,2,2)},
+ schockstab:P=>{for(let i=0;i<10;i++)P('#2a2c30',3+i,13-i,2,1);P('#4a4e56',3,12,3,3);P('#6ad0ff',12,2,2,2);P('#c8f0ff',13,1,1,1);P('#6ad0ff',11,4,1,1)},
+ titankatana:P=>{for(let i=0;i<11;i++)P(i%3?'#d8e4f0':'#9aaabf',4+i,11-i,1,2);P('#ffb020',2,11,4,2);P('#1a1a1a',0,13,3,2);P('#8a2a8a',1,13,1,1)},
+ lederhose:P=>{P('#7a4a26',4,2,8,4);P('#6a3e1e',4,6,3,9);P('#6a3e1e',9,6,3,9);P('#9a6438',4,2,8,1);P('#4a2a12',4,14,3,1);P('#4a2a12',9,14,3,1)},
+ kevlarweste:P=>{P('#3a3e2a',3,2,10,12);P('#c8b04a',4,4,8,8);for(let y=4;y<12;y+=2)P('#a8902a',4,y,8,1);P('#2a2c1e',3,2,3,2);P('#2a2c1e',10,2,3,2)},
+ titanhelm:P=>{P('#7a8aa0',3,4,10,8);P('#b8c8dc',4,4,8,2);P('#3a4a5a',4,8,8,2);P('#5a6a80',2,11,12,2);P('#d8e4f0',5,5,2,1)},
+ exoweste:P=>{P('#1a1a1a',3,2,10,12);P('#3a3c42',4,3,8,10);P('#ffb020',5,5,6,1);P('#ffb020',5,9,6,1);P('#6ad0ff',7,6,2,2);P('#7a8aa0',2,4,2,6);P('#7a8aa0',12,4,2,6)}};
+for(const k in NWI){ICO[k]=outline(cv(16,16,NWI[k]));delete ICU[k]}
+// Herstellen-Menü (einfache Sachen, ohne Werkbank)
+const NC=[['c_seil','seil',1,{stoff:3}],['c_nagel','nagel',5,{schrott:1}],['c_medkit','medkit',1,{verband:2,chemie:1,klebeband:1}],['c_nagelkeule','nagelkeule',1,{keule:1,nagel:6}]];
+for(const[id,tg,amt,cost]of NC)BP[id]={id,cat:'craft',k:'i',tg,cost,n:D[tg].n,amt};
+{const _ci=craftIt;craftIt=function(id){const b=BP[id];if(!b||!b.amt||b.amt<2)return _ci(id);if(!canPay(b.cost)){toast(tr('Nicht genug Material'),'bad');return}
+ for(const m in b.cost)takeA(m,b.cost[m]);give(b.tg,b.amt);S.build();S.pick();toast(tr('Hergestellt')+': '+b.amt+'× '+tr(D[b.tg].n),'good');renderBld()}}
+// Werkbank: bessere Sachen, Seltenheit fest nach Material (5. Wert)
+WB.push(
+ ['stahlmachete','waf',1,{stahl:2,leder:1,klebeband:1},2],['schockstab','waf',1,{batterie:2,kabel:3,elektronik:1,schrott:2},3],['titankatana','waf',1,{titan:2,chip:1,leder:2,klebeband:1},4],
+ ['lederjacke','aus',1,{leder:5,stoff:2},1],['lederhose','aus',1,{leder:4,seil:1},1],['kevlarweste','aus',1,{kevlar:3,stoff:4,klebeband:2},3],['titanhelm','aus',1,{titan:2,leder:1,klebeband:1},3],['exoweste','aus',1,{kevlar:2,titan:2,chip:1,elektronik:2},4],
+ ['batterie','mat',1,{chemie:2,schrott:1,kabel:1}],['elektronik','mat',1,{kabel:3,glas:1,klebeband:1}],['pulver','mat',3,{chemie:1,holz:1}],['seil','mat',2,{stoff:5}],['nagel','mat',12,{schrott:2}]);
+{const _c=craftWB;craftWB=function(id){const r=WB.find(q=>q[0]===id);FORCE_R=r&&r[4]!=null?r[4]:null;try{return _c(id)}finally{FORCE_R=null}}}
+{const _r=renderWB;renderWB=function(){_r();const T_=$('wbT');if(T_&&!T_.querySelector('[data-c="mat"]'))T_.insertAdjacentHTML('beforeend',`<div class="btab${wbTab==='mat'?' on':''}" data-c="mat">${icW('kabel')}${tr(V33.mat)}</div>`);
+ if(wbTab==='bau'||wbTab==='mat'){if(wbTab==='mat'){for(const e of T_.querySelectorAll('.btab'))e.classList.toggle('on',e.dataset.c==='mat');
+   $('wbL').innerHTML=WB.filter(r=>r[1]==='mat').map(r=>{const ok=canPay(r[3]);return `<div class="bc${ok?'':' no'}" data-r="${r[0]}"><img src="${icoUrl(r[0])}" style="width:36px;height:36px"><b style="color:${RC[tierOf(r[0])||0]}">${tr(D[r[0]].n)}${r[2]>1?' ×'+r[2]:''}</b><div class="cost" style="flex-wrap:wrap;justify-content:center">${costH(r[3])}</div></div>`}).join('')}return}
+ // Rezepte mit fester Seltenheit farbig markieren
+ for(const c of $('wbL').querySelectorAll('[data-r]')){const r=WB.find(q=>q[0]===c.dataset.r&&q[1]===wbTab);if(r&&r[4]){const b=c.querySelector('b');if(b)b.style.color=RC[r[4]];c.style.borderColor=RC[r[4]]+'88'}}}}
+// Strom & Verteidigung brauchen jetzt die passenden Teile
+const KC33={solarpanel:{schrott:6,elektronik:2,glas:3,kabel:2},deckenlampe:{schrott:1,kabel:1,glas:1},wandlampe:{schrott:1,kabel:1,glas:1},flutlicht:{schrott:4,kabel:2,glas:2,batterie:1},lichtschalter:{schrott:1,kabel:1},
+ geschuetz:{...(BP.geschuetz&&BP.geschuetz.wbCost||{schrott:10}),kabel:1},geschuetz_g:{schrott:14,mechanik:2,lauf:2,elektronik:1},strassenlaterne:{schrott:4,kabel:1,glas:1}};
+for(const id in KC33)if(BP[id]&&BP[id].wbCost)BP[id].wbCost=KC33[id];
+// Stahlwand & Stahltür (aus seltenen Stahlplatten)
+BF.stahl=cv(16,WH,P=>{P('#3e444c',0,0,16,WH);P('#5a6068',1,0,14,WH-1);P('#7a8088',1,0,14,1);P('#2a2e34',8,0,1,WH);for(const[a,b]of[[2,2],[6,2],[10,2],[14,2],[2,WH-3],[6,WH-3],[10,WH-3],[14,WH-3]])P('#a8aeb6',a,b,1,1);P('#2a2e34',0,WH-1,16,1)});
+CAP.stahl=cv(16,16,P=>{P('#4e545c',0,0,16,16);P('#6a7078',1,1,14,14);P('#8a9098',1,1,14,1);P('#3a3e46',8,1,1,14);for(const[a,b]of[[2,2],[13,2],[2,13],[13,13]])P('#b8bec6',a,b,1,1)});
+BF.stahlT=cv(16,WH,P=>{P('#2a2e34',0,0,16,WH);P('#4a5058',2,0,12,WH);P('#6a7078',2,0,12,1);for(let y=2;y<WH-1;y+=3)P('#3a3e46',2,y,12,1);P('#d8b450',11,5,2,2);P('#1a1a1a',2,WH-1,12,1)});
+BF.stahlTO=cv(16,WH,P=>{P('#2a2e34',0,0,2,WH);P('#2a2e34',14,0,2,WH);P('#4a5058',12,0,2,WH);P('#6a7078',12,0,2,1)});
+for(const n of['stahlwand','stahltuer'])TWALL[T[n]]=TSOL[T[n]]=TOPQ[T[n]]=1;TWALL[T.stahltuer_o]=1;OPEND[T.stahltuer_o]=1;
+DOORS[T.stahltuer]=T.stahltuer_o;DOORS[T.stahltuer_o]=T.stahltuer;HPD[T.stahlwand]=640;HPD[T.stahltuer]=520;
+{const _wt=wallTex;wallTex=function(tt,tx,ty){if(tt===T.stahlwand)return[BF.stahl,CAP.stahl];if(tt===T.stahltuer)return[BF.stahlT,CAP.stahl];if(tt===T.stahltuer_o)return[BF.stahlTO,null];return _wt(tt,tx,ty)}}
+if(ACT[T.ptuer])ACT[T.stahltuer]=ACT[T.ptuer];if(ACT[T.ptuer_o])ACT[T.stahltuer_o]=ACT[T.ptuer_o];
+for(const[id,tg,cost,n,ds]of[['stahlwand',T.stahlwand,{stahl:2,schrott:2},L4('Stahlwand','Steel wall','Muro de acero','Mur en acier'),L4('Die stärkste Wand – aus Stahlplatten','The strongest wall – made of steel plates','El muro más fuerte, de placas de acero','Le mur le plus solide – en plaques d’acier')],
+ ['stahltuer',T.stahltuer,{stahl:3,mechanik:1,schrott:2},L4('Stahltür','Steel door','Puerta de acero','Porte en acier'),L4('Fast unzerstörbar','Almost indestructible','Casi indestructible','Presque indestructible')]]){
+ BP[id]={id,cat:'bau',k:'t',tg,cost,n};BDESC[id]=ds;makeKit(BP[id])}
+{const ord=['farbe','abriss'];for(const k of ord){const v=BP[k];if(v){delete BP[k];BP[k]=v}}}
+// Bausätze: Seltenheit = seltenstes Material
+for(const b of KITS){const id=kitOf(b);let m=0;for(const k in b.wbCost)m=Math.max(m,tierOf(k)||0);D[id].tier=m}
+// ================= 4. Bausatz im Inventar -> „Platzieren“ =================
+{const _rd=renderDet;renderDet=function(){_rd();const it=isel&&getS(isel);if(!it)return;const d=D[it.id];if(!d||!d.kit||!BP[d.kit]||isel.src==='box')return;
+ const ab=document.querySelector('#det .ab');if(ab&&!ab.querySelector('[data-place]'))ab.insertAdjacentHTML('afterbegin',`<button class="p" data-place="${d.kit}">${icW('hammer')}${tr(V33.place)}</button>`)}}
+document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('#det [data-place]');if(!b)return;e.stopPropagation();e.preventDefault();const id=b.dataset.place;if(!BP[id])return;
+ S.ui();closeAll();BM=id;BC=null;$('bbar').classList.remove('hide');renderBbar();hudDirty=1},true);
+applyLang();
+BDESC.oboden=L4('Oben auf der Treppe Feld für Feld legen – direkt an der Treppe hält er, weiter weg braucht er eine Wand darunter (max. 4 Felder)','Lay it tile by tile upstairs – right by the stairs it holds, further out it needs a wall below (max. 4 tiles)','Colócalo arriba casilla a casilla: junto a la escalera aguanta; más lejos necesita una pared debajo (máx. 4)','Pose-le case par case en haut – près de l’escalier il tient, plus loin il faut un mur dessous (max. 4 cases)');
+BDESC.treppe=L4('Draufgehen = hoch oder runter (max. 3 Stockwerke) – nur ohne Dach','Walk onto it = up or down (max. 3 floors) – only without a roof','Pisa encima = subir o bajar (máx. 3 pisos), solo sin tejado','Marche dessus = monter ou descendre (max. 3 étages) – seulement sans toit');
+applyLang();
+// ================= v34: Solar 1:1 mit großer Reichweite · Licht bleibt im Raum · ruhigere Lenkung & große Pfeiltasten · Werkbank-Teile nur mit Bausatz · echte Waffe in der Hand · detaillierte 3D-Waffen =================
+const V34={
+ solOk:L4('Solarpanel versorgt','Solar panel powers','El panel alimenta','Le panneau alimente'),
+ solNo:L4('Solarpanel: keine freie Lampe in Reichweite','Solar panel: no free lamp in range','Panel solar: ninguna lámpara libre','Panneau : aucune lampe libre à portée'),
+ tiles:T4('Felder','tiles','casillas','cases'),
+ wbHid:L4('Metallteile & Strom stellst du an der Werkbank als Bausatz her – danach erscheinen sie hier.','Metal parts & power items are made as kits at the workbench – then they show up here.','Las piezas de metal y eléctricas se fabrican como kits en el banco; luego aparecen aquí.','Les pièces en métal et électriques se fabriquent en kits à l’établi – elles apparaissent ensuite ici.')};
+// ================= 1. Solar: riesige Reichweite, jedes Panel genau eine Lampe =================
+const SOL_R=64;let PWR=new Map();
+powerTick=function(){if(!P)return;const pn=[];for(let l=0;l<3;l++){const M=Lm(l);if(!M)continue;for(const k of M.own)if(M.mods.get(k)===T.solarpanel){const[x,y]=kxy(k);pn.push([x,y,l*1e9+k])}}
+ const sws=[];for(const k of own)if(mods.get(k)===T.lichtschalter)sws.push([...kxy(k),k]);
+ const lamps=[];for(const k of own){const tt=mods.get(k);if(tt==null)continue;const isOn=ELOFF[tt]!=null,isOff=ELAMP[tt]!=null;if(!isOn&&!isOff)continue;const[x,y]=kxy(k);
+  let sw=true,bd=99;for(const[sx,sy,sk]of sws){const d=Math.max(Math.abs(sx-x),Math.abs(sy-y));if(d<=7&&d<bd){bd=d;sw=SWS.get(LV+':'+sk)!==0}}
+  lamps.push({k,x,y,tt,base:isOn?ELOFF[tt]:tt,sw,pw:false})}
+ // Paare nach Entfernung – jedes Panel nimmt die nächste freie, eingeschaltete Lampe
+ const pairs=[];for(let i=0;i<pn.length;i++)for(let j=0;j<lamps.length;j++){if(!lamps[j].sw)continue;const d=Math.max(Math.abs(pn[i][0]-lamps[j].x),Math.abs(pn[i][1]-lamps[j].y));if(d<=SOL_R)pairs.push([d,i,j])}
+ pairs.sort((a,b)=>a[0]-b[0]);const usedP=new Set();PWR=new Map();
+ for(const[d,i,j]of pairs){if(usedP.has(i)||lamps[j].pw)continue;usedP.add(i);lamps[j].pw=true;PWR.set(pn[i][2],[lamps[j].k,d])}
+ for(const L of lamps){const want=L.pw?ELAMP[L.base]:L.base;if(want!==L.tt)mods.set(L.k,want)}};
+{const _ea=extraAct;extraAct=function(a){if(a.tt!==T.solarpanel)return _ea(a);powerTick();const r=PWR.get(LV*1e9+a.tx*65536+a.ty);
+ if(r){const[x,y]=kxy(r[0]),tt=tile(x,y),b=Object.values(BP).find(q=>q.tg===(ELOFF[tt]!=null?ELOFF[tt]:tt));toast(tr(V34.solOk)+': '+(b?tr(b.n):'')+' · '+r[1]+' '+tr(V34.tiles),'good')}else toast(tr(V34.solNo),'bad');return true}}
+BDESC.solarpanel=L4('Versorgt genau 1 Lampe – bis zu 64 Felder weit, auch nachts','Powers exactly 1 lamp – up to 64 tiles away, also at night','Alimenta exactamente 1 lámpara, hasta 64 casillas, también de noche','Alimente exactement 1 lampe – jusqu’à 64 cases, même la nuit');
+// ================= 2. Licht bleibt im Raum und füllt ihn =================
+const ROOMC=new Map();let ROOMV=0;
+const blkL=(x,y)=>{const q=tile(x,y);return q&&TWALL[q]&&!OPEND[q]};
+function roomOf(tx,ty){const k=tx*65536+ty,c=ROOMC.get(k);if(c&&c.v===ROOMV)return c.r;let r=null;
+ if(!blkL(tx,ty)){const s=new Set([k]),q=[[tx,ty]],tl=[[tx,ty]];let ok=true;
+  while(q.length&&ok){const[x,y]=q.pop();for(const[dx,dy]of[[1,0],[-1,0],[0,1],[0,-1]]){const nx=x+dx,ny=y+dy,nk=nx*65536+ny;if(s.has(nk)||blkL(nx,ny))continue;s.add(nk);q.push([nx,ny]);tl.push([nx,ny]);if(s.size>380){ok=false;break}}}
+  if(ok){const path=new Path2D(),ws=new Set();let roofed=false,sx=0,sy=0;
+   for(const[x,y]of tl){path.rect(x*16,y*16,16,16);sx+=x;sy+=y;if(!roofed&&(rmods.has(x*65536+y)||(!LV&&houseAt(x,y))))roofed=true;
+    for(let dx=-1;dx<=1;dx++)for(let dy=-1;dy<=1;dy++){const wx=x+dx,wy=y+dy,wk=wx*65536+wy;if(!ws.has(wk)&&blkL(wx,wy)){ws.add(wk);path.rect(wx*16,wy*16-WH,16,16+WH)}}}
+   let rad=0;const mx=sx/tl.length,my=sy/tl.length;for(const[x,y]of tl)rad=Math.max(rad,Math.hypot(x-mx,y-my));r={s,path,roofed,rad:(rad+1.2)*16}}}
+ ROOMC.set(k,{v:ROOMV,r});if(ROOMC.size>600)ROOMC.clear();return r}
+{const _db=doBuild;doBuild=function(a){const r=_db(a);ROOMV++;return r}}
+{const _st=step;step=function(){_st();if(t%20===0)ROOMV++}}
+lightPass=function(lights,dk){
+ const h=hourOf(t);if((h>16.5&&h<20)||(h>5&&h<8)){const k=h>12?1-Math.abs(h-18.5)/1.8:1-Math.abs(h-6.3)/1.6;if(k>0){g.fillStyle=`rgba(255,120,50,${k*.12})`;g.fillRect(0,0,W,Hh)}}
+ if(dk<=.02)return;lx.setTransform(LS_,0,0,LS_,0,0);lx.globalCompositeOperation='source-over';lx.clearRect(0,0,W,Hh);lx.fillStyle=`rgba(4,7,24,${dk})`;lx.fillRect(0,0,W,Hh);lx.globalCompositeOperation='destination-out';
+ const L=lights.map(l=>{const tx=Math.floor(l[0]/16),ty=Math.floor((l[1]+10)/16);const rm=menu?null:roomOf(tx,ty);if(!rm)return[l[0],l[1],l[2],l[3],l[4],null];
+  const pin=P&&rm.s.has(Math.floor(P.x/16)*65536+Math.floor(P.y/16));let i=Math.min(1,l[3]*1.15),r=Math.max(l[2]*1.7,Math.min(rm.rad,l[2]*2.6));if(rm.roofed&&!pin)i*=.16;return[l[0],l[1],r,i,l[4],rm]});
+ if(P&&state!==0){L.push([P.x,P.y-4,30,.9,0,null]);if(P.fl>0)L.push([P.x,P.y,60,1,0,null]);for(const o of Ts)if(o.on)L.push([o.x,o.y,34+rnd()*10,1,1,null])}
+ for(const f of FX)if(f.k==='ex'&&f.t<20)L.push([f.x,f.y,110*(1-f.t/20),1,1,null]);
+ const one=(c,x,y,r,i,rm,a0,a1,a2)=>{const X=x-cx,Y=y-cy;if(X<-r||Y<-r||X>W+r||Y>Hh+r)return;if(rm){c.save();c.translate(-cx,-cy);c.clip(rm.path);c.translate(cx,cy)}
+  const gg=c.createRadialGradient(X,Y,0,X,Y,r);gg.addColorStop(0,a0(i));gg.addColorStop(a2,a1(i));gg.addColorStop(1,'rgba(0,0,0,0)');c.fillStyle=gg;c.fillRect(X-r,Y-r,r*2,r*2);if(rm)c.restore()};
+ for(const[x,y,r,i,,rm]of L)one(lx,x,y,r,i,rm,i=>`rgba(0,0,0,${i})`,i=>`rgba(0,0,0,${i*(rm?.82:.7)})`,rm?.62:.55);
+ for(const v of vehLights()){const d=VT[v.k],c=Math.cos(v.a),s=Math.sin(v.a),X=v.x-cx+c*d.w/2,Y=v.y-cy+s*d.w/2,R=150;lx.save();lx.beginPath();lx.moveTo(X,Y);lx.arc(X,Y,R,v.a-.38,v.a+.38);lx.closePath();lx.clip();const gg=lx.createRadialGradient(X,Y,2,X,Y,R);gg.addColorStop(0,'rgba(0,0,0,1)');gg.addColorStop(.7,'rgba(0,0,0,.7)');gg.addColorStop(1,'rgba(0,0,0,0)');lx.fillStyle=gg;lx.fillRect(X-R,Y-R,R*2,R*2);lx.restore()}
+ if(P&&state!==0&&dk>.15&&!P.veh){const X=P.x-cx,Y=P.y-cy-5,a=Math.atan2(P.ay,P.ax),R=window.FLR||100,FA=window.FLA||.42;lx.save();lx.beginPath();lx.moveTo(X,Y);lx.arc(X,Y,R,a-FA,a+FA);lx.closePath();lx.clip();const gg=lx.createRadialGradient(X,Y,4,X,Y,R);gg.addColorStop(0,'rgba(0,0,0,.95)');gg.addColorStop(.7,'rgba(0,0,0,.6)');gg.addColorStop(1,'rgba(0,0,0,0)');lx.fillStyle=gg;lx.fillRect(X-R,Y-R,R*2,R*2);lx.restore()}
+ g.imageSmoothingEnabled=true;g.drawImage(lc,0,0,W,Hh);g.imageSmoothingEnabled=false;
+ g.globalCompositeOperation='lighter';for(const[x,y,r,i,w,rm]of L){if(!w)continue;one(g,x,y,r*.8,i,rm,i=>`rgba(255,160,70,${.22*dk*i})`,()=>'rgba(255,140,55,'+(rm?.06*dk*i:0)+')',rm?.7:.99)}g.globalCompositeOperation='source-over'};
+// ================= 3. Fahrzeuge: ruhigere Lenkung, große Pfeiltasten =================
+{const _dr=drive;drive=function(v){window.STEERK=vUse()?.42:.62;try{return _dr(v)}finally{window.STEERK=1}}}
+{const st=document.createElement('style');st.textContent=`
+#vctl{zoom:1!important}
+#vctl .vg{bottom:calc(env(safe-area-inset-bottom,0px) + 12px)!important;gap:calc(var(--vh1,1vh)*4)!important}
+#vctl .vgL{left:calc(env(safe-area-inset-left,0px) + 16px)!important}#vctl .vgR{right:calc(env(safe-area-inset-right,0px) + 14px)!important;align-items:flex-end}
+#vctl .vb,#vctl .vgR .vb{width:clamp(68px,calc(var(--vh1,1vh)*21),112px)!important;height:clamp(68px,calc(var(--vh1,1vh)*21),112px)!important}
+#vctl .vgR [data-v="u"]{width:clamp(78px,calc(var(--vh1,1vh)*25),130px)!important;height:clamp(78px,calc(var(--vh1,1vh)*25),130px)!important}
+#vctl .vb img{width:44%!important;height:44%!important}
+body.vctlOn #act{bottom:calc((clamp(78px,calc(var(--vh1,1vh)*25),130px) + 26px) / var(--uiz,1))!important}
+body.vctlOn #rel{bottom:calc((clamp(78px,calc(var(--vh1,1vh)*25),130px) + 34px) / var(--uiz,1))!important}`;document.head.appendChild(st)}
+// ================= 4. Baumenü: Werkbank-Teile nur, wenn man den Bausatz hat =================
+{const _rb=renderBld;renderBld=function(){_rb();let hid=0;for(const c of $('bl').querySelectorAll('.bc[data-k]')){const b=BP[c.dataset.k];if(b&&b.wbCost&&!countA(kitOf(b))){c.remove();hid++}}
+ if(hid)$('bl').insertAdjacentHTML('beforeend',`<div class="bc no kitn" style="grid-column:1/-1;flex-direction:row;gap:8px;justify-content:center;min-height:0;padding:8px"><img src="${icoUrl('werkbank')}" style="width:22px;height:22px"><small style="margin:0">${tr(V34.wbHid)} (${hid})</small></div>`)}}
+// ================= 5. Waffe in der Hand: echte Grafik =================
+const HELD=new Map();
+function heldSpr(id){if(HELD.has(id))return HELD.get(id);const d=D[id],ic=ICO[id];let res=null;
+ try{if(ic&&ic.getContext){let src=ic;if(d.mel){const c=mk(24,24),x=c.getContext('2d');x.imageSmoothingEnabled=false;x.translate(12,12);x.rotate(Math.PI/4);x.drawImage(ic,-8,-8);src=c}
+  const w=src.width,h=src.height,px=src.getContext('2d').getImageData(0,0,w,h).data;let x0=w,x1=-1,y0=h,y1=-1;
+  for(let y=0;y<h;y++)for(let x=0;x<w;x++)if(px[(y*w+x)*4+3]>60){if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y}
+  if(x1>=x0){const cw=x1-x0+1,ch=y1-y0+1,c=mk(cw,ch);c.getContext('2d').drawImage(src,x0,y0,cw,ch,0,0,cw,ch);
+   let sy=0,n=0;const gx=d.mel?x0+2:x0+Math.round(cw*(d.mag&&cw<12?.3:.22));for(let y=y0;y<=y1;y++)for(let x=Math.max(x0,gx-1);x<=gx+1;x++)if(px[(y*w+x)*4+3]>60){sy+=y;n++}
+   res={c,px:gx-x0,py:(n?sy/n:(y0+y1)/2)-y0+(d.mag?1.2:0),s:d.mel?.62:cw>=14?.66:.6}}}}catch(e){res=null}
+ HELD.set(id,res);return res}
+{const _dw=drawWeapon;drawWeapon=function(){const it=qs[P.sel],d=it?D[it.id]:null;if(!d||d.thr)return;const H=heldSpr(it.id);if(!H)return _dw();
+ const aim=Math.atan2(P.ay,P.ax),sw=P.sw>0&&d.mel?(P.sw-6)*.22:0,a=aim+sw,left=Math.cos(aim)<-.05;
+ const kick=!d.mel&&P.cd>0&&d.cd?Math.max(0,P.cd/d.cd-.6)*2.5:0;
+ const bx=P.x-cx+Math.cos(aim)*(2-kick),by=P.y-cy-4+Math.sin(aim)*1.5;
+ g.save();g.translate(bx,by);g.rotate(a);if(left)g.scale(1,-1);const s=H.s;g.drawImage(H.c,-H.px*s,-H.py*s,H.c.width*s,H.c.height*s);g.restore()}}
+// ================= 6. Detaillierte 3D-Waffen in der Werkstatt =================
+const VP={M1:'#2b2e33',M2:'#3e424a',M3:'#5d626b',M4:'#7a8089',PL:'#222428',PL2:'#2d3035',WD:'#7b4a24',WD2:'#5e3517',WD3:'#9a6234',BR:'#c8a050',OL:'#4a5530',OL2:'#5e6c3a',BK:'#121315',RD:'#ff3020',GL:'#7ab0e0',CR:'#c8c0a8'};
+function vB(){const V=new Map();const put=(x,y,z,c)=>V.set(x+','+y+','+z,[x,y,z,c]);
+ const box=(x,y,z,w,h,d,c)=>{for(let i=0;i<w;i++)for(let j=0;j<h;j++)for(let k=0;k<d;k++)put(x+i,y+j,z+k,c)};
+ const cyl=(x,y,len,r,c,z0=0)=>{for(let i=0;i<len;i++)for(let j=-r;j<=r;j++)for(let k=-r;k<=r;k++)if(j*j+k*k<=r*r+.6)put(x+i,y+j,z0+k,c)};
+ const ring=(x,y,r,c)=>{for(let j=-r;j<=r;j++)for(let k=-r;k<=r;k++){const q=j*j+k*k;if(q<=r*r+.6&&q>=(r-1)*(r-1)-.4)put(x,y+j,k,c)}};
+ return{V,put,box,cyl,ring}}
+const VM={};
+VM.gewehr=(b,big)=>{const{box,cyl,put}=b,L=big?8:0;
+ box(0,5,-2,2,9,5,VP.BK);box(2,5,-2,10,5,5,VP.PL2);box(2,10,-1,8,3,3,VP.PL2);box(4,6,-3,6,2,1,VP.PL);
+ box(12,4,-2,17,6,5,VP.M2);box(12,3,-1,17,1,3,VP.M1);for(let x=12;x<29;x+=2)box(x,2,-1,1,1,3,VP.M3);
+ box(23,6,2,4,2,1,VP.M4);box(26,4,3,2,1,1,VP.M3);box(13,1,-1,3,2,3,VP.M1);
+ box(29,4,-2,13+L,5,5,big?VP.M1:VP.PL);for(let x=31;x<41+L;x+=3){put(x,6,-2,VP.BK);put(x,6,2,VP.BK);put(x,5,-2,VP.BK);put(x,5,2,VP.BK)}
+ cyl(42+L,6,12+L,1,VP.M1);box(54+L*2,5,-1,3,3,3,VP.M1);put(55+L*2,6,0,VP.BK);box(44+L,2,0,1,3,1,VP.M1);box(43+L,4,-1,3,1,3,VP.M1);
+ if(big){box(19,10,-3,9,8,7,VP.OL);box(19,10,-3,9,1,7,VP.OL2);for(const z of[-2,2]){for(let j=0;j<8;j++)put(48+(j>>1),9+j,z*(1+j/5)|0,VP.M3)}}
+ else for(let j=0;j<9;j++)box(21+(j>>2),10+j,-1,4,1,3,j===8?VP.BK:VP.M1);
+ for(let j=0;j<7;j++)box(15-(j>>2),10+j,-1,3,1,3,VP.PL);box(17,12,0,5,1,1,VP.M1);box(21,10,0,1,3,1,VP.M1);put(19,11,0,VP.M4);
+ return{m:[57+L*2,6],v:[20,2],u:[35+L,9],g:[22,10]}};
+VM.mg=b=>VM.gewehr(b,1);
+VM.mp=b=>{const{box,cyl,put}=b;box(0,5,-1,1,6,3,VP.M1);box(0,5,-1,10,1,3,VP.M1);box(0,10,-1,10,1,3,VP.M1);box(0,6,-2,1,4,5,VP.BK);
+ box(10,4,-2,18,6,5,VP.M2);box(10,3,-1,18,1,3,VP.M1);for(let x=11;x<27;x+=2)box(x,2,-1,1,1,3,VP.M3);box(18,6,2,4,2,1,VP.M4);
+ box(28,5,-2,6,4,5,VP.M1);for(let x=29;x<34;x+=2){put(x,6,-2,VP.BK);put(x,6,2,VP.BK)}cyl(34,6,5,1,VP.M1);put(39,6,0,VP.BK);
+ box(20,10,-1,3,11,3,VP.M1);box(20,21,-1,3,1,3,VP.BK);for(let j=0;j<6;j++)box(13-(j>>2),10+j,-1,3,1,3,VP.PL);box(15,12,0,4,1,1,VP.M1);put(17,11,0,VP.M4);
+ return{m:[39,6],v:[18,2],u:[30,9],g:[20,10]}};
+VM.pistole=b=>{const{box,put}=b;box(6,3,-2,20,4,5,VP.M2);box(6,3,-1,20,1,3,VP.M3);for(let x=7;x<12;x+=2){box(x,4,-2,1,3,1,VP.M1);box(x,4,2,1,3,1,VP.M1)}box(16,4,2,5,2,1,VP.M4);
+ box(8,7,-2,17,2,5,VP.M1);for(let j=0;j<10;j++)box(7+(j>>2),9+j,-2,6,1,5,j%3?VP.PL:VP.PL2);box(8,19,-2,6,1,5,VP.BK);
+ box(13,9,0,5,1,1,VP.M1);box(17,9,0,1,3,1,VP.M1);box(13,11,0,5,1,1,VP.M1);put(15,10,0,VP.M4);box(26,4,-1,1,2,3,VP.BK);box(8,2,-1,2,1,3,VP.M1);box(23,2,0,1,1,1,VP.M1);
+ return{m:[27,5],v:[16,2],u:[21,9],g:[8,19]}};
+VM.revolver=b=>{const{box,cyl,put}=b;cyl(18,4,14,1,VP.M3);box(18,2,0,14,1,1,VP.M2);put(31,2,0,VP.M1);cyl(12,6,6,3,VP.M4);for(const j of[-2,0,2]){put(12,6+j,3,VP.M1);put(17,6+j,-3,VP.M1)}
+ box(10,3,-2,8,7,5,VP.M2);box(9,2,0,2,2,1,VP.M1);for(let j=0;j<9;j++)box(8+(j>>2)-(j>6?1:0),10+j,-2,5,1,5,j%3?VP.WD:VP.WD2);box(13,10,0,5,1,1,VP.M1);box(17,10,0,1,3,1,VP.M1);put(15,11,0,VP.M4);
+ return{m:[32,4],v:[22,2],u:[24,6],g:[10,18]}};
+VM.schrot=b=>{const{box,cyl,put}=b;box(0,5,-2,3,8,5,VP.WD2);box(3,5,-2,11,5,5,VP.WD);box(3,10,-1,8,2,3,VP.WD);box(5,5,-2,7,1,1,VP.WD3);
+ box(14,4,-2,10,6,5,VP.M2);box(14,4,-1,10,1,3,VP.M3);box(18,6,2,4,2,1,VP.M4);cyl(24,5,31,1,VP.M1);cyl(24,8,24,1,VP.M2);box(32,7,-2,10,4,5,VP.WD3);for(let x=33;x<42;x+=2)box(x,10,-2,1,1,5,VP.WD2);
+ put(54,3,0,VP.BR);box(16,10,0,4,1,1,VP.M1);box(19,10,0,1,2,1,VP.M1);box(15,12,0,5,1,1,VP.M1);
+ return{m:[55,5],v:[19,3],u:[37,11],g:[18,10]}};
+VM.jagd=(b,sn)=>{const{box,cyl,put}=b,W1=sn?VP.OL:VP.WD,W2=sn?VP.PL:VP.WD2,W3=sn?VP.OL2:VP.WD3,LL=sn?8:0;
+ box(0,5,-2,3,8,5,W2);box(3,5,-2,12,6,5,W1);box(3,11,-1,8,2,3,W1);box(6,4,-1,8,1,3,W3);box(15,5,-2,22,4,5,W1);box(16,5,-2,20,1,1,W3);
+ box(15,3,-2,12,3,5,VP.M2);box(15,3,-1,12,1,3,VP.M3);box(24,4,3,1,1,1,VP.M3);box(24,5,4,1,2,2,VP.M4);cyl(37,5,24+LL,1,VP.M1);box(60+LL,4,-1,2,3,3,VP.M1);put(58+LL,3,0,VP.M1);
+ box(18,9,0,5,1,1,VP.M1);box(22,9,0,1,3,1,VP.M1);box(18,11,0,5,1,1,VP.M1);put(20,10,0,VP.M4);
+ if(sn){for(const z of[-1,1])for(let j=0;j<9;j++)put(34-(j>>2),9+j,z*(2+(j>>2)),VP.M1);box(19,9,-1,4,5,3,VP.M1)}
+ return{m:[62+LL,5],v:[21,2],u:[30,9],g:[19,9]}};
+VM.scharfschuetze=b=>VM.jagd(b,1);
+VM.armbrust=b=>{const{box,put}=b;box(0,6,-1,30,3,3,VP.WD);box(0,6,-2,6,6,5,VP.WD2);box(14,5,-1,16,1,3,VP.M2);box(12,9,-1,3,5,3,VP.WD2);
+ for(let k=-9;k<=9;k++){const bx=28+Math.round(Math.abs(k)*.35);box(bx,5,k,2,2,1,VP.M2)}for(let k=-8;k<=8;k++)put(28-Math.round((8-Math.abs(k))*.9),5,k,VP.CR);
+ box(16,4,0,13,1,1,VP.CR);box(29,4,0,2,1,1,VP.M4);box(16,4,-1,2,1,3,VP.RD);return{m:[31,5],v:[16,4],u:[22,9],g:[13,9]}};
+VM.bogen=b=>{const{box,put}=b;for(let y=-16;y<=16;y++){const x=Math.round(Math.sqrt(Math.max(0,1-(y*y)/(17*17)))*8);put(x,y+18,0,VP.WD);put(x,y+18,1,VP.WD);put(x+1,y+18,0,VP.WD2);if(Math.abs(y)<3)box(x,y+18,-1,2,1,3,VP.WD2)}
+ for(let y=-16;y<=16;y++)put(0,y+18,0,VP.CR);for(let x=-2;x<22;x++)put(x,18,0,x>18?VP.M4:VP.WD3);put(22,18,0,VP.M4);for(const d of[-1,1])for(let i=0;i<3;i++)put(-2+i,18+d*(1+(i>>1)),0,VP.RD);
+ return{m:[22,18],v:[8,16],u:[8,20],g:[8,18]}};
+VM.langbogen=VM.bogen;VM.kompositbogen=VM.bogen;
+VM.raketenwerfer=b=>{const{box,cyl,ring}=b;cyl(0,6,46,3,VP.OL);ring(0,6,3,VP.BK);ring(45,6,3,VP.OL2);cyl(46,6,5,2,VP.CR);cyl(51,6,3,1,VP.RD);
+ box(14,9,-1,3,6,3,VP.PL);box(26,9,-1,3,6,3,VP.PL);box(20,1,-1,4,2,3,VP.M1);box(21,0,0,2,1,1,VP.M3);for(let x=2;x<44;x+=8)box(x,3,-3,1,1,7,VP.OL2);
+ return{m:[54,6],v:[22,1],u:[30,10],g:[15,14]}};
+const VMK={pistole:'pistole',revolver:'revolver',mp:'mp',gewehr:'gewehr',mg:'mg',schrot:'schrot',jagd:'jagd',scharfschuetze:'scharfschuetze',armbrust:'armbrust',bogen:'bogen',langbogen:'bogen',kompositbogen:'bogen',raketenwerfer:'raketenwerfer'};
+const VATT={schalldaempfer:(b,A)=>{const[x,y]=A.m;b.cyl(x,y,13,2,'#2e3034');b.ring(x,y,2,VP.M3);b.ring(x+12,y,2,VP.M3);b.ring(x+6,y,2,'#3a3c42');b.put(x+13,y,0,VP.BK)},
+ rotpunkt:(b,A)=>{const[x,y]=A.v;b.box(x-2,y-1,-1,6,1,3,VP.M1);b.box(x-2,y-6,-2,6,5,5,'#2e3034');b.box(x-1,y-5,-1,4,3,3,'#1c1e22');b.put(x-2,y-4,0,VP.RD);b.box(x+3,y-5,-1,1,3,3,VP.GL)},
+ zielfernrohr:(b,A)=>{const[x,y]=A.v;b.box(x-5,y-1,-1,2,1,3,VP.M1);b.box(x+5,y-1,-1,2,1,3,VP.M1);b.cyl(x-9,y-4,20,2,'#25272b');b.cyl(x+7,y-4,4,3,'#2a2c30');b.cyl(x-11,y-4,3,3,'#2a2c30');b.box(x-1,y-8,-1,2,2,3,VP.M2);b.box(x-1,y-4,3,2,2,1,VP.M2);b.put(x+11,y-4,0,VP.GL);b.put(x+11,y-5,0,VP.GL);b.put(x-12,y-4,0,'#4a6a8a')},
+ laser:(b,A)=>{const[x,y]=A.u;b.box(x-2,y+1,-1,7,2,3,'#2a2c30');b.put(x+5,y+2,0,VP.RD);b.put(x+5,y+1,0,'#ff8070')},
+ vgriff:(b,A)=>{const[x,y]=A.u;b.box(x,y+1,-1,3,1,3,VP.M1);for(let j=0;j<8;j++)b.box(x,y+2+j,-1,3,1,3,j%2?'#34363c':'#3e4148');b.box(x,y+10,-1,3,1,3,'#26282c')},
+ waffenlampe:(b,A)=>{const[x,y]=A.u;b.box(x-1,y+1,-1,3,1,3,VP.M1);b.cyl(x-3,y+3,8,1,'#2a2c30');b.ring(x+4,y+3,1,VP.M3);b.put(x+5,y+3,0,'#ffe8a0')},
+ ext_mag:(b,A)=>{const[x,y]=A.g;for(let j=0;j<17;j++)b.box(x+(j>>3),y+j,-1,4,1,3,j===16?VP.BK:j%4?'#2a2c30':'#34373d')}};
+{const _wm=wsModel;wsModel=function(it){const key=VMK[it.id];if(!key||!VM[key])return _wm(it);const b=vB(),A=VM[key](b);const a=it.att||{};for(const s of['m','v','u','g'])if(a[s]&&VATT[a[s]])VATT[a[s]](b,A);
+ const vox=[];let x0=1e9,x1=-1e9,y0=1e9,y1=-1e9,cxs=0,cys=0;const all=[...b.V.values()];
+ for(const[x,y,z,c]of all){const[r,g2,bl]=hex(c);const n=((x*73856093^y*19349663^z*83492791)>>>0)%9-4;vox.push([x,y,z,clamp(r+n,0,255),clamp(g2+n,0,255),clamp(bl+n,0,255)]);if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y;cxs+=x;cys+=y}
+ const occ=new Set(vox.map(v=>v[0]+','+v[1]+','+v[2]));const surf=vox.filter(v=>{const[x,y,z]=v;return!(occ.has((x+1)+','+y+','+z)&&occ.has((x-1)+','+y+','+z)&&occ.has(x+','+(y+1)+','+z)&&occ.has(x+','+(y-1)+','+z)&&occ.has(x+','+y+','+(z+1))&&occ.has(x+','+y+','+(z-1)))});
+ return{vox:surf,cx:(x0+x1)/2,cy:(y0+y1)/2,occ,A,span:Math.max(46,x1-x0+6,(y1-y0)+6),fine:1}}}
+// Feine Modelle ohne dicke Gitterlinien zeichnen
+{const _wd=wsDraw;wsDraw=function(){const M=WS.vox;if(!M||!M.fine)return _wd();const c=$('wsc');if(!c)return;const r=c.getBoundingClientRect();const dpr=Math.min(2,window.devicePixelRatio||1);const Wc=Math.max(10,Math.round(r.width*dpr)),Hc=Math.max(10,Math.round(r.height*dpr));if(c.width!==Wc||c.height!==Hc){c.width=Wc;c.height=Hc}
+ const x=c.getContext('2d');x.setTransform(1,0,0,1,0,0);x.clearRect(0,0,Wc,Hc);const gr=x.createRadialGradient(Wc/2,Hc*.55,10,Wc/2,Hc*.55,Math.max(Wc,Hc)*.7);gr.addColorStop(0,'rgba(120,70,30,.35)');gr.addColorStop(1,'rgba(0,0,0,0)');x.fillStyle=gr;x.fillRect(0,0,Wc,Hc);
+ const S_=Math.min(Wc/(M.span+4),Hc/(M.span*.62+4))*.9,cy=Math.cos(WS.yaw),sy=Math.sin(WS.yaw),cp=Math.cos(WS.pitch),sp=Math.sin(WS.pitch);
+ const rot=(X,Y,Z)=>{const x1=X*cy+Z*sy,z1=-X*sy+Z*cy;return[x1,Y*cp-z1*sp,Y*sp+z1*cp]};const ax=rot(1,0,0),ay=rot(0,1,0),az=rot(0,0,1),ox=Wc/2,oy=Hc*.48;
+ x.fillStyle='rgba(0,0,0,.35)';x.beginPath();x.ellipse(ox,oy+M.span*.26*S_,M.span*.42*S_,M.span*.05*S_,0,0,6.283);x.fill();
+ const faces=[[ax,1,0,0,.8],[ax,-1,0,0,.92],[ay,0,1,0,.45],[ay,0,-1,0,1.6],[az,0,0,1,.66],[az,0,0,-1,1.12]];
+ const list=M.vox.map(v=>{const q=rot(v[0]-M.cx,v[1]-M.cy,v[2]);return[q[2],v,q]}).sort((a,b)=>b[0]-a[0]);const h=S_*.5+.35;
+ for(const[,v,q]of list){const P0x=ox+q[0]*S_,P0y=oy+q[1]*S_;
+  for(const[n,nx,ny,nz,sh]of faces){const sg=nx||ny||nz;if(n[2]*sg>=-.02)continue;if(M.occ.has((v[0]+nx)+','+(v[1]+ny)+','+(v[2]+nz)))continue;
+   const Nx=n[0]*sg*S_*.5,Ny=n[1]*sg*S_*.5,U=nx?ay:ax,Vv=nz?ay:az,ux=U[0]*h,uy=U[1]*h,wx=Vv[0]*h,wy=Vv[1]*h,Cx=P0x+Nx,Cy=P0y+Ny;
+   const lb=v[3]+v[4]+v[5]<150?12:0;x.fillStyle=`rgb(${Math.min(255,(v[3]+lb)*sh)|0},${Math.min(255,(v[4]+lb)*sh)|0},${Math.min(255,(v[5]+lb*1.1)*sh)|0})`;
+   x.beginPath();x.moveTo(Cx+ux+wx,Cy+uy+wy);x.lineTo(Cx-ux+wx,Cy-uy+wy);x.lineTo(Cx-ux-wx,Cy-uy-wy);x.lineTo(Cx+ux-wx,Cy+uy-wy);x.closePath();x.fill()}}}}
 applyLang();
 </script><script>if('serviceWorker'in navigator&&location.protocol.startsWith('http'))addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));</script></body></html>
