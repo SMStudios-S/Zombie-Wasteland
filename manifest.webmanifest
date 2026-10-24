@@ -1,0 +1,20 @@
+{
+  "name": "Zombie Wasteland",
+  "short_name": "Wasteland",
+  "description": "Pixel-Zombie-Survival: Sei leise. Sammle. Baue. Überlebe.",
+  "lang": "de",
+  "start_url": "./",
+  "scope": "./",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#0a0807",
+  "theme_color": "#0a0807",
+  "icons": [
+    {"src": "icon-192.png", "sizes": "192x192", "type": "image/png"},
+    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png"},
+    {"src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+  ],
+  "screenshots": [
+    {"src": "cover.png", "sizes": "1920x1080", "type": "image/png", "form_factor": "wide"}
+  ]
+}
