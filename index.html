@@ -2671,7 +2671,7 @@ addEventListener('keydown',e=>{const k=e.key.toLowerCase();if(k===' '&&!K[' '])f
  if(k==='r'){const it=qs[P.sel];if(it)startReload(it)}if(k.length===1&&'123'.includes(k)){P.sel=+k-1;P.rl=0;hudDirty=1}
  if(k==='i')paused?closeAll():openInv();if(k==='b')openP('bld');if(k==='escape')paused?closeAll():openP('pau')});
 addEventListener('keyup',e=>{K[e.key.toLowerCase()]=0});
-addEventListener('pointerdown',e=>{initAudio();$('mHint').classList.add('hide');if(state===0&&!MUS.on)musicOn(true);if(state!==1||paused)return;
+addEventListener('pointerdown',e=>{initAudio();$('mHint').classList.add('hide');if(state===0&&!MUS.on)musicOn(true);if(state!==1||paused)return;if(e.pointerType==='touch'&&window.TCTL)return;
  if(e.target.closest('#fire')){firing=true;fireEdge=true;fid=e.pointerId;e.preventDefault();return}
  if(e.target.closest('#act')){actHeld=true;aid=e.pointerId;P.act=findAct();P.ac=Math.min(P.ac,0);startAct(P.act);e.preventDefault();return}
  if(e.target.closest('#rel')){if(P.veh){S.horn();noise(P.x,P.y,260);return}const it=qs[P.sel];if(it)startReload(it);return}
@@ -3713,7 +3713,7 @@ ICO.crouch=outline(cv(16,16,P=>{P('#e6dcc4',6,2,4,4);P('#c8b89a',6,5,4,1);P('#e6
 T4('Ducken','Crouch','Agacharse','S’accroupir');T4('Geduckt','Crouched','Agachado','Accroupi');
 {const g_=$('game');const b=document.createElement('div');b.className='cb';b.id='crouch';b.innerHTML=`<span>${icoImg('crouch')}</span><small data-t>Ducken</small>`;g_.appendChild(b);
  RB.crouch={a:'#7a7268',b:'#3e3832',c:'#1e1a16',ring:'#2a2620'};
- addEventListener('pointerdown',e=>{if(e.target.closest&&e.target.closest('#crouch')&&state===1&&!paused){setCrouch(!P.crouch);S.cloth&&S.cloth();e.preventDefault();e.stopPropagation()}},true)}
+ addEventListener('pointerdown',e=>{if(e.pointerType==='touch'&&window.TCTL)return;if(e.target.closest&&e.target.closest('#crouch')&&state===1&&!paused){setCrouch(!P.crouch);S.cloth&&S.cloth();e.preventDefault();e.stopPropagation()}},true)}
 addEventListener('keydown',e=>{const k=e.key.toLowerCase();if((k==='c'||k==='control')&&!e.repeat&&state===1&&!paused){setCrouch(!P.crouch);S.cloth&&S.cloth()}});
 {const _st=step;step=function(){if(P&&P.crouch&&(P.veh||P.sit))setCrouch(false);_st()}}
 {const _h=hud;hud=function(){_h();if(state!==1)return;const b=$('crouch');if(b){b.classList.toggle('hide',!!P.veh);b.classList.toggle('on',!!P.crouch)}
@@ -4044,4 +4044,87 @@ for(const ev of['gesturestart','gesturechange','gestureend'])document.addEventLi
 {const rs=()=>{try{relInput()}catch(e){}};addEventListener('blur',rs);document.addEventListener('visibilitychange',rs);addEventListener('pointercancel',e=>{if(e.pointerType==='touch'&&typeof jid!=='undefined'&&e.pointerId===jid){jid=null;jx=jy=0}})}
 {const st=document.createElement('style');st.textContent=`html,body,#game,canvas{-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent;overscroll-behavior:none}#game .cb,#game .sb,#qs{touch-action:none}`;document.head.appendChild(st)}
 applyLang();
+// ================= v22: Touch-Steuerung über Touch-Ereignisse (iOS bricht sie nicht ab) =================
+// Mit Joystick-Finger + Knopf-Finger erkennt iOS sonst manchmal eine Geste und bricht beide ab.
+window.TCTL='ontouchstart' in window;
+if(TCTL){
+ const tid=t=>'t'+t.identifier;
+ const hit=t=>t.target&&t.target.nodeType===1?t.target:document.elementFromPoint(t.clientX,t.clientY);
+ document.addEventListener('touchstart',e=>{if(state!==1||paused)return;let used=false;
+  for(const t of e.changedTouches){const el=hit(t);if(!el||!el.closest)continue;const id=tid(t);
+   if(el.closest('#fire')){firing=true;fireEdge=true;fid=id;used=true}
+   else if(el.closest('#act')){actHeld=true;aid=id;P.act=findAct();P.ac=Math.min(P.ac,0);startAct(P.act);used=true}
+   else if(el.closest('#rel')){if(P.veh){S.horn();noise(P.x,P.y,260)}else{const it=qs[P.sel];if(it)startReload(it)}used=true}
+   else if(el.closest('#crouch')){setCrouch(!P.crouch);S.cloth&&S.cloth();used=true}
+   else if(el.closest('#qs .q')){const q=el.closest('.q');P.sel=+q.dataset.i;P.rl=0;P.thq=0;S.ui();hudDirty=1;used=true}
+   else if(el===cv0){tap={id,x:t.clientX,y:t.clientY,ts:performance.now()};if(jid===null&&t.clientX<innerWidth*.62){jid=id;jox=t.clientX;joy=t.clientY;jx=jy=0}used=true}}
+  if(used&&e.cancelable)e.preventDefault()},{passive:false,capture:true});
+ document.addEventListener('touchmove',e=>{for(const t of e.changedTouches)if(tid(t)===jid){let dx=(t.clientX-jox)/46,dy=(t.clientY-joy)/46;const l=Math.hypot(dx,dy);if(l>1){dx/=l;dy/=l}jx=dx;jy=dy}},{passive:false,capture:true});
+ const end=e=>{for(const t of e.changedTouches)upG({pointerId:tid(t),clientX:t.clientX,clientY:t.clientY})};
+ document.addEventListener('touchend',end,{capture:true});document.addEventListener('touchcancel',end,{capture:true});
+ // Sicherheitsnetz: Feuer/Aktion nie "hängen" lassen, wenn kein Finger mehr liegt
+ document.addEventListener('touchend',e=>{if(!e.touches.length){if(fid!==null){fid=null;firing=false}if(aid!==null){aid=null;actHeld=false}}},{capture:true});
+}
+// Tipp-Karte auf flachen Handys unten mittig, damit sie keine Knöpfe verdeckt
+{const st=document.createElement('style');st.textContent=`@media (max-height:500px){#tut{top:auto;bottom:calc(env(safe-area-inset-bottom,0px) + 78px);width:min(340px,calc(100vw - 400px));min-width:210px;transform:translate(-50%,14px)}#tut.show{transform:translate(-50%,0)}}`;document.head.appendChild(st)}
+// ================= v23: Zuverlässiges Antippen auf iPhone/iPad =================
+// iOS verwirft Klicks gern (kleines Verrutschen, Elemente ohne Link/Knopf, Standalone-App).
+// Darum lösen wir bei Touch den Klick selbst aus – genau einmal.
+if('ontouchstart' in window){
+ const ST=new Map();const SKIP='input,textarea,select,label';
+ document.addEventListener('touchstart',e=>{for(const t of e.changedTouches)ST.set(t.identifier,{x:t.clientX,y:t.clientY,ts:performance.now(),el:t.target,game:e.defaultPrevented})},{passive:true});
+ document.addEventListener('touchend',e=>{let fired=false;
+  for(const t of e.changedTouches){const s=ST.get(t.identifier);ST.delete(t.identifier);if(!s||s.game)continue;
+   const el=s.el;if(!el||el.nodeType!==1||!el.isConnected||(el.closest&&el.closest(SKIP)))continue;
+   if(Math.hypot(t.clientX-s.x,t.clientY-s.y)>14||performance.now()-s.ts>650)continue;
+   if(el.closest('button:disabled'))continue;
+   el.dispatchEvent(new MouseEvent('click',{bubbles:true,cancelable:true,view:window,clientX:t.clientX,clientY:t.clientY}));fired=true}
+  if(fired&&e.cancelable)e.preventDefault()},{passive:false});
+ document.addEventListener('touchcancel',e=>{for(const t of e.changedTouches)ST.delete(t.identifier)});
+ const st=document.createElement('style');st.textContent='.sb,.ib,.btn,button,#mm,.slc,.cho{cursor:pointer}';document.head.appendChild(st)}
+// ================= v24: iOS-App: schwarzer Balken unten (Viewport schrumpft) =================
+// iOS-Bug in Home-Bildschirm-Apps: nach Tastatur/Drehen bleibt die Fläche zu klein.
+// Abhilfe: Seite kurz neu vermessen lassen (Anzeige aus/an in einem Schritt, ohne Flackern).
+{const SA=!!(navigator.standalone||matchMedia('(display-mode: standalone)').matches||matchMedia('(display-mode: fullscreen)').matches);
+ const mx={l:0,p:0};const ori=()=>innerWidth>innerHeight?'l':'p';
+ const expect=()=>{if(!SA||!screen.width)return 0;const a=Math.min(screen.width,screen.height),b=Math.max(screen.width,screen.height);return ori()==='l'?a:b};
+ let tries=0,lastFix=0;
+ function fixVP(){const o=ori();mx[o]=Math.max(mx[o],innerHeight);const want=Math.max(mx[o],expect());
+  if(want-innerHeight<=4){tries=0;return}if(tries>=3||performance.now()-lastFix<400)return;tries++;lastFix=performance.now();
+  const b=document.body;b.style.display='none';void b.offsetHeight;b.style.display='';try{rs()}catch(e){}
+  setTimeout(()=>{try{rs()}catch(e){}},60)}
+ window.fixVP=fixVP;
+ addEventListener('resize',()=>{const o=ori();mx[o]=Math.max(mx[o],innerHeight);setTimeout(fixVP,140)});
+ addEventListener('orientationchange',()=>{tries=0;setTimeout(fixVP,350);setTimeout(fixVP,900)});
+ document.addEventListener('focusout',e=>{if(e.target&&e.target.matches&&e.target.matches('input,textarea')){tries=0;setTimeout(fixVP,140);setTimeout(fixVP,600)}});
+ document.addEventListener('visibilitychange',()=>{if(!document.hidden){tries=0;setTimeout(fixVP,300)}});
+ if(SA)setInterval(fixVP,2500);setTimeout(fixVP,500)}
+// ---------- Formatierung: Fenster füllen den Bildschirm, nichts überlappt ----------
+{const st=document.createElement('style');st.textContent=`
+#sets{max-height:none!important}
+#sets,#pau,#map,#dead,#slots{overflow-y:auto;-webkit-overflow-scrolling:touch;touch-action:pan-y}
+#sets,#dead,#slots{justify-content:flex-start}
+#sets>:first-child,#dead>:first-child,#slots>:first-child{margin-top:auto}
+#sets>:last-child,#dead>:last-child,#slots>:last-child{margin-bottom:auto}
+@media (orientation:landscape){#pau #pSet{grid-column:1/-1}}
+@media (max-height:380px){#menu{gap:5px}#menu .ttl{font-size:26px!important}#menu .ttl span{font-size:17px!important}#menu .sub{font-size:9px}#menu .btn.big{padding-top:5px!important;padding-bottom:5px!important;font-size:14px}#menu .help{display:none}}
+@media (max-height:600px){
+ #menu{padding-bottom:calc(env(safe-area-inset-bottom,0px) + 38px)!important;gap:7px}
+ #menu .cred{position:static!important;margin-top:4px;font-size:11px;line-height:1.3;max-width:calc(100vw - 2*230px);min-width:200px}
+ #menu .help{margin-top:2px;font-size:10px}
+ #menu .ttl{font-size:clamp(28px,9.5vh,44px)}#menu .ttl span{font-size:clamp(18px,6.2vh,28px)}
+ #menu .sub{font-size:clamp(9px,2.6vh,12px)}
+ #menu .btn.big{padding-top:clamp(6px,2.1vh,12px);padding-bottom:clamp(6px,2.1vh,12px)}
+ #menu #mRights{font-size:11px;bottom:calc(env(safe-area-inset-bottom,0px) + 6px)}}
+@media (max-height:600px) and (max-width:760px){#menu .cred{max-width:none}#menu #mRights{left:auto;right:calc(env(safe-area-inset-right,0px) + 10px)}}`;document.head.appendChild(st)}
+{const st=document.createElement('style');st.textContent=`
+#menu .cred{left:calc(env(safe-area-inset-left,0px) + 200px);right:calc(env(safe-area-inset-right,0px) + 200px)}
+@media (orientation:landscape) and (max-height:460px){
+ .ccl{overflow-y:auto;justify-content:flex-start!important;gap:6px!important;touch-action:pan-y}
+ .ccl>:first-child{margin-top:auto}.ccl>:last-child{margin-bottom:auto}
+ .ccl h2{font-size:clamp(12px,3.6vh,16px)!important;white-space:nowrap;letter-spacing:2px}
+ .ccl #ccv{height:clamp(70px,24vh,120px);width:auto}
+ .ccl #ccN{padding:clamp(5px,1.6vh,9px) 10px;font-size:15px}
+ .ccl .ccb .btn{padding:clamp(5px,1.8vh,10px) 8px!important;font-size:13px!important}
+ .ccl #ccGo{flex-direction:row!important;gap:6px}.ccl #ccGo .ic{margin:0!important}}`;document.head.appendChild(st)}
 </script><script>if('serviceWorker'in navigator&&location.protocol.startsWith('http'))addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));</script></body></html>
