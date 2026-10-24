@@ -6410,4 +6410,24 @@ const RCOL=[[96,150,70],[46,92,44],[120,96,92],[190,166,116],[86,96,62],[132,132
  lg.innerHTML=`<span><i style="background:#fff"></i><span data-t>Du</span></span><span><i style="background:#8c3e30"></i><span data-t>Haus</span></span><span><i style="background:#3c3e44"></i><span data-t>Straße</span></span><span><i style="background:#2a62b2"></i><span data-t>Wasser</span></span>`+add.map(([c,n])=>`<span><i style="background:${c}"></i><span data-t>${n}</span></span>`).join('')+`<small style="flex-basis:100%;opacity:.7" data-t>Dunkel = noch nicht erkundet</small>`}}
 T4('Dunkel = noch nicht erkundet','Dark = not explored yet','Oscuro = aún sin explorar','Sombre = pas encore exploré');
 applyLang();
+// ================= v46: Waffen in der Hand kleiner (aber scharf) · Zufälliger Startort =================
+// ---------- 1. Waffe ~60 % groß, jedes Pixel exakt auf dem Bildschirmraster ----------
+const SNAP=v=>Math.round(v*SC)/SC;
+drawHeld8=function(id,ex,ey,ax,ay,sw,mel,moving,f,kick){const aim=Math.atan2(ay,ax)+sw;let k=Math.round(aim/(Math.PI/4));k=((k%8)+8)%8;const left=k>=3&&k<=5;
+ const H=held8(id,k,left);if(!H)return false;const a=k*Math.PI/4,bob=moving&&(Math.floor(f)%2)?.5:0;
+ const s=Math.max(1,Math.round(SC*.6))/SC;
+ const hx=RQ(ex)+Math.cos(a)*(2-kick),hy=RQ(ey)-4+Math.sin(a)*1.5+bob;
+ const sm=g.imageSmoothingEnabled;g.imageSmoothingEnabled=false;g.drawImage(H.c,SNAP(hx-H.ax*s),SNAP(hy-H.ay*s),H.c.width*s,H.c.height*s);g.imageSmoothingEnabled=sm;return true};
+window.drawHeld=(id,ex,ey,ax,ay,sw,mel,moving,f,kick)=>drawHeld8(id,ex,ey,ax,ay,sw,mel,moving,f,kick);drawHeld=window.drawHeld;
+// ---------- 2. Zufälliger Startort in einer zufälligen Region ----------
+const SPW=[[R_W,2],[R_F,2],[R_S,1.4],[R_O,1.4],[R_M,1],[R_B,1]];
+let RSPAWN=false;
+{const _fs=findSpawn;findSpawn=function(){if(!RSPAWN)return _fs();RSPAWN=false;
+ let tot=0;for(const[,w]of SPW)tot+=w;let q=rnd()*tot,want=SPW[0][0];for(const[r,w]of SPW){if(q<w){want=r;break}q-=w}
+ const ok=(x,y)=>!solidAt(x,y)&&!isW(gnd(x,y))&&!houseAt(x,y)&&!tile(x,y)&&!bl(x*16+8,y*16+8);
+ for(let pass=0;pass<2;pass++)for(let i=0;i<400;i++){const a=rnd()*Math.PI*2,r=30+rnd()*150,x=Math.round(Math.cos(a)*r),y=Math.round(Math.sin(a)*r);
+  if(pass===0&&regionAt(x,y)!==want)continue;if(!ok(x,y))continue;let free=0;for(let dx=-2;dx<=2;dx++)for(let dy=-2;dy<=2;dy++)if(ok(x+dx,y+dy))free++;if(free<16)continue;return[x*16+8,y*16+8]}
+ return _fs()}}
+{const _n=newGame;newGame=function(s,cc){RSPAWN=true;try{return _n(s,cc)}finally{RSPAWN=false}}}
+applyLang();
 </script><script>if('serviceWorker'in navigator&&location.protocol.startsWith('http'))addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));</script></body></html>
