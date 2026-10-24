@@ -6371,4 +6371,43 @@ const NB44=[
 for(const[id,cat,k,tg,cost,n,ds,kit]of NB44){for(const m in cost)if(!D[m])delete cost[m];BP[id]={id,cat,k,tg,cost,n};BDESC[id]=ds;if(kit)makeKitAny(BP[id])}
 {const ord=['farbe','abriss'];for(const k of ord){const v=BP[k];if(v){delete BP[k];BP[k]=v}}}
 applyLang();
+// ================= v45: Scharfe Waffen in der Hand (8 Richtungen) · Seltenheits-Umrandung · Karte mit Regionen =================
+// ---------- 1. Waffe in der Hand: volle Größe, pixelgenau, 8 Richtungen ----------
+function rotPix(src,ang,flip){const w=src.width,h=src.height,sx=src.getContext('2d').getImageData(0,0,w,h).data;const D_=Math.ceil(Math.max(w,h)*1.5)+2,c=mk(D_,D_),x=c.getContext('2d'),im=x.createImageData(D_,D_),dd=im.data;
+ const ca=Math.round(Math.cos(ang)*1e6)/1e6,sa=Math.round(Math.sin(ang)*1e6)/1e6,cxs=w/2,cys=h/2,cxd=D_/2,cyd=D_/2;
+ for(let y=0;y<D_;y++)for(let X=0;X<D_;X++){const rx=X+.5-cxd,ry=y+.5-cyd;let ux=ca*rx+sa*ry,uy=-sa*rx+ca*ry;if(flip)uy=-uy;const px=Math.floor(ux+cxs),py=Math.floor(uy+cys);if(px<0||py<0||px>=w||py>=h)continue;const i=(py*w+px)*4,o=(y*D_+X)*4;if(sx[i+3]<40)continue;dd[o]=sx[i];dd[o+1]=sx[i+1];dd[o+2]=sx[i+2];dd[o+3]=255}
+ x.putImageData(im,0,0);return{c,map:(px,py)=>{let ux=px-cxs,uy=py-cys;if(flip)uy=-uy;return[ca*ux-sa*uy+cxd,sa*ux+ca*uy+cyd]}}}
+const HELD8=new Map();
+function held8(id,k,left){const key=id+':'+k+':'+(left?1:0);if(HELD8.has(key))return HELD8.get(key);const d=D[id],ic=ICO[id];let r=null;
+ if(ic&&ic.getContext){const base0=d.mel?-Math.PI/4:0,base=left?-base0:base0,ang=k*Math.PI/4-base;
+  // Griffpunkt im Original-Icon: Melee unten links, Schusswaffen links-mittig am Griff
+  const w=ic.width,h=ic.height,px=ic.getContext('2d').getImageData(0,0,w,h).data;let x0=w,x1=-1,y0=h,y1=-1;for(let y=0;y<h;y++)for(let x=0;x<w;x++)if(px[(y*w+x)*4+3]>60){x0=Math.min(x0,x);x1=Math.max(x1,x);y0=Math.min(y0,y);y1=Math.max(y1,y)}
+  let gx,gy;if(d.mel){gx=x0+2;gy=y1-2}else{gx=x0+Math.round((x1-x0)*(x1-x0<11?.3:.25));let s=0,n=0;for(let y=y0;y<=y1;y++)if(px[(y*w+gx)*4+3]>60){s+=y;n++}gy=n?Math.round(s/n)+1:Math.round((y0+y1)/2)}
+  const R=rotPix(ic,ang,left);const[ax,ay]=R.map(gx+.5,gy+.5);r={c:R.c,ax,ay}}
+ HELD8.set(key,r);return r}
+function drawHeld8(id,ex,ey,ax,ay,sw,mel,moving,f,kick){const d=D[id];const aim=Math.atan2(ay,ax)+sw;let k=Math.round(aim/(Math.PI/4));k=((k%8)+8)%8;const left=k>=3&&k<=5;
+ const H=held8(id,k,left);if(!H)return false;const a=k*Math.PI/4,bob=moving&&(Math.floor(f)%2)?1:0;
+ const hx=RQ(ex)+Math.round(Math.cos(a)*(3-kick)),hy=RQ(ey)-4+Math.round(Math.sin(a)*2)+bob;
+ const sm=g.imageSmoothingEnabled;g.imageSmoothingEnabled=false;g.drawImage(H.c,Math.round(hx-H.ax),Math.round(hy-H.ay));g.imageSmoothingEnabled=sm;return true}
+window.drawHeld=(id,ex,ey,ax,ay,sw,mel,moving,f,kick)=>drawHeld8(id,ex,ey,ax,ay,sw,mel,moving,f,kick);
+drawHeld=window.drawHeld;
+drawWeapon=function(){const it=qs[P.sel],d=it?D[it.id]:null;if(!d||d.thr)return;const sw=P.sw>0&&d.mel?(P.sw-6)*.22:0,kick=!d.mel&&P.cd>0&&d.cd&&P.cd/d.cd>.7?2:0;drawHeld8(it.id,P.x-cx,P.y-cy,P.ax,P.ay,sw,d.mel,P.mv,P.f||0,kick)};
+// ---------- 2. Seltenheit: Gegenstand farbig umrandet ----------
+const rarF=r=>{const c=RC[r];return`filter:drop-shadow(2px 0 0 ${c}) drop-shadow(-2px 0 0 ${c}) drop-shadow(0 2px 0 ${c}) drop-shadow(0 -2px 0 ${c})`};
+{const _s=slotH;slotH=function(it,src,i,cls){let h=_s(it,src,i,cls);if(it&&it.r>0)h=h.replace('<img class="px"','<img class="px" style="'+rarF(it.r)+'"');return h}}
+{const _h=hud;hud=function(){_h();if(state!==1)return;const els=document.querySelectorAll('#qs .q[data-i]');els.forEach(el=>{const it=qs[+el.dataset.i],img=el.querySelector('img');if(!img)return;const want=it&&it.r>0?rarF(it.r):'';if(img.dataset.rf!==want){img.dataset.rf=want;img.style.filter=want?want.slice(7):''}})}}
+// Werkbank- & Kisten-Karten: Waffen mit fester Seltenheit ebenfalls
+{const st=document.createElement('style');st.textContent=`.sl img.px{transition:filter .2s}`;document.head.appendChild(st)}
+// ---------- 3. Karte: Regionen als Übersicht, Erkundetes im Detail ----------
+const RCOL=[[96,150,70],[46,92,44],[120,96,92],[190,166,116],[86,96,62],[132,132,138]];
+{const _dm=drawMap;drawMap=function(c,R){_dm(c,R);if(!P||R<60||LV)return;const n=R*2+1,x=c.getContext('2d'),im=x.getImageData(0,0,n,n),dd=im.data,ptx=Math.floor(P.x/16),pty=Math.floor(P.y/16);
+ for(let j=0;j<n;j++)for(let i=0;i<n;i++){const tx=ptx-R+i,ty=pty-R+j;if(isExp(tx,ty))continue;const o=(j*n+i)*4;let col;const g_=gnd(tx,ty);
+  if(isW(g_))col=[34,70,120];else{const r=regionAt(tx,ty);col=RCOL[r]||[60,60,60];if(r===R_S){const lx=((tx%12)+12)%12,ly=((ty%12)+12)%12;if(lx<2||ly<2)col=[70,72,78]}}
+  const dim=((i+j)&1)?.42:.5;dd[o]=col[0]*dim|0;dd[o+1]=col[1]*dim|0;dd[o+2]=col[2]*dim|0;dd[o+3]=255}
+ x.putImageData(im,0,0);x.fillStyle='#fff';x.fillRect(R-1,R,3,1);x.fillRect(R,R-1,1,3)}}
+// Legende um die Regionen ergänzen
+{const lg=document.querySelector('#map .lg');if(lg){const add=[['#609646','Wiese'],['#2e5c2c','Wald'],['#786058','Stadt'],['#bea674','Ödland'],['#56603e','Sumpf'],['#84848a','Felsen']];
+ lg.innerHTML=`<span><i style="background:#fff"></i><span data-t>Du</span></span><span><i style="background:#8c3e30"></i><span data-t>Haus</span></span><span><i style="background:#3c3e44"></i><span data-t>Straße</span></span><span><i style="background:#2a62b2"></i><span data-t>Wasser</span></span>`+add.map(([c,n])=>`<span><i style="background:${c}"></i><span data-t>${n}</span></span>`).join('')+`<small style="flex-basis:100%;opacity:.7" data-t>Dunkel = noch nicht erkundet</small>`}}
+T4('Dunkel = noch nicht erkundet','Dark = not explored yet','Oscuro = aún sin explorar','Sombre = pas encore exploré');
+applyLang();
 </script><script>if('serviceWorker'in navigator&&location.protocol.startsWith('http'))addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));</script></body></html>
