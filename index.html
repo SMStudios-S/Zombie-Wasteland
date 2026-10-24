@@ -906,7 +906,7 @@ function isTown(bx,by){const k=bx*65536+by;let v=TWC.get(k);if(v===undefined){
 const regionAt=(x,y)=>isTown(Math.floor(x/12),Math.floor(y/12))?R_S:regionRaw(x,y);
 
 // ================= Boden & Objekte =================
-const GN=['gras','gras2','wiese','waldboden','sand','erde','schlamm','kies','asphalt','asph_h','asph_v','asph_x','ls_v0','ls_v1','ls_h0','ls_h1','ls_x','gehweg','wasser','sumpfwasser','bruecke','dielen','fliesen','teppich','beton','parkett','kopfstein'];
+const GN=['gras','gras2','wiese','waldboden','sand','erde','schlamm','kies','asphalt','asph_h','asph_v','asph_x','ls_v0','ls_v1','ls_h0','ls_h1','ls_x','gehweg','wasser','sumpfwasser','bruecke','dielen','fliesen','teppich','beton','parkett','kopfstein','luft','oboden'];
 const G={};GN.forEach((n,i)=>G[n]=i);
 const GSOL=new Uint8Array(64);GSOL[G.wasser]=GSOL[G.sumpfwasser]=1;
 const isW=g=>g===G.wasser||g===G.sumpfwasser;
@@ -924,7 +924,8 @@ const TN=['leer','baum','tanne','totbaum','busch','beeren','beeren_leer','pilze'
  'schlafsack','erstehilfe','amboss','waffenregal','kuehlbox','wassertank','bienenkorb','fischreuse','tierfalle','raeucherofen','baerenfalle','baerenfalle_x','dosenalarm','geschuetz','ptuer','ptuer_o','gitterfenster','solarleuchte',
  'unkraut','distel','brennnessel','wildblume','loewenzahn','moos','gestruepp','efeu',
  'wellblech','bretterwand','zinnen','rolltor','rolltor_o','lagerregal','feuertonne','wachturm','betonsperre',
- 'gitarre','teddy','kerzenst','totempfahl','reifenstapel','palettenst','keepout','oellampe','blumenkuebel','sonnenliege','gasflaschen','pflanzregal'];
+ 'gitarre','teddy','kerzenst','totempfahl','reifenstapel','palettenst','keepout','oellampe','blumenkuebel','sonnenliege','gasflaschen','pflanzregal',
+ 'treppe','treppe_ob','waffenstaender','wandhalter','solarpanel','lichtschalter','deckenlampe','deckenlampe_an','wandlampe','wandlampe_an','flutlicht','flutlicht_an','geschuetz_a','geschuetz_g'];
 const T={};TN.forEach((n,i)=>T[n]=i);const COOK=new Uint8Array(256),XLIGHT={},XDRAW={},NOSWAY=new Uint8Array(256),CONN={};
 const flag=l=>{const a=new Uint8Array(256);l.forEach(n=>a[T[n]]=1);return a};
 const TSOL=flag(['baum','tanne','totbaum','stein','kiste','mkiste','kiste_offen','auto','auto_leer','fass','muell','muell_leer','laterne','hwand','hfassade','hfenster','htuer','schrank','schrank_leer','regal','regal_leer','kuehl','kuehl_leer','bett','tisch','sofa','herd','holzwand','steinwand','tuer','feuer','ziegelwand','metallwand','fensterwand','mtuer','zaun','stuhl','tv','tv_an','lampe','lampe_an','pflanze','regentonne','kiste_s','kiste_m','spind','auto_ausg',
@@ -1000,7 +1001,7 @@ function genCell(x,y){
  return(g<<8)|t}
 
 // ================= Zellzugriff =================
-let mods=new Map(),whp=new Map(),gmods=new Map(),rmods=new Map(),own=new Set(),paintT=new Map(),paintG=new Map(),stor=new Map();
+let LV=0,mods=new Map(),whp=new Map(),gmods=new Map(),rmods=new Map(),own=new Set(),paintT=new Map(),paintG=new Map(),stor=new Map();
 const CC=new Map();
 function cell(x,y){const k=x*65536+y;let v=CC.get(k);if(v===undefined){if(CC.size>250000)CC.clear();v=genCell(x,y);CC.set(k,v)}return v}
 function clearWorldCache(){CC.clear();HSC.clear();TWC.clear();if(typeof RCV!=='undefined')RCV.clear()}
@@ -2298,7 +2299,7 @@ function step(){t++;const h=hourOf(t);dark=darkOf(h);
  // Region & Haus
  const ptx=Math.floor(P.x/16),pty=Math.floor(P.y/16);
  if(t%30===0){const r=regionAt(ptx,pty);if(r===curReg)regCnt=0;else if(curReg<0){curReg=r;if(state===1)banner(tr(RGN[r]))}else{if(r===regCand)regCnt++;else{regCand=r;regCnt=1}if(regCnt>=5){regCnt=0;curReg=r;banner(tr(RGN[r]))}}}
- const hs=houseAt(ptx,pty);insideH=hs&&(pty<hs.y0+hs.h-1||ptx===hs.dx)?hs:null;roofStep();devStep();vehStep();if(t%60===0)farmTick(60);trapStep();
+ const hs=LV?null:houseAt(ptx,pty);insideH=hs&&(pty<hs.y0+hs.h-1||ptx===hs.dx)?hs:null;roofStep();devStep();vehStep();if(t%60===0)farmTick(60);trapStep();
  // Wetter
  if(--W8.next<=0){W8.tg=rnd()<.35?.5+rnd()*.5:0;W8.next=3600+rnd()*7200}W8.rain+=clamp(W8.tg-W8.rain,-.0006,.0006);
  if(W8.flash>0)W8.flash--;if(W8.rain>.65&&rnd()<.0012){W8.flash=8;setTimeout(()=>S.thunder(),400+rnd()*1500)}
@@ -2389,12 +2390,12 @@ function draw(){const menu=state===0;
  const sk=shk*CFG.shake,ox=sk?(rnd()-.5)*sk:0,oy=sk?(rnd()-.5)*sk:0;cx=menu?RQ(camX-W/2):RQ(P.x)+RQ(camX-P.x+cam.kx-W/2+ox);cy=menu?RQ(camY-Hh/2):RQ(P.y)+RQ(camY-P.y+cam.ky-Hh/2+oy);
  const x0=Math.floor(cx/16)-1,x1=Math.floor((cx+W)/16)+1,y0=Math.floor(cy/16)-1,y1=Math.floor((cy+Hh)/16)+3,lights=[],objs=[],wfr=(fc>>4)&3;
  // Boden
- for(let ty=y0;ty<=y1;ty++)for(let tx=x0;tx<=x1;tx++){const c=cell(tx,ty),gg=c>>8,X=tx*16-cx,Y=ty*16-cy,v=(TH(tx,ty)*4)|0;
+ for(let ty=y0;ty<=y1;ty++)for(let tx=x0;tx<=x1;tx++){const gg=gnd(tx,ty),X=tx*16-cx,Y=ty*16-cy,v=(TH(tx,ty)*4)|0;if(gg===G.luft){if(window.VOIDDRAW)VOIDDRAW(tx,ty,X,Y);continue}
   if(isW(gg)){g.drawImage(GT[gg][v&1][wfr],X,Y);const a=.35+.2*Math.sin(fc*.06+tx+ty);g.fillStyle=`rgba(225,240,255,${a})`;
    if(!isW(gnd(tx,ty-1)))g.fillRect(X,Y,16,1);if(!isW(gnd(tx,ty+1)))g.fillRect(X,Y+15,16,1);if(!isW(gnd(tx-1,ty)))g.fillRect(X,Y,1,16);if(!isW(gnd(tx+1,ty)))g.fillRect(X+15,Y,1,16)}
   else{const pg=paintG.get(tx*65536+ty);g.drawImage(pg!=null?tint(GT[gg][v],pg,'g'+gg+':'+v):GT[gg][v],X,Y)}
   const tt=tile(tx,ty);if(!tt)continue;
-  if(TDECO[tt]){const A_=DECO[tt],s=A_[(TH(tx+3,ty)*A_.length)|0],sw=tt!==T.knochen&&tt!==T.schutt&&!NOSWAY[tt]?RQ(Math.sin(fc*.045+tx*.7+ty*.3)*(.6+W8.rain*1.2)):0;g.drawImage(s,X+((16-s.width)>>1)+sw,Y+14-s.height+((TH(tx,ty+5)*3)|0))}
+  if(TDECO[tt]){const A_=DECO[tt],s=A_[(TH(tx+3,ty)*A_.length)|0],sw=tt!==T.knochen&&tt!==T.schutt&&!NOSWAY[tt]?RQ(Math.sin(fc*.045+tx*.7+ty*.3)*(.6+W8.rain*1.2)):0;g.drawImage(s,X+((16-s.width)>>1)+sw,Y+14-s.height+(window.FLAT&&FLAT[tt]?2:((TH(tx,ty+5)*3)|0)))}
   else{objs.push(tt,tx,ty);if(tt===T.laterne&&TH(tx,ty+1)>.25){const fl=TH(tx,ty+2)>.85?(Math.sin(fc*.7)>.2?1:.2):1;lights.push([tx*16+11,ty*16-12,62,fl,1])}if(tt===T.feuer)lights.push([tx*16+8,ty*16+8,64+Math.sin(fc*.3)*4,1,1]);if(tt===T.lampe_an)lights.push([tx*16+8,ty*16-8,58,1,1]);if(tt===T.kamin)lights.push([tx*16+8,ty*16+8,70+Math.sin(fc*.3)*4,1,1]);if(tt===T.fackel)lights.push([tx*16+8,ty*16-4,56+Math.sin(fc*.4+tx)*5,1,1]);if(tt===T.strassenlaterne)lights.push([tx*16+11,ty*16-12,70,1,1]);{const L_=XLIGHT[tt];if(L_)lights.push([tx*16+L_[0],ty*16+L_[1],L_[2]+(L_[4]?Math.sin(fc*.3+tx)*L_[4]:0),L_[3],L_[5]==null?1:L_[5]])}if(tt===T.tv_an)lights.push([tx*16+8,ty*16+4,34+(fc>>2)%3*4,.8,0])}}
  // Schatten
  for(let i=0;i<objs.length;i+=3){const tt=objs[i],X=objs[i+1]*16-cx,Y=objs[i+2]*16-cy;if(TWALL[tt])continue;const big=tt===T.baum||tt===T.tanne||tt===T.auto||tt===T.auto_leer;g.drawImage(big?SH.big:tt===T.laterne?SH.sm:SH.med,X+(big?-1:1),Y+(big?11:12))}
@@ -2451,6 +2452,7 @@ function draw(){const menu=state===0;
   if(DFR&&a>.5&&fc%16===0)pt({x:(hs.ch)*16+9,y:hs.y0*16-WH-cy+cy-6,z:12,vx:.15,vy:0,vz:.25,c:'#888',k:'sm',l:70,ml:70,s:2})}
  roofHA=roofHA||0;for(let ty=y0;ty<=y1;ty++)for(let tx=x0;tx<=x1;tx++){const k=tx*65536+ty,rc=rmods.get(k);if(rc===undefined)continue;const a=RGH&&RGH.has(k)?1-roofHA:1;if(a<.03)continue;g.globalAlpha=a;const X=tx*16-cx,Y=ty*16-cy-WH;g.drawImage(roofTile(rc),X,Y);
   if(!rmods.has(k-1)){g.fillStyle='rgba(255,255,255,.2)';g.fillRect(X,Y,16,1)}if(!rmods.has(k+1)){g.fillStyle='rgba(0,0,0,.45)';g.fillRect(X,Y+14,16,2);g.fillStyle='rgba(0,0,0,.16)';g.fillRect(X,Y+16,16,4)}if(!rmods.has(k-65536)){g.fillStyle='rgba(0,0,0,.4)';g.fillRect(X,Y,1,16)}if(!rmods.has(k+65536)){g.fillStyle='rgba(0,0,0,.4)';g.fillRect(X+15,Y,1,16)}g.globalAlpha=1}
+ if(window.CEILDRAW)CEILDRAW(x0,x1,y0,y1);
  if(insideH){const hs=insideH,a=1-(RA.get(hs.key)||0),X=hs.x0*16-cx,Y=hs.y0*16-WH-cy,Wd=hs.w*16,Hd=hs.h*16+WH;g.fillStyle=`rgba(4,6,10,${.45*a})`;g.fillRect(0,0,W,Math.max(0,Y));g.fillRect(0,Y+Hd,W,Hh);g.fillRect(0,Y,Math.max(0,X),Hd);g.fillRect(X+Wd,Y,W,Hd)}
  // Wetter
  if(DFR)fogA=lerp(fogA,(curReg===R_M?.55:0)+W8.rain*.15+(hourOf(t)>4.5&&hourOf(t)<7.5?.25:0),.01);
@@ -3838,7 +3840,7 @@ Object.assign(XDRAW,{[T.raeucherofen]:(dx,dy,tx,ty)=>{if(DFR&&state===1&&fc%18==
  [T.bienenkorb]:(dx,dy)=>{if(dark>.5)return;for(let i=0;i<3;i++){const a=fc*.09+i*2.1;g.fillStyle=i%2?'#1a1a1a':'#f0c040';g.fillRect(RQ(dx+7+Math.cos(a)*6),RQ(dy+4+Math.sin(a*1.3)*4),1,1)}},
  [T.geschuetz]:(dx,dy,tx,ty)=>{const a=TURA.get(tx*65536+ty)||0;g.save();g.translate(RQ(dx+7),RQ(dy+7));g.rotate(a);g.fillStyle='#1e2024';g.fillRect(0,-1,9,2);g.fillStyle='#4a4c52';g.fillRect(0,-1,3,2);g.restore();const f=TURF.get(tx*65536+ty)||0;if(f>0){g.fillStyle='#ffe9a0';g.fillRect(RQ(dx+7+Math.cos(a)*10)-1,RQ(dy+7+Math.sin(a)*10)-1,3,3)}}});
 // ---------- Fallen, Alarm, Geschütz, Regen ----------
-const TURA=new Map(),TURF=new Map(),ALM=new Map();
+const TURA=new Map(),TURF=new Map(),ALM=new Map(),TURC={[T.geschuetz]:{am:['a9'],cd:24,rg:120,dm:2.8,sp:6,l:26,snd:'pistole',nz:200}};
 function buildTick(){
  // Bärenfalle
  for(const z of Zs){if(z.hp<=0)continue;if(z.stun>0){z.stun--;z.x=z.sx;z.y=z.sy;z.kx=z.ky=0;continue}const tx=Math.floor(z.x/16),ty=Math.floor(z.y/16);if(tile(tx,ty)===T.baerenfalle){setT(tx,ty,T.baerenfalle_x);z.stun=200;z.sx=z.x;z.sy=z.y;dmgZ(z,4,0,0);S.metal&&S.metal();S.crack&&S.crack(z.x,z.y);noise(z.x,z.y,90)}}
@@ -3847,10 +3849,12 @@ function buildTick(){
  if(t%12)return;
  for(const k of own){const[tx,ty]=kxy(k);const tt=tile(tx,ty),cx_=tx*16+8,cy_=ty*16+8;if(Math.abs(cx_-P.x)>520||Math.abs(cy_-P.y)>400)continue;
   if(tt===T.dosenalarm){if(t-(ALM.get(k)||-999)>360&&Zs.some(z=>z.hp>0&&dist(z.x,z.y,cx_,cy_)<26)){ALM.set(k,t);A(cx_,cy_,.7,.3,(b,t0)=>{for(let i=0;i<7;i++){tn(b,t0+i*.06,.05,'square',1800+rnd()*900,1200,.12,.003);nz(b,t0+i*.06,.04,'highpass',4000,1,.15)}});noise(cx_,cy_,120);toast(tr(TX.alarm),'bad');ft(cx_,cy_-14,'!','#ffb020')}}
-  else if(tt===T.geschuetz&&t%24===0){const st=stor.get(k);if(!st||!st.items)continue;const ai=st.items.findIndex(it=>it&&it.id==='a9'&&it.n>0);if(ai<0)continue;
-   let best=null,bd=120;for(const z of Zs){if(z.hp<=0)continue;const d=dist(z.x,z.y,cx_,cy_);if(d<bd&&los(cx_,cy_-6,z.x,z.y-6)){bd=d;best=z}}if(!best)continue;
-   const a=Math.atan2(best.y-6-(cy_-6),best.x-cx_);TURA.set(k,a);TURF.set(k,3);const it=st.items[ai];it.n--;if(it.n<=0)st.items[ai]=null;
-   Bs.push({x:cx_+Math.cos(a)*9,y:cy_-6+Math.sin(a)*9,px:cx_,py:cy_-6,vx:Math.cos(a)*6,vy:Math.sin(a)*6,l:26,dm:2.8,pi:0,h:[],bolt:false});S.shot('pistole');noise(cx_,cy_,200)}}
+  else if(TURC[tt]&&t%TURC[tt].cd===0){const C=TURC[tt],st=stor.get(k);if(!st||!st.items)continue;const ai=st.items.findIndex(it=>it&&C.am.includes(it.id)&&it.n>0);if(ai<0)continue;
+   const sup=!C.bolt&&st.items.some(it=>it&&it.id==='schalldaempfer');
+   let best=null,bd=C.rg;for(const z of Zs){if(z.hp<=0)continue;const d=dist(z.x,z.y,cx_,cy_);if(d<bd&&los(cx_,cy_-6,z.x,z.y-6)){bd=d;best=z}}if(!best)continue;
+   const a=Math.atan2(best.y-6-(cy_-6),best.x-cx_);TURA.set(k,a);TURF.set(k,C.bolt?0:3);const it=st.items[ai];it.n--;if(it.n<=0)st.items[ai]=null;
+   Bs.push({x:cx_+Math.cos(a)*9,y:cy_-6+Math.sin(a)*9,px:cx_,py:cy_-6,vx:Math.cos(a)*C.sp,vy:Math.sin(a)*C.sp,l:C.l,dm:C.dm*(sup?.9:1),pi:C.pi||0,h:[],bolt:!!C.bolt});
+   if(C.bolt){S.bow&&S.bow()}else{window.__sup=sup;S.shot(C.snd);window.__sup=false}noise(cx_,cy_,sup?C.nz*.3:C.nz)}}
  if(t%300===0&&W8.rain>.3)for(const k of own){const[x,y]=kxy(k);if(tile(x,y)===T.wassertank){const st=stor.get(k)||{w:0};st.w=Math.min(60,(st.w||0)+3);stor.set(k,st)}}}
 {const _st=step;step=function(){_st();try{buildTick()}catch(e){console.error(e)}}}
 // Geschütz-Speicher nur für Munition gedacht – Hinweis beim Öffnen
@@ -3892,7 +3896,7 @@ const CTX={
  note:L4('Die Spielstand-Datei funktioniert auch ohne Konto – z. B. um vom Handy auf den PC zu wechseln.','The save file works without an account – e.g. to move from phone to PC.','El archivo funciona sin cuenta – p. ej. para pasar del móvil al PC.','Le fichier marche sans compte – p. ex. pour passer du mobile au PC.')};
 // ---------- alle Spielstand-Schlüssel sammeln ----------
 const zwKeys=()=>{const a=[];try{for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.startsWith('zw4_')&&k!=='zw4_cloud')a.push(k)}}catch(e){}return a};
-const slotOf=k=>{const m=/^zw4_(?:s|m|gv|ad)(\d+)$/.exec(k);return m?+m[1]:-1};
+const slotOf=k=>{const m=/^zw4_(?:s|m|gv|ad|x)(\d+)$/.exec(k);return m?+m[1]:-1};
 // ---------- Komprimieren (Firestore-Dokumente max. 1 MB) ----------
 async function zpack(s){try{if(typeof CompressionStream==='undefined')return'r:'+s;const b=await new Response(new Blob([s]).stream().pipeThrough(new CompressionStream('gzip'))).arrayBuffer();const u=new Uint8Array(b);let bin='';for(let i=0;i<u.length;i+=0x8000)bin+=String.fromCharCode.apply(null,u.subarray(i,i+0x8000));return'g:'+btoa(bin)}catch(e){return'r:'+s}}
 async function zunpack(v){if(typeof v!=='string')return null;if(v.startsWith('r:'))return v.slice(2);if(!v.startsWith('g:'))return v;
@@ -3927,7 +3931,7 @@ async function cloudPull(force){if(!CL.user||!CL.db)return;if(state===1&&force){
   const cg=k=>C[k]==null?null:C[k];let changed=false;
   const slots=new Set();for(const k of[...Object.keys(C),...zwKeys()]){const s=slotOf(k);if(s>=0)slots.add(s)}
   for(const s of slots){if(state===1&&s===slot)continue;const ca=at(cg,s),la=at(LS.get,s);
-   if(C['zw4_s'+s]&&(force||ca>la)){for(const p of['s','m','gv','ad']){const k='zw4_'+p+s;if(C[k]!=null)LS.set(k,C[k]);else localStorage.removeItem(k);CL.sent[k]=C[k]}changed=true}}
+   if(C['zw4_s'+s]&&(force||ca>la)){for(const p of['s','m','gv','ad','x']){const k='zw4_'+p+s;if(C[k]!=null)LS.set(k,C[k]);else localStorage.removeItem(k);CL.sent[k]=C[k]}changed=true}}
   if(C.zw4_last!=null&&(force||LS.get('zw4_last')==null))LS.set('zw4_last',C.zw4_last);
   if(force&&C.zw4_cfg){try{Object.assign(CFG,JSON.parse(C.zw4_cfg));saveCfg()}catch(e){}}
   if(changed){toast(tr(CTX.down),'good');if(typeof renderSlots==='function'&&!$('slots').classList.contains('hide'))renderSlots();if(typeof updMenu==='function')updMenu()}
@@ -3936,7 +3940,7 @@ async function cloudPull(force){if(!CL.user||!CL.db)return;if(state===1&&force){
 function cloudSoon(){if(!CL.user)return;clearTimeout(CL.timer);CL.timer=setTimeout(()=>cloudPush(false),1500)}
 // Speichern → automatisch Cloud
 {const _s=save;save=function(q){_s(q);cloudSoon()}}
-{const _d=LS.del;LS.del=function(k){_d(k);if(CL.user&&CL.db&&k.startsWith('zw4_')){delete CL.sent[k];const s=slotOf(k);const ks=s>=0&&/^zw4_s\d+$/.test(k)?['s','m','gv','ad'].map(p=>'zw4_'+p+s):[k];for(const x of ks)kvCol().doc(x).delete().catch(()=>{})}}}
+{const _d=LS.del;LS.del=function(k){_d(k);if(CL.user&&CL.db&&k.startsWith('zw4_')){delete CL.sent[k];const s=slotOf(k);const ks=s>=0&&/^zw4_s\d+$/.test(k)?['s','m','gv','ad','x'].map(p=>'zw4_'+p+s):[k];for(const x of ks)kvCol().doc(x).delete().catch(()=>{})}}}
 addEventListener('visibilitychange',()=>{if(document.hidden)cloudPush(false)});
 // ---------- Spielstand als Datei (ohne Konto) ----------
 function exportFile(){S.ui();if(state===1)save(true);const o={game:'zombie-wasteland',v:1,at:Date.now(),data:{}};for(const k of zwKeys())o.data[k]=LS.get(k);
@@ -4758,11 +4762,12 @@ const kitOf=b=>'bs_'+b.id;
 function kitIcon(b){const src=b.k==='t'&&TWALL[b.tg]?(()=>{const[F,cap]=wallTex(b.tg,0,0);const c=mk(16,16+WH),x=c.getContext('2d');x.drawImage(cap||CAP.lintel,0,0);x.drawImage(F,0,16);return c})():b.k==='t'?SPR[b.tg][0]:b.k==='g'?GT[b.tg][0]:roofTile(0);
  return outline(cv(16,16,(P,x)=>{x.imageSmoothingEnabled=false;const s=Math.min(13/src.width,13/src.height),w=src.width*s,h=src.height*s;x.drawImage(src,Math.round((16-w)/2),Math.round(14-h),Math.round(w),Math.round(h));
   P('#c88a30',10,10,6,6);P('#e8a840',10,10,6,1);P('#8a5a1a',10,15,6,1);P('#6a4010',12,10,2,6)}))}
-for(const b of Object.values(BP)){if(!b.cost||!b.cost.schrott||b.id==='werkbank'||!(b.k==='t'||b.k==='g'||b.k==='r'))continue;
+function makeKit(b){if(!b||b.wbCost||!b.cost||!b.cost.schrott||b.id==='werkbank'||!(b.k==='t'||b.k==='g'||b.k==='r'))return;
  const id=kitOf(b),de='Bausatz: '+b.n,tl=I18N[b.n];if(tl)I18N[de]=[tl[0]+' kit','Kit: '+tl[1],'Kit : '+tl[2]];else I18N[de]=[b.n+' kit','Kit: '+b.n,'Kit : '+b.n];
  D[id]={n:de,c:'mat',st:20,kit:b.id,d:L4('Damit baust du das Teil überall – ohne Werkbank.','Build the part anywhere with it – no workbench needed.','Con él construyes la pieza en cualquier sitio.','Permet de construire la pièce n’importe où.')};
  try{ICO[id]=kitIcon(b);delete ICU[id]}catch(e){ICO[id]=ICO.werkbank}
- b.wbCost=b.cost;b.cost={[id]:1};KITS.push(b)}
+ b.wbCost=b.cost;b.cost={[id]:1};KITS.push(b);delete BI[b.id]}
+for(const b of Object.values(BP))makeKit(b);
 for(const k in BI)if(KITS.some(b=>b.id===k))delete BI[k];
 // Bauen ohne Bausatz: klare Meldung
 {const _ba=buildAct;buildAct=function(){const a=_ba();const b=BP[BM];if(a&&a.k==='build'&&b&&b.wbCost&&!a.ok&&!canPay(b.cost)){a.nokit=true;a.l='Bausatz fehlt'}return a}}
@@ -4788,5 +4793,270 @@ $('wbL').addEventListener('click',e=>{const c=e.target.closest('[data-kit]');if(
 {const st=document.createElement('style');st.textContent=`#wbL .bc{position:relative}#wbL .bc .kh{position:absolute;right:4px;top:3px;color:#d9a441;font-size:10px}#wb .hdr{gap:8px}#wb .hdr .ttl2{flex:1}#wbS{margin:0!important;width:auto!important;padding:5px 10px!important;display:flex;gap:5px;align-items:center}#wbS .ic{width:14px;height:14px}`;document.head.appendChild(st)}
 // Lexikon & Tipp
 if(typeof LG!=='undefined'){const g=LG.find(x=>x[0]==='werkbank');if(g&&Array.isArray(g[3])){for(let i=0;i<g[3].length;i++)if(typeof g[3][i]==='string')g[3][i]+=(['|!Metallteile (Wände, Türen, Fallen …) stellst du als Bausatz an der Werkbank her. Mit dem Bausatz baust du sie danach überall.','|!Metal parts (walls, doors, traps …) are made as kits at the workbench. Then you can build them anywhere.','|!Las piezas de metal se fabrican como kits en el banco. Luego las construyes en cualquier sitio.','|!Les pièces en métal se fabriquent en kits à l’établi. Ensuite tu les construis partout.'][i]||'')}}
+applyLang();
+// ================= v32: Bandagen & Stoff, Tod, Waffenmöbel, Werkbank-Kategorien, Strom, Selbstschuss-Varianten, Stockwerke =================
+// ---------- Texte ----------
+const V32={
+ rip:T4('Zerreißen','Tear up','Rasgar','Déchirer'),
+ ripD:L4('Kleidung zu Stoff zerrissen','Clothing torn into cloth','Ropa rasgada en tela','Vêtement déchiré en tissu'),
+ band:L4('Stoppt Blutungen und heilt 1 Lebenspunkt.','Stops bleeding and heals 1 health point.','Detiene hemorragias y cura 1 punto de vida.','Arrête les saignements et soigne 1 point de vie.'),
+ deadT:L4('Du wachst wieder auf – aber dein Rucksack ist leichter.','You wake up again – but your backpack is lighter.','Despiertas de nuevo, pero tu mochila pesa menos.','Tu te réveilles – mais ton sac est plus léger.'),
+ lost:L4('Verlorene Gegenstände','Items lost','Objetos perdidos','Objets perdus'),
+ atBed:L4('Aufgewacht an deinem Bett','Woke up at your bed','Despertaste en tu cama','Réveil près de ton lit'),
+ atStart:L4('Aufgewacht an einem sicheren Ort','Woke up at a safe place','Despertaste en un lugar seguro','Réveil dans un endroit sûr'),
+ live:T4('Weiterleben','Keep surviving','Seguir viviendo','Continuer à survivre'),
+ up:T4('Hochgehen','Go upstairs','Subir','Monter'),down:T4('Runtergehen','Go downstairs','Bajar','Descendre'),
+ eg:T4('Erdgeschoss','Ground floor','Planta baja','Rez-de-chaussée'),og:T4('Obergeschoss','Upper floor','Piso superior','Étage'),
+ onlyUp:T4('Nur im Obergeschoss','Upper floors only','Solo en pisos superiores','Seulement à l’étage'),
+ hasFl:T4('Hier ist schon Boden','There is already a floor','Ya hay suelo','Il y a déjà un sol'),
+ nextTo:T4('Nur neben vorhandenem Boden','Only next to existing floor','Solo junto a suelo existente','Seulement à côté d’un sol'),
+ noSup:T4('Keine Wand darunter','No wall below','Sin pared debajo','Pas de mur dessous'),
+ noSupL:L4('Unter dem Boden braucht es eine Wand im Umkreis von 4 Feldern.','The floor needs a wall below within 4 tiles.','El suelo necesita una pared debajo a 4 casillas.','Le sol a besoin d’un mur dessous à 4 cases.'),
+ roofIn:T4('Dach im Weg','Roof in the way','Tejado en medio','Toit gênant'),
+ roofL:L4('Treppen und Obergeschosse gehen nur ohne Dach – reiß das Dach zuerst ab.','Stairs and upper floors only work without a roof – remove the roof first.','Escaleras y pisos solo sin tejado: quita el tejado primero.','Escaliers et étages seulement sans toit – enlève d’abord le toit.'),
+ max3:T4('Höchstens 3 Stockwerke','3 floors at most','Máximo 3 pisos','3 étages maximum'),
+ upBlk:T4('Oben blockiert','Blocked above','Bloqueado arriba','Bloqué en haut'),
+ noFl:T4('Kein Boden','No floor','Sin suelo','Pas de sol'),
+ noFlL:L4('Bau zuerst einen Oberboden.','Build an upper floor first.','Construye primero un suelo superior.','Construis d’abord un plancher.'),
+ above:T4('Darüber ist ein Stockwerk','There is a floor above','Hay un piso encima','Il y a un étage au-dessus'),
+ stairX:T4('Treppe im Weg','Stairs in the way','Escalera en medio','Escalier gênant'),
+ downDel:T4('Unten abreißen','Remove from below','Quitar desde abajo','Démolir d’en bas'),
+ wall:T4('Nur an einer Wand','Only on a wall','Solo en una pared','Seulement sur un mur'),
+ wallL:L4('Direkt unter eine Wand setzen.','Place it right below a wall.','Colócalo justo bajo una pared.','Place-le juste sous un mur.'),
+ fell:L4('Du bist abgestürzt!','You fell down!','¡Te has caído!','Tu es tombé !'),
+ coll:L4('Das Obergeschoss ist eingestürzt!','The upper floor collapsed!','¡El piso superior se derrumbó!','L’étage s’est effondré !'),
+ sw:T4('Licht an/aus','Light on/off','Luz on/off','Lumière on/off'),
+ solar:T4('Status','Status','Estado','État'),
+ solarS:L4('Solarpanel versorgt Lampen im Umkreis von 8 Feldern','Solar panel powers lamps within 8 tiles','El panel alimenta lámparas a 8 casillas','Le panneau alimente les lampes à 8 cases'),
+ lamps:T4('Lampen','lamps','lámparas','lampes'),
+ power:T4('Strom','Power','Electricidad','Électricité'),
+ vert:T4('Verteidigung','Defence','Defensa','Défense'),
+ allK:T4('Alle','All','Todo','Tout')};
+// ================= 1. Bandagen & Stoff =================
+D.verband.n=T4('Bandage','Bandage','Venda','Bandage');D.verband.use={hp:10};D.verband.d=V32.band;
+for(const k in LT){const tb=LT[k];if(tb&&tb.it)for(const e of tb.it)if(e[0]==='verband')e[1]*=.45}
+if(typeof LXSRC!=='undefined')LXSRC.verband=L4('Selten in Kisten und Schränken – oder selbst aus 2 Stoff herstellen (Bau-Menü → Herstellen).','Rare in crates and wardrobes – or craft from 2 cloth (Build menu → Craft).','Rara en cajas y armarios, o fabrícala con 2 telas.','Rare dans les caisses – ou fabrique-la avec 2 tissus.');
+const RIPX=new Set(['helm','mhelm']);
+const ripN=it=>{const d=D[it.id];if(!d||!d.slot||RIPX.has(it.id))return 0;const b={kopf:1,haende:1,fuss:1,torso:3,beine:2,rucksack:3}[d.slot]||1;return Math.max(1,Math.round(b*(.55+.45*((it.d==null?100:it.d)/100))))};
+{const _rd=renderDet;renderDet=function(){_rd();const it=isel&&getS(isel);if(!it||!ripN(it)||!(isel.src==='inv'||isel.src==='box'))return;
+ const ab=document.querySelector('#det .ab');if(ab&&!ab.querySelector('[data-rip]')){const d=ab.querySelector('[data-a="drop"]');const h=`<button data-rip="1">${tr(V32.rip)} (+${ripN(it)} ${tr('Stoff')})</button>`;if(d)d.insertAdjacentHTML('beforebegin',h);else ab.insertAdjacentHTML('beforeend',h)}}}
+$('det').addEventListener('click',e=>{if(!e.target.closest('[data-rip]'))return;e.stopPropagation();const it=isel&&getS(isel);if(!it)return;const n=ripN(it);if(!n)return;
+ setS(isel,null);isel=null;give('stoff',n);S.cloth&&S.cloth();toast(tr(V32.ripD)+' · +'+n+' '+tr('Stoff'),'good');hudDirty=1;renderInv()},true);
+// ================= 2. Sterben: 60 % der Sachen weg, volles Leben =================
+function loseItems(){const sl=[];inv.forEach((it,i)=>{if(it)sl.push(['inv',i])});qs.forEach((it,i)=>{if(it)sl.push(['qs',i])});
+ for(let i=sl.length-1;i>0;i--){const j=(rnd()*(i+1))|0;[sl[i],sl[j]]=[sl[j],sl[i]]}
+ const n=Math.round(sl.length*.6);for(let i=0;i<n;i++){const[a,j]=sl[i];if(a==='inv')inv[j]=null;else qs[j]=null}return[n,sl.length]}
+function respawnSpot(){let best=null,bd=1e18;const BEDS=[T.bett,T.doppelbett,T.schlafsack].filter(x=>x!=null);
+ for(const k of own){const[x,y]=kxy(k);if(!BEDS.includes(tile(x,y)))continue;const d=dist(x*16+8,y*16+8,P.x,P.y);if(d<bd){bd=d;best=[x,y]}}
+ if(best){const[a,b]=freeSpot(best[0]*16+8,best[1]*16+14,0,1);return[a,b,1]}const[x,y]=findSpawn();return[x,y,0]}
+over=function(){if(state!==1)return;relInput();BM=null;S.hurt();closeAll();$('bbar').classList.add('hide');
+ if(P.veh){try{exitVeh()}catch(e){P.veh=null}}if(P.sit)standUp();if(LV)setLevel(0,1);
+ const[lost,tot]=loseItems();const[x,y,bed]=respawnSpot();P.x=x;P.y=y;cam.x=x;cam.y=y;
+ Object.assign(P,{hp:100,hun:Math.max(P.hun,60),thi:Math.max(P.thi,60),sta:100,bleed:0,stun:0,hc:150,job:null,rl:0,rli:null});
+ Zs=Zs.filter(z=>dist(z.x,z.y,x,y)>230);if(P.sel!=null&&!qs[P.sel])P.sel=Math.max(0,qs.findIndex(Boolean));
+ save(true);state=2;
+ $('dS').innerHTML=`${tr(V32.deadT)}<br><b style="color:#e8c070">${tr(V32.lost)}: ${lost} / ${tot}</b><br><small>${tr(bed?V32.atBed:V32.atStart)} · ${tr('Tag')} ${dayN()}</small>`;
+ $('dLoad').classList.add('hide');$('dLive').classList.remove('hide');setTimeout(()=>{$('dead').classList.remove('hide');musicOn(true)},900)};
+{const b=document.createElement('button');b.className='btn pr';b.id='dLive';b.innerHTML=`<i class="ic">${icoImg('heart')}</i><span data-t>Weiterleben</span>`;$('dLoad').before(b);
+ b.onclick=()=>{S.ui();start();P.hc=150}}
+// ================= Grafik =================
+const NS32={
+ treppe:cv(16,16,P=>{P('#5a3a1e',0,0,2,16);P('#5a3a1e',14,0,2,16);for(let i=0;i<5;i++){const y=1+i*3;P(i<1?'#4a301a':'#a8783e',2,y,12,2);P('#6a4422',2,y+2,12,1)}P('#2a1a0e',2,0,12,1);P('#7a5230',0,0,2,1);P('#7a5230',14,0,2,1)}),
+ treppe_ob:cv(16,16,P=>{P('#120c08',1,1,14,14);for(let i=0;i<4;i++){const y=4+i*3,a=['#3a2614','#5a3a1e','#7a522c','#9a6a3a'][i];P(a,2,y,12,2)}P('#6a4426',0,0,16,1);P('#6a4426',0,0,1,15);P('#6a4426',15,0,1,15);P('#8a5a32',0,0,1,1);P('#8a5a32',15,0,1,1);P('#4a2e18',1,1,14,1)}),
+ waffenstaender:mkSp(16,18,P=>{P('#6a4426',1,15,14,3);P('#8a5a32',1,15,14,1);P('#5a3a1e',2,2,2,13);P('#5a3a1e',12,2,2,13);P('#8a5a32',2,2,12,2);P('#a87a48',2,2,12,1);P('#4a2e18',3,10,10,1)}),
+ wandhalter:mkSp(16,8,P=>{P('#6a4426',0,1,16,6);P('#8a5a32',0,1,16,1);P('#4a2e18',0,6,16,1);for(const x of[2,7,12])P('#3a3c42',x,0,2,2)}),
+ solarpanel:mkSp(16,14,P=>{P('#4a4c52',3,9,2,5);P('#4a4c52',11,9,2,5);P('#2a2c30',0,1,16,9);P('#2a4a8a',1,2,14,7);for(let x=4;x<15;x+=4)P('#5a7aba',x,2,1,7);P('#5a7aba',1,5,14,1);P('#8ab0e0',1,2,3,1)}),
+ lichtschalter:mkSp(6,8,P=>{P('#e8e4dc',0,0,6,8);P('#c8c4bc',0,7,6,1);P('#b8b4ac',2,2,2,4)}),
+ deckenlampe:mkSp(10,10,P=>{P('#3a3c42',4,0,2,3);P('#6a6c72',1,3,8,3);P('#8a8c92',1,3,8,1);P('#c8c0a0',3,6,4,2);P('#8a8a7a',2,8,6,1)}),
+ deckenlampe_an:mkSp(10,10,P=>{P('#3a3c42',4,0,2,3);P('#6a6c72',1,3,8,3);P('#8a8c92',1,3,8,1);P('#fff8d0',3,6,4,2);P('#ffe890',2,8,6,1)}),
+ wandlampe:mkSp(7,7,P=>{P('#3a3c42',2,4,3,3);P('#8a8a7a',1,0,5,4);P('#b0a888',2,1,3,2)}),
+ wandlampe_an:mkSp(7,7,P=>{P('#3a3c42',2,4,3,3);P('#ffe890',1,0,5,4);P('#fffbe0',2,1,3,2)}),
+ flutlicht:mkSp(14,22,P=>{P('#4a4c52',6,6,2,16);P('#3a3c42',4,20,6,2);P('#2a2c30',0,0,6,5);P('#2a2c30',8,0,6,5);P('#8a8a7a',1,1,4,3);P('#8a8a7a',9,1,4,3);P('#4a4c52',3,5,8,1)}),
+ flutlicht_an:mkSp(14,22,P=>{P('#4a4c52',6,6,2,16);P('#3a3c42',4,20,6,2);P('#2a2c30',0,0,6,5);P('#2a2c30',8,0,6,5);P('#fffbe0',1,1,4,3);P('#fffbe0',9,1,4,3);P('#4a4c52',3,5,8,1)}),
+ geschuetz_a:mkSp(14,14,P=>{P('#5a3a1e',1,12,12,2);P('#5a3a1e',2,9,2,4);P('#5a3a1e',10,9,2,4);P('#8a5a32',3,5,8,5);P('#a87a48',3,5,8,1);P('#3a2614',5,7,4,2);P('#c8c0a8',4,10,6,1)}),
+ geschuetz_g:mkSp(16,15,P=>{P('#8a7a5a',0,10,16,5);P('#a89a7a',0,10,16,1);for(let x=2;x<16;x+=5)P('#6a5a3a',x,11,1,4);P('#3a3c42',4,3,8,7);P('#5a5e66',4,3,8,1);P('#2a2c30',6,5,4,3);P('#d8b450',5,8,6,1)})};
+S2('treppe',[NS32.treppe]);S2('treppe_ob',[NS32.treppe_ob]);
+DECO[T.treppe]=[NS32.treppe];DECO[T.treppe_ob]=[NS32.treppe_ob];TDECO[T.treppe]=TDECO[T.treppe_ob]=1;NOSWAY[T.treppe]=NOSWAY[T.treppe_ob]=1;
+window.FLAT=new Uint8Array(256);FLAT[T.treppe]=FLAT[T.treppe_ob]=1;
+S2('waffenstaender',[NS32.waffenstaender]);S2('wandhalter',[NS32.wandhalter],-18);S2('solarpanel',[NS32.solarpanel]);S2('lichtschalter',[NS32.lichtschalter],-18);
+S2('deckenlampe',[NS32.deckenlampe],-12);S2('deckenlampe_an',[NS32.deckenlampe_an],-12);S2('wandlampe',[NS32.wandlampe],-19);S2('wandlampe_an',[NS32.wandlampe_an],-19);
+S2('flutlicht',[NS32.flutlicht]);S2('flutlicht_an',[NS32.flutlicht_an]);S2('geschuetz_a',[NS32.geschuetz_a]);S2('geschuetz_g',[NS32.geschuetz_g]);
+for(const n of['waffenstaender','solarpanel','flutlicht','flutlicht_an','geschuetz_a','geschuetz_g'])TSOL[T[n]]=1;
+for(const n of['waffenstaender','solarpanel','geschuetz_a','geschuetz_g'])TLOW[T[n]]=1;
+TSTOR[T.waffenstaender]=4;TSTOR[T.wandhalter]=3;TSTOR[T.geschuetz_a]=4;TSTOR[T.geschuetz_g]=4;
+Object.assign(XLIGHT,{[T.deckenlampe_an]:[8,-4,74,1,0,0],[T.wandlampe_an]:[8,-10,52,.9,0,0],[T.flutlicht_an]:[8,-16,128,1,0,0]});
+// Böden: Oberboden & Luft
+GT[G.oboden]=V4(v=>cv(16,16,P=>{for(let j=0;j<4;j++){const c=(j+v)%2?'#8a6236':'#966c3c';P(c,0,j*4,16,4);P('#6a4626',0,j*4+3,16,1);const o=(j*5+v*3)%16;P('#6a4626',o,j*4,1,3)}P('#5a3a1e',0,0,1,16);P('#5a3a1e',15,0,1,16)}));
+GT[G.luft]=V4(()=>cv(16,16,P=>P('#07090c',0,0,16,16)));GSOL[G.luft]=1;
+// Icons
+{const I={up:P=>{P('#e8d8b0',7,2,2,11);P('#e8d8b0',4,5,8,1);P('#e8d8b0',5,4,6,1);P('#e8d8b0',6,3,4,1);P('#a8783e',2,13,12,2)},
+  down:P=>{P('#e8d8b0',7,2,2,11);P('#e8d8b0',4,10,8,1);P('#e8d8b0',5,11,6,1);P('#e8d8b0',6,12,4,1);P('#a8783e',2,1,12,1)},
+  switch_:P=>{P('#e8e4dc',4,2,8,12);P('#b8b4ac',6,4,4,8);P('#ffd040',6,4,4,4)},
+  solar_:P=>{P('#2a4a8a',1,3,14,8);for(let x=4;x<15;x+=4)P('#5a7aba',x,3,1,8);P('#5a7aba',1,7,14,1);P('#4a4c52',7,11,2,4)}};
+ for(const k in I){ICO[k]=outline(cv(16,16,I[k]));delete ICU[k]}}
+// Waffen sichtbar auf Ständer und Wandhalter
+const wepsAt=(k,n)=>{const st=stor.get(k);if(!st||!st.items)return[];return st.items.filter(it=>it&&D[it.id]&&D[it.id].c==='waf').slice(0,n)};
+XDRAW[T.waffenstaender]=(dx,dy,tx,ty)=>{const w=wepsAt(tx*65536+ty,3);w.forEach((it,i)=>{const ic=ICO[it.id];if(!ic)return;g.save();g.translate(RQ(dx+4+i*4),RQ(dy+9));g.rotate(-1.25);g.drawImage(ic,-6,-6,12,12);g.restore()})};
+XDRAW[T.wandhalter]=(dx,dy,tx,ty)=>{const w=wepsAt(tx*65536+ty,2);w.forEach((it,i)=>{const ic=ICO[it.id];if(ic)g.drawImage(ic,RQ(dx+1),RQ(dy-3+i*4),14,14)})};
+XDRAW[T.lichtschalter]=(dx,dy,tx,ty)=>{const on=SWS.get(LV+':'+(tx*65536+ty))!==0;g.fillStyle=on?'#6ad060':'#c04a3a';g.fillRect(RQ(dx+2),RQ(dy+(on?2:4)),2,2)};
+XDRAW[T.solarpanel]=(dx,dy)=>{if(fc%60<40){g.fillStyle='#6aff6a';g.fillRect(RQ(dx+13),RQ(dy+11),1,1)}};
+// Selbstschussanlagen: drei Varianten, Schalldämpfer sichtbar
+const turDraw=(len,col,bolt)=>(dx,dy,tx,ty)=>{const k=tx*65536+ty,a=TURA.get(k)||0,st=stor.get(k),sup=!bolt&&st&&st.items&&st.items.some(it=>it&&it.id==='schalldaempfer');
+ g.save();g.translate(RQ(dx+7),RQ(dy+7));g.rotate(a);
+ if(bolt){g.fillStyle='#5a3a1e';g.fillRect(0,-1,len,2);g.fillStyle='#c8c0a8';g.fillRect(len-2,-4,1,8);g.fillStyle='#e8e4dc';g.fillRect(2,0,len-3,1)}
+ else{g.fillStyle=col;g.fillRect(0,-1,len,2);g.fillStyle='#4a4c52';g.fillRect(0,-1,3,2);if(sup){g.fillStyle='#121214';g.fillRect(len-1,-2,5,4);g.fillStyle='#3a3c42';g.fillRect(len-1,-2,5,1)}}
+ g.restore();const f=TURF.get(k)||0;if(f>0&&!sup){const L=len+1;g.fillStyle='#ffe9a0';g.fillRect(RQ(dx+7+Math.cos(a)*L)-1,RQ(dy+7+Math.sin(a)*L)-1,3,3)}};
+XDRAW[T.geschuetz]=turDraw(9,'#1e2024');XDRAW[T.geschuetz_a]=turDraw(8,'#5a3a1e',1);XDRAW[T.geschuetz_g]=turDraw(13,'#16181c');
+TURC[T.geschuetz_a]={am:['pfeil','bolzen'],cd:48,rg:130,dm:4,sp:5,l:34,nz:35,bolt:1};
+TURC[T.geschuetz_g]={am:['a762'],cd:36,rg:185,dm:7,sp:8,l:28,snd:'gewehr',nz:330,pi:1};
+TUT.turret=[L4('Lege passende Munition in die Selbstschussanlage (Pfeile/Bolzen, 9mm oder 7.62). Ein Schalldämpfer im Fach macht Pistole und Gewehr viel leiser.','Put matching ammo in the sentry (arrows/bolts, 9mm or 7.62). A suppressor in a slot makes pistol and rifle much quieter.','Pon munición adecuada (flechas/virotes, 9mm o 7.62). Un silenciador en un hueco hace pistola y rifle mucho más silenciosos.','Mets des munitions adaptées (flèches/carreaux, 9mm ou 7.62). Un silencieux dans un emplacement rend pistolet et fusil bien plus discrets.'),null];
+{const _oi=openInv;openInv=function(){_oi();if(boxK!=null&&typeof boxK==='number'){const[x,y]=kxy(boxK);const tt=tile(x,y);if(tt===T.geschuetz_a||tt===T.geschuetz_g)tutTip('turret')}}}
+// ================= Bau-Katalog =================
+BCAT.splice(BCAT.findIndex(c=>c[0]==='deko')+1,0,['strom',V32.power,'lamp'],['vert',V32.vert,'pistole']);
+const NB32=[
+ ['treppe','bau','t',T.treppe,{holz:8,schrott:2},L4('Treppe','Stairs','Escalera','Escalier'),L4('Führt ein Stockwerk höher (max. 3) – nur ohne Dach','Leads one floor up (max. 3) – only without a roof','Sube un piso (máx. 3), solo sin tejado','Monte d’un étage (max. 3) – seulement sans toit')],
+ ['oboden','bau','g',G.oboden,{holz:4},L4('Oberboden','Upper floor','Suelo superior','Plancher'),L4('Boden im Obergeschoss – braucht eine Wand darunter (max. 4 Felder entfernt)','Floor upstairs – needs a wall below (max. 4 tiles away)','Suelo arriba: necesita una pared debajo (máx. 4 casillas)','Sol à l’étage – il faut un mur dessous (max. 4 cases)')],
+ ['waffenstaender','moebel','t',T.waffenstaender,{holz:5,schrott:1},L4('Waffenständer','Weapon stand','Soporte de armas','Présentoir d’armes'),L4('Zeigt bis zu 3 Waffen (4 Plätze)','Shows up to 3 weapons (4 slots)','Muestra hasta 3 armas (4 huecos)','Montre jusqu’à 3 armes (4 places)')],
+ ['wandhalter','moebel','t',T.wandhalter,{holz:3},L4('Waffen-Wandhalter','Wall gun rack','Soporte de pared','Râtelier mural'),L4('Unter eine Wand setzen – zeigt 2 Waffen (3 Plätze)','Place below a wall – shows 2 weapons (3 slots)','Bajo una pared: muestra 2 armas (3 huecos)','Sous un mur – montre 2 armes (3 places)')],
+ ['solarpanel','strom','t',T.solarpanel,{schrott:8,mechanik:1},L4('Solarpanel','Solar panel','Panel solar','Panneau solaire'),L4('Strom für Lampen im Umkreis von 8 Feldern – mit Akku für die Nacht','Powers lamps within 8 tiles – battery for the night','Alimenta lámparas a 8 casillas, con batería','Alimente les lampes à 8 cases – batterie pour la nuit')],
+ ['lichtschalter','strom','t',T.lichtschalter,{schrott:1},L4('Lichtschalter','Light switch','Interruptor','Interrupteur'),L4('Unter eine Wand setzen – schaltet die Lampen in der Nähe','Place below a wall – switches nearby lamps','Bajo una pared: enciende las lámparas cercanas','Sous un mur – allume les lampes proches')],
+ ['deckenlampe','strom','t',T.deckenlampe,{schrott:2},L4('Deckenlampe','Ceiling lamp','Lámpara de techo','Plafonnier'),L4('Helles Licht im Raum – braucht Strom','Bright room light – needs power','Luz intensa: necesita electricidad','Lumière vive – il faut du courant')],
+ ['wandlampe','strom','t',T.wandlampe,{schrott:2},L4('Wandlampe','Wall lamp','Aplique','Applique'),L4('Unter eine Wand setzen – braucht Strom','Place below a wall – needs power','Bajo una pared: necesita electricidad','Sous un mur – il faut du courant')],
+ ['flutlicht','strom','t',T.flutlicht,{schrott:5,mechanik:1},L4('Flutlicht','Floodlight','Foco','Projecteur'),L4('Sehr helles Licht für draußen – braucht Strom','Very bright outdoor light – needs power','Luz exterior muy intensa: necesita electricidad','Lumière extérieure très vive – il faut du courant')],
+ ['geschuetz_a','vert','t',T.geschuetz_a,{holz:6,schrott:6,feder:1},L4('Selbstschussanlage (Pfeile)','Sentry (arrows)','Torreta (flechas)','Tourelle (flèches)'),L4('Schießt Pfeile oder Bolzen – fast lautlos','Shoots arrows or bolts – almost silent','Dispara flechas o virotes: casi silenciosa','Tire flèches ou carreaux – presque silencieuse')],
+ ['geschuetz_g','vert','t',T.geschuetz_g,{schrott:16,mechanik:2,lauf:2},L4('Selbstschussanlage (Gewehr)','Sentry (rifle)','Torreta (rifle)','Tourelle (fusil)'),L4('Weit und stark – mit 7.62 befüllen, Schalldämpfer möglich','Long range, strong – load 7.62, suppressor possible','Largo alcance: cárgala con 7.62, admite silenciador','Longue portée – charger en 7.62, silencieux possible')]];
+for(const[id,cat,k,tg,cost,n,ds]of NB32){BP[id]={id,cat,k,tg,cost,n};BDESC[id]=ds;makeKit(BP[id])}
+if(BP.geschuetz){BP.geschuetz.n=L4('Selbstschussanlage (Pistole)','Sentry (pistol)','Torreta (pistola)','Tourelle (pistolet)');BDESC.geschuetz=L4('Mit 9mm befüllen – Schalldämpfer ins Fach legen = leiser','Load 9mm – put a suppressor in a slot = quieter','Cárgala con 9mm; un silenciador la hace más silenciosa','Charger en 9mm – un silencieux la rend discrète');
+ const kd=D['bs_geschuetz'];if(kd){kd.n='Bausatz: '+BP.geschuetz.n;const tl=I18N[BP.geschuetz.n];if(tl)I18N[kd.n]=[tl[0]+' kit','Kit: '+tl[1],'Kit : '+tl[2]]}}
+for(const id of['geschuetz','baerenfalle','dosenalarm','stacheldraht','spiess','wachturm','betonsperre'])if(BP[id])BP[id].cat='vert';
+for(const id of['strassenlaterne','solarleuchte'])if(BP[id])BP[id].cat='strom';
+{const ord=['farbe','abriss'];for(const k of ord){const v=BP[k];if(v){delete BP[k];BP[k]=v}}}
+for(const id of['waffenstaender','wandhalter','geschuetz_a','geschuetz_g'])ACTX(id,'open','Öffnen',0);
+ACTX('treppe','up',V32.up,0);ACTX('treppe_ob','down',V32.down,0);ACTX('lichtschalter','switch_',V32.sw,0);ACTX('solarpanel','solar_',V32.solar,0);
+// ================= 4. Werkbank: Bausätze nach Kategorien =================
+let KC=null;
+{const _r=renderWB;renderWB=function(){_r();if(wbTab!=='bau')return;const cats=BCAT.filter(c=>KITS.some(b=>b.cat===c[0]));if(!cats.length)return;
+ if(!KC||!cats.some(c=>c[0]===KC))KC=cats[0][0];const tot=c=>Object.values(c).reduce((a,b)=>a+b,0);
+ const list=KITS.filter(b=>b.cat===KC).sort((a,b)=>tot(a.wbCost)-tot(b.wbCost));
+ const chips=`<div class="kch">${cats.map(([k,n,ic])=>`<div class="kc${k===KC?' on':''}" data-kc="${k}">${icW(ic)}${tr(n)}<small>${KITS.filter(b=>b.cat===k).length}</small></div>`).join('')}</div>`;
+ $('wbL').innerHTML=chips+list.map(b=>{const ok=canPay(b.wbCost),id=kitOf(b),have=countA(id);return `<div class="bc${ok?'':' no'}" data-kit="${b.id}"><img src="${icoUrl(id)}" style="width:36px;height:36px"><b>${tr(b.n)}</b><div class="cost" style="flex-wrap:wrap;justify-content:center">${costH(b.wbCost)}</div>${have?`<small class="kh">×${have}</small>`:''}</div>`}).join('')}}
+$('wbL').addEventListener('click',e=>{const c=e.target.closest('[data-kc]');if(!c)return;e.stopPropagation();KC=c.dataset.kc;S.ui();renderWB();$('wbL').scrollTop=0},true);
+{const st=document.createElement('style');st.textContent=`#wbL .kch{grid-column:1/-1;display:flex;gap:6px;flex-wrap:wrap;position:sticky;top:0;z-index:2;padding:2px 0 6px;background:linear-gradient(180deg,rgba(18,14,12,.96) 80%,rgba(18,14,12,0))}
+#wbL .kc{display:flex;align-items:center;gap:5px;padding:5px 10px;font-size:11px;letter-spacing:1px;text-transform:uppercase;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.35);color:#cfc4ae;cursor:pointer;border-radius:3px}
+#wbL .kc .ic{width:13px;height:13px}#wbL .kc small{opacity:.55;font-size:9px}
+#wbL .kc.on{background:linear-gradient(180deg,#c89a3a,#8a6420);color:#1a120a;border-color:#e8c070}
+#lvT{display:flex;align-items:center;gap:4px;font-size:10px;color:#e6dcc4;white-space:nowrap}#lvT img{width:12px;height:12px;image-rendering:pixelated}#lvT b{color:#e8c070}#lvT.hide{display:none}`;document.head.appendChild(st)}
+// ================= 7. Stockwerke =================
+const newL=()=>({mods:new Map(),whp:new Map(),gmods:new Map(),rmods:new Map(),own:new Set(),paintT:new Map(),paintG:new Map(),stor:new Map(),Zs:[],Is:[],As:[],Dc:[],DY:[],VS:[],farm:new Map()});
+function grabL(){return{mods,whp,gmods,rmods,own,paintT,paintG,stor,Zs,Is,As,Dc,DY,VS,farm}}
+function putL(o){mods=o.mods;whp=o.whp;gmods=o.gmods;rmods=o.rmods;own=o.own;paintT=o.paintT;paintG=o.paintG;stor=o.stor;Zs=o.Zs;Is=o.Is;As=o.As;Dc=o.Dc;DY=o.DY;VS=o.VS;farm=o.farm}
+let LVS=[null,newL(),newL()],SWS=new Map(),CEILR=null;
+function swapTo(n){if(n===LV)return;LVS[LV]=grabL();putL(LVS[n]);LVS[n]=null;LV=n}
+const Lm=l=>l===LV?grabL():LVS[l];
+const cell0=cell;cell=function(x,y){return LV?(G.luft<<8):cell0(x,y)};
+function gAt(l,x,y){const M=Lm(l);if(!M)return G.luft;const m=M.gmods.get(x*65536+y);if(m!==undefined)return m;return l===0?cell0(x,y)>>8:G.luft}
+function tAt(l,x,y){const M=Lm(l);if(!M)return 0;const m=M.mods.get(x*65536+y);if(m!==undefined)return m;return l===0?cell0(x,y)&255:0}
+const hasFloor=(l,k)=>{const M=Lm(l);const q=M&&M.gmods.get(k);return q!==undefined&&q!==G.luft};
+function supported(l,x,y){if(l<1)return true;if(tAt(l-1,x,y)===T.treppe)return true;const M=Lm(l-1);
+ for(let dx=-4;dx<=4;dx++)for(let dy=-4;dy<=4;dy++){const k=(x+dx)*65536+y+dy;if(!M.own.has(k))continue;const tt=M.mods.get(k);if(tt&&TWALL[tt])return true}return false}
+function lvName(){return LV?tr(V32.og)+' '+LV:tr(V32.eg)}
+function stepSnd(up){if(!AC)return;A(null,null,.5,.1,(b,t0)=>{for(let i=0;i<4;i++)nz(b,t0+i*.11,.06,'lowpass',up?520+i*60:760-i*60,1,.45)})}
+function setLevel(n,quiet){if(n<0||n>2||n===LV)return;swapTo(n);RGHk=-1;RGH=null;CEILR=null;insideH=null;BC=null;P.job=null;P.tg=null;boxK=null;roofHA=0;
+ powerTick();hudDirty=1;lvHud();if(!quiet){stepSnd(n>0);toast(lvName())}}
+// Hochgehen / Runtergehen
+{const _ea=extraAct;extraAct=function(a){const{tx,ty,tt}=a;
+ if(tt===T.treppe){if(LV>=2)return true;setLevel(LV+1);P.x=tx*16+8;P.y=ty*16+9;cam.x=P.x;cam.y=P.y;return true}
+ if(tt===T.treppe_ob){if(LV<1)return true;setLevel(LV-1);P.x=tx*16+8;P.y=ty*16+11;cam.x=P.x;cam.y=P.y;return true}
+ if(tt===T.lichtschalter){const key=LV+':'+(tx*65536+ty);SWS.set(key,SWS.get(key)===0?1:0);S.click&&S.click();powerTick();return true}
+ if(tt===T.solarpanel){let n=0;for(const k of own){const[x,y]=kxy(k),q=tile(x,y);if((ELAMP[q]!=null||ELOFF[q]!=null)&&Math.max(Math.abs(x-tx),Math.abs(y-ty))<=8)n++}toast(tr(V32.solarS)+' · '+n+' '+tr(V32.lamps));return true}
+ return _ea(a)}}
+// Boden, Treppen, Wandteile: Bauregeln
+const WALLM=new Set(['wandhalter','wandlampe','lichtschalter']);
+{const _ba=buildAct;buildAct=function(){const a=_ba();if(!a||!BM)return a;const k=a.tx*65536+a.ty,tt=tile(a.tx,a.ty),gg=gnd(a.tx,a.ty);
+ const fail=(l,why)=>{a.ok=false;a.l=l;a.lvx=why||l;return a};
+ if(a.k==='del'){if(tt===T.treppe_ob&&a.layer!=='r')return fail(V32.downDel);return a}
+ if(a.k!=='build')return a;const b=BP[BM];if(!b)return a;
+ if((tt===T.treppe||tt===T.treppe_ob)&&b.k!=='r')return fail(V32.stairX);
+ if(b.id==='oboden'){if(!LV)return fail(V32.onlyUp);if(gg!==G.luft)return fail(V32.hasFl);
+  if(![k-1,k+1,k-65536,k+65536].some(n=>{const q=gmods.get(n);return q!==undefined&&q!==G.luft}))return fail(V32.nextTo);
+  if((LV===1&&houseAt(a.tx,a.ty))||Lm(LV-1).rmods.has(k))return fail(V32.roofIn,V32.roofL);
+  if(!supported(LV,a.tx,a.ty))return fail(V32.noSup,V32.noSupL);return a}
+ if(b.id==='treppe'&&LV>=2)return fail(V32.max3);
+ if(LV&&gg===G.luft)return fail(V32.noFl,V32.noFlL);
+ if(b.id==='treppe'){if(rmods.has(k)||(!LV&&houseAt(a.tx,a.ty)))return fail(V32.roofIn,V32.roofL);if(tAt(LV+1,a.tx,a.ty))return fail(V32.upBlk);return a}
+ if(b.k==='r'&&LV<2&&hasFloor(LV+1,k))return fail(V32.above);
+ if(WALLM.has(b.id)&&!wSolidAt(a.tx,a.ty-1))return fail(V32.wall,V32.wallL);
+ return a}}
+const ELAMP={[T.deckenlampe]:T.deckenlampe_an,[T.wandlampe]:T.wandlampe_an,[T.flutlicht]:T.flutlicht_an},ELOFF={};for(const k in ELAMP)ELOFF[ELAMP[k]]=+k;
+function dropTo(l,it,x,y){const M=Lm(l);if(M)M.Is.push({x:x*16+4+rnd()*8,y:y*16+4+rnd()*8,z:0,vx:0,vy:0,vz:0,it,t:0})}
+function collapseUp(L,tx,ty){if(L>=2)return 0;const l=L+1,U=Lm(l);if(!U||!U.gmods.size)return 0;const dead=[];
+ for(let dx=-5;dx<=5;dx++)for(let dy=-5;dy<=5;dy++){const x=tx+dx,y=ty+dy,k=x*65536+y,q=U.gmods.get(k);if(q===undefined||q===G.luft)continue;if(U.mods.get(k)===T.treppe_ob)continue;if(!supported(l,x,y))dead.push([x,y,k])}
+ for(const[x,y,k]of dead){if(U.mods.get(k)===T.treppe&&l<2){const U2=LVS[l+1]||Lm(l+1);if(U2&&U2.mods.get(k)===T.treppe_ob){U2.mods.delete(k);U2.own.delete(k);U2.gmods.delete(k)}}const st=U.stor.get(k);if(st&&st.items)for(const it of st.items)if(it)dropTo(L,it,x,y);U.stor.delete(k);U.mods.delete(k);U.own.delete(k);U.whp.delete(k);U.paintT.delete(k);U.gmods.delete(k);U.paintG.delete(k);U.rmods.delete(k);
+  for(let i=U.Is.length-1;i>=0;i--){const o=U.Is[i];if(Math.floor(o.x/16)===x&&Math.floor(o.y/16)===y){U.Is.splice(i,1);dropTo(L,o.it,x,y)}}
+  if(L===LV){debris(x*16+8,y*16-4,5,['#8a6236','#5a3a1e','#9aa0a7']);if(Math.abs(P.x-(x*16+8))<12&&Math.abs(P.y-(y*16+8))<12){P.hc=0;hurt(10,P.x,P.y-10,.2)}}}
+ if(dead.length){S.wallbreak&&S.wallbreak(tx*16+8,ty*16+8);shk=Math.min(8,shk+4);noise(tx*16+8,ty*16+8,220);toast(tr(V32.coll),'bad');for(const[x,y]of dead)if(l<2)collapseUp(l,x,y)}
+ return dead.length}
+{const _db=doBuild;doBuild=function(a){if(a&&a.k==='build'&&a.lvx&&!a.ok){toast(tr(a.lvx),'bad');P.ac=20;return}
+ if(a&&a.k==='del'&&a.lvx){toast(tr(a.lvx),'bad');P.ac=20;return}
+ let k=0,t0=0,g0,solid=false;if(a){k=a.tx*65536+a.ty;t0=tile(a.tx,a.ty);g0=gmods.get(k);if(a.k==='del'&&ELOFF[t0]!=null)setT(a.tx,a.ty,ELOFF[t0]);solid=a.k==='del'&&own.has(k)&&(TWALL[t0]||t0===T.treppe)}
+ const bid=BM;const r=_db(a);if(!a)return r;
+ if(a.k==='build'&&bid==='treppe'&&tile(a.tx,a.ty)===T.treppe&&LV<2){const U=LVS[LV+1];U.gmods.set(k,G.oboden);U.mods.set(k,T.treppe_ob);U.own.add(k)}
+ if(a.k==='del'){
+  if(t0===T.treppe&&tile(a.tx,a.ty)!==T.treppe&&LV<2){const U=LVS[LV+1];if(U.mods.get(k)===T.treppe_ob){U.mods.delete(k);U.own.delete(k)}}
+  if(LV&&g0!==undefined&&g0!==G.oboden&&!gmods.has(k)&&!own.has(k))gmods.set(k,G.oboden);
+  if(LV&&!gmods.has(k)){for(let i=Is.length-1;i>=0;i--){const o=Is[i];if(Math.floor(o.x/16)===a.tx&&Math.floor(o.y/16)===a.ty){Is.splice(i,1);dropTo(LV-1,o.it,a.tx,a.ty)}}}
+  if(solid&&!own.has(k))collapseUp(LV,a.tx,a.ty)}
+ if(a.k==='build'&&ELAMP[BP[bid]&&BP[bid].tg]!=null||bid==='solarpanel'||bid==='lichtschalter')powerTick();
+ return r}}
+{const _rs=restore;restore=function(tx,ty){const w=TWALL[tile(tx,ty)];const r=_rs(tx,ty);if(w&&state===1){const l=LV;setTimeout(()=>{if(LV===l)collapseUp(l,tx,ty)},0)}return r}}
+// Strom
+function powerTick(){if(!P)return;const pn=[];for(let l=0;l<3;l++){const M=Lm(l);if(!M)continue;for(const k of M.own)if(M.mods.get(k)===T.solarpanel)pn.push(kxy(k))}
+ const sws=[];for(const k of own)if(mods.get(k)===T.lichtschalter)sws.push([...kxy(k),k]);
+ for(const k of own){const tt=mods.get(k);if(tt==null)continue;const on0=ELOFF[tt]!=null,off0=ELAMP[tt]!=null;if(!on0&&!off0)continue;const[x,y]=kxy(k);
+  const pw=pn.some(([px,py])=>Math.max(Math.abs(px-x),Math.abs(py-y))<=8);let sw=true,bd=99;
+  for(const[sx,sy,sk]of sws){const d=Math.max(Math.abs(sx-x),Math.abs(sy-y));if(d<=7&&d<bd){bd=d;sw=SWS.get(LV+':'+sk)!==0}}
+  const base=on0?ELOFF[tt]:tt,want=pw&&sw?ELAMP[base]:base;if(want!==tt)mods.set(k,want)}}
+// Darstellung: unten (dunkel) unter dem leeren Luftraum, Decke von unten gesehen
+function VOIDDRAW(tx,ty,X,Y){let l=LV-1,gg=gAt(l,tx,ty),dep=1;while(gg===G.luft&&l>0){l--;dep++;gg=gAt(l,tx,ty)}
+ const v=(TH(tx,ty)*4)|0,im=isW(gg)?GT[gg][v&1][0]:GT[gg]&&GT[gg][v];if(im)g.drawImage(im,X,Y);
+ const tt=tAt(l,tx,ty);if(tt){if(TWALL[tt]){const[F,cap]=wallTex(tt,tx,ty);g.drawImage(cap||CAP.lintel,X,Y)}else if(tt===T.baum||tt===T.tanne||tt===T.totbaum){g.fillStyle=tt===T.totbaum?'#4a3a2a':'#2e5a26';g.fillRect(X+1,Y+1,14,14);g.fillStyle='rgba(0,0,0,.25)';g.fillRect(X+3,Y+9,10,5)}else if(TSOL[tt]){g.fillStyle='rgba(60,60,60,.7)';g.fillRect(X+3,Y+3,10,10)}}
+ g.fillStyle=`rgba(4,6,12,${dep>1?.72:.58})`;g.fillRect(X,Y,16,16);
+ const qN=gmods.get(tx*65536+ty-1);if(qN!==undefined&&qN!==G.luft){g.fillStyle='#3a2614';g.fillRect(X,Y,16,3);g.fillStyle='rgba(0,0,0,.5)';g.fillRect(X,Y+3,16,3)}}
+function CEILDRAW(x0,x1,y0,y1){if(LV>=2)return;const U=LVS[LV+1];if(!U||!U.gmods.size)return;const U2=LV===0?LVS[2]:null;
+ for(let ty=y0;ty<=y1;ty++)for(let tx=x0;tx<=x1;tx++){const k=tx*65536+ty,q=U.gmods.get(k);if(q===undefined||q===G.luft)continue;
+  const a=CEILR&&CEILR.has(k)?1-roofHA:1;if(a<.03)continue;g.globalAlpha=a;const X=tx*16-cx,Y=ty*16-cy-WH;
+  const top2=U2&&U2.gmods.get(k),rc=U2&&U2.rmods.has(k)?U2.rmods.get(k):U.rmods.get(k);
+  if(rc!==undefined)g.drawImage(roofTile(rc),X,Y);else{g.drawImage(GT[(top2!==undefined&&top2!==G.luft)?top2:q][(TH(tx,ty)*4)|0],X,Y);g.fillStyle='rgba(0,0,0,.12)';g.fillRect(X,Y,16,16)}
+  const has=n=>{const z=U.gmods.get(n);return z!==undefined&&z!==G.luft};
+  if(!has(k+1)){g.fillStyle='#5a4a3a';g.fillRect(X,Y+16,16,5);g.fillStyle='rgba(0,0,0,.35)';g.fillRect(X,Y+16,16,1);g.fillStyle='rgba(0,0,0,.2)';g.fillRect(X,Y+21,16,3)}
+  if(!has(k-1)){g.fillStyle='rgba(255,255,255,.18)';g.fillRect(X,Y,16,1)}if(!has(k-65536)){g.fillStyle='rgba(0,0,0,.4)';g.fillRect(X,Y,1,16)}if(!has(k+65536)){g.fillStyle='rgba(0,0,0,.4)';g.fillRect(X+15,Y,1,16)}
+  g.globalAlpha=1}}
+{const _r=roofStep;roofStep=function(){const k=Math.floor(P.x/16)*65536+Math.floor(P.y/16),ch=k!==RGHk;_r();if(!ch)return;CEILR=null;
+ if(LV<2){const U=LVS[LV+1];const isF=n=>{const z=U.gmods.get(n);return z!==undefined&&z!==G.luft};if(U&&isF(k)){const s=new Set([k]),q=[k];while(q.length&&s.size<800){const c=q.pop();for(const n of[c-1,c+1,c-65536,c+65536])if(isF(n)&&!s.has(n)){s.add(n);q.push(n)}}CEILR=s}}
+ if(CEILR&&!RGH)RGH=CEILR}}
+{const _h=housesInView;housesInView=function(a,b,c,d){return LV?[]:_h(a,b,c,d)}}
+for(const fn of['spawnGroup','houseSpawns','spawnAnimal']){const f=window[fn];if(typeof f==='function')window[fn]=function(){if(LV)return;return f.apply(this,arguments)}}
+{const _dm=drawMap;drawMap=function(c,R){const l=LV;if(l)swapTo(0);try{return _dm(c,R)}finally{if(l)swapTo(l)}}}
+{const _at=adTick;adTick=function(){const l=LV;if(l)swapTo(0);try{return _at()}finally{if(l)swapTo(l)}}}
+{const _ad=adDraw;adDraw=function(){if(LV)return;return _ad()}}
+// Abstürzen, Strom-Takt
+function fallDown(){let n=0;while(LV>0&&gnd(Math.floor(P.x/16),Math.floor(P.y/16))===G.luft){setLevel(LV-1,1);n++}if(!n)return;
+ if(bl(P.x,P.y)){const[a,b]=freeSpot(P.x,P.y,0,1);P.x=a;P.y=b}cam.x=P.x;cam.y=P.y;P.hc=0;hurt(12*n,P.x,P.y-6,.3);S.wallbreak&&S.wallbreak(P.x,P.y);shk=Math.min(8,shk+5);toast(tr(V32.fell),'bad')}
+{const _st=step;step=function(){_st();if(state!==1||!P)return;if(LV&&t%6===0&&!P.veh&&!P.sit)fallDown();if(t%30===0)powerTick()}}
+// Anzeige im Info-Feld
+{const g_=$('info')||$('game'),e=document.createElement('div');e.id='lvT';e.className='hide';e.innerHTML=`<i class="ic">${icoImg('up')}</i><b id="lvTv"></b>`;g_.appendChild(e)}
+function lvHud(){const e=$('lvT');if(!e)return;e.classList.toggle('hide',!LV);if(LV)$('lvTv').textContent=lvName()}
+// Speichern & Laden aller Stockwerke
+const serL=o=>({m:[...o.mods],w:[...o.whp],g:[...o.gmods],r:[...o.rmods],o:[...o.own],pt:[...o.paintT],pg:[...o.paintG],st:[...o.stor],it:o.Is.map(i=>({x:i.x,y:i.y,it:i.it})),f:[...o.farm]});
+function deL(s){const o=newL();if(!s)return o;o.mods=new Map(s.m||[]);o.whp=new Map(s.w||[]);o.gmods=new Map(s.g||[]);o.rmods=new Map(s.r||[]);o.own=new Set(s.o||[]);o.paintT=new Map(s.pt||[]);o.paintG=new Map(s.pg||[]);o.stor=new Map(s.st||[]);o.farm=new Map(s.f||[]);
+ o.Is=(s.it||[]).map(i=>({x:i.x,y:i.y,z:0,vx:0,vy:0,vz:0,it:i.it,t:0}));return o}
+{const _s=save;save=function(q){if(state!==1||!P)return _s(q);const l=LV,px=P.x,py=P.y;if(l)swapTo(0);try{_s(q)}finally{if(l)swapTo(l)}
+ try{LS.set('zw4_x'+slot,JSON.stringify({v:1,lv:l,px,py,L:[serL(Lm(1)),serL(Lm(2))],sw:[...SWS]}))}catch(e){}}}
+{const _l=load;load=function(s){if(LV){LV=0}LVS=[null,newL(),newL()];SWS=new Map();CEILR=null;const ok=_l(s);if(!ok)return ok;
+ let x=null;try{x=JSON.parse(LS.get('zw4_x'+s))}catch(e){}
+ if(x&&x.L){LVS[1]=deL(x.L[0]);LVS[2]=deL(x.L[1]);SWS=new Map(x.sw||[]);if(x.lv>0&&x.lv<3){swapTo(x.lv);P.x=x.px;P.y=x.py;cam.x=P.x;cam.y=P.y;RGHk=-1;insideH=null}}
+ powerTick();lvHud();return ok}}
+{const _n=newGame;newGame=function(s,cc){LV=0;LVS=[null,newL(),newL()];SWS=new Map();CEILR=null;const r=_n(s,cc);try{LS.del('zw4_x'+s)}catch(e){}lvHud();return r}}
+{const _tm=toMenu;toMenu=function(){const r=_tm.apply(this,arguments);if(LV){swapTo(0);RGHk=-1}lvHud();return r}}
 applyLang();
 </script><script>if('serviceWorker'in navigator&&location.protocol.startsWith('http'))addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));</script></body></html>
