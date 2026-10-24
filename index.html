@@ -925,9 +925,9 @@ const TN=['leer','baum','tanne','totbaum','busch','beeren','beeren_leer','pilze'
  'unkraut','distel','brennnessel','wildblume','loewenzahn','moos','gestruepp','efeu',
  'wellblech','bretterwand','zinnen','rolltor','rolltor_o','lagerregal','feuertonne','wachturm','betonsperre',
  'gitarre','teddy','kerzenst','totempfahl','reifenstapel','palettenst','keepout','oellampe','blumenkuebel','sonnenliege','gasflaschen','pflanzregal',
- 'treppe','treppe_ob','waffenstaender','wandhalter','solarpanel','lichtschalter','deckenlampe','deckenlampe_an','wandlampe','wandlampe_an','flutlicht','flutlicht_an','geschuetz_a','geschuetz_g','stahlwand','stahltuer','stahltuer_o','etagenbett','haengematte','couchtisch','bild','wanduhr','spiegel','dartscheibe','boxsack','waschmaschine','kaffeemaschine','weinregal','werkzeugwand','barhocker','tresen','jukebox','generator','holzstapel','tonne','schaukelstuhl','arcade','automat','pinnwand','kronleuchter','kronleuchter_an','neonschild','neonschild_an','lavalampe','ampel','bushaltestelle','telefonzelle','litfass','aktenschrank','buerostuhl','kopierer','wasserspender','globus'];
-const T={};TN.forEach((n,i)=>T[n]=i);const COOK=new Uint8Array(256),XLIGHT={},XDRAW={},NOSWAY=new Uint8Array(256),CONN={};
-const flag=l=>{const a=new Uint8Array(256);l.forEach(n=>a[T[n]]=1);return a};
+ 'treppe','treppe_ob','waffenstaender','wandhalter','solarpanel','lichtschalter','deckenlampe','deckenlampe_an','wandlampe','wandlampe_an','flutlicht','flutlicht_an','geschuetz_a','geschuetz_g','stahlwand','stahltuer','stahltuer_o','etagenbett','haengematte','couchtisch','bild','wanduhr','spiegel','dartscheibe','boxsack','waschmaschine','kaffeemaschine','weinregal','werkzeugwand','barhocker','tresen','jukebox','generator','holzstapel','tonne','schaukelstuhl','arcade','automat','pinnwand','kronleuchter','kronleuchter_an','neonschild','neonschild_an','lavalampe','ampel','bushaltestelle','telefonzelle','litfass','aktenschrank','buerostuhl','kopierer','wasserspender','globus','hoftor_l','hoftor_m','hoftor_r','hoftor_lo','hoftor_mo','hoftor_ro','gartentor','gartentor_o','maschendraht','schiessscharte','fensterladen','fensterladen_o','nagelbrett','hochbeet','sprinkler','kompost','gewaechshaus','waescheleine','hundehuette','gartenlaterne','teich','hochsitz','futterkrippe'];
+const T={};TN.forEach((n,i)=>T[n]=i);const COOK=new Uint8Array(512),XLIGHT={},XDRAW={},NOSWAY=new Uint8Array(512),CONN={};
+const flag=l=>{const a=new Uint8Array(512);l.forEach(n=>a[T[n]]=1);return a};
 const TSOL=flag(['baum','tanne','totbaum','stein','kiste','mkiste','kiste_offen','auto','auto_leer','fass','muell','muell_leer','laterne','hwand','hfassade','hfenster','htuer','schrank','schrank_leer','regal','regal_leer','kuehl','kuehl_leer','bett','tisch','sofa','herd','holzwand','steinwand','tuer','feuer','ziegelwand','metallwand','fensterwand','mtuer','zaun','stuhl','tv','tv_an','lampe','lampe_an','pflanze','regentonne','kiste_s','kiste_m','spind','auto_ausg',
  'baumstamm','hydrant','bank','briefkasten','schild','fahrrad','mcontainer','mcontainer_l','heuballen','zelt','zelt_l','schrotthaufen','werkbank','huehnerstall','hasenstall','ziegenstall','betonmauer','sandsack','palisade','tor',
  'kamin','buecherregal','kommode','schreibtisch','badewanne','toilette','waschbecken','radio','radio_an','standuhr','brunnen','fackel','strassenlaterne','blumenkasten','vogelscheuche','gartenzwerg','metallkiste','tresor']);
@@ -2295,7 +2295,7 @@ function step(){t++;const h=hourOf(t);dark=darkOf(h);
  for(const a of As)updA(a);As=As.filter(a=>!a.dead);
  if(t%100===0){const rm=[1,.8,1.7,1.3,1,.7][curReg<0?0:curReg];const want=Math.round(((window.ZPOP?ZPOP():Math.min(48,15+(dayN()-1)*4))+(dark>.4?10:0))*rm);if(Zs.length<want)spawnGroup();for(const[k]of GRP)if(!Zs.some(z=>z.g===k))GRP.delete(k)}
  if(t%60===0)houseSpawns();
- if(t%240===0&&As.length<6&&dark<.5&&rnd()<.75)spawnAnimal();
+ if(t%(window.ANF||240)===0&&As.length<(window.ANC||6)&&dark<.7&&rnd()<.8)spawnAnimal();
  // Region & Haus
  const ptx=Math.floor(P.x/16),pty=Math.floor(P.y/16);
  if(t%30===0){const r=regionAt(ptx,pty);if(r===curReg)regCnt=0;else if(curReg<0){curReg=r;if(state===1)banner(tr(RGN[r]))}else{if(r===regCand)regCnt++;else{regCand=r;regCnt=1}if(regCnt>=5){regCnt=0;curReg=r;banner(tr(RGN[r]))}}}
@@ -3528,7 +3528,7 @@ TWALL[T.hecke]=1;
 for(const k in BI)if(BP[k]&&BP[k].tg===T.hecke)delete BI[k];
 // ---------- Zaun, Sandsäcke, Stacheldraht: Verbindungsteile ----------
 const FAM={zaun:['zaun','tor','tor_o'],sandsack:['sandsack'],stacheldraht:['stacheldraht','zaun']};
-const famOf=n=>{const s=new Uint8Array(256);for(const m of FAM[n])s[T[m]]=1;return s};
+const famOf=n=>{const s=new Uint8Array(512);for(const m of FAM[n])s[T[m]]=1;return s};
 const FAMS={};for(const n in FAM)FAMS[n]=famOf(n);
 function maskAt(tx,ty,fs){const c=(x,y)=>{const q=tile(x,y);return fs[q]||(TWALL[q]&&!OPEND[q])?1:0};return c(tx,ty-1)|c(tx+1,ty)<<1|c(tx,ty+1)<<2|c(tx-1,ty)<<3}
 // Masken: 1=oben 2=rechts 4=unten 8=links. Leinwand 16x24, Boden-Mitte bei y=16
@@ -3713,7 +3713,7 @@ if(canFS){const set=document.querySelector('#sets .set');if(set){const d=documen
 applyLang();
 // ================= v16: Ducken, Vollbild-Knopf immer da =================
 // Deckung: niedrige Hindernisse zwischen dir und dem Zombie (nah bei dir)
-const COVER=new Uint8Array(256);for(let i=0;i<256;i++)if(TLOW[i]&&TSOL[i])COVER[i]=1;for(const n of['sandsack','zaun','stacheldraht','hecke','panzersperre','kistenstapel','auto','auto_leer','auto_ausg','mcontainer','mcontainer_l','fass','heuballen','baumstamm','busch'])if(T[n]!=null)COVER[T[n]]=1;
+const COVER=new Uint8Array(512);for(let i=0;i<512;i++)if(TLOW[i]&&TSOL[i])COVER[i]=1;for(const n of['sandsack','zaun','stacheldraht','hecke','panzersperre','kistenstapel','auto','auto_leer','auto_ausg','mcontainer','mcontainer_l','fass','heuballen','baumstamm','busch'])if(T[n]!=null)COVER[T[n]]=1;
 function inCover(z){const dx=z.x-P.x,dy=z.y-P.y,d=Math.hypot(dx,dy)||1;if(d<20)return false;for(let r=6;r<=30;r+=4){const x=P.x+dx/d*r,y=P.y+dy/d*r;const tt=tile(Math.floor(x/16),Math.floor(y/16));if(COVER[tt]||(TWALL[tt]&&!OPEND[tt]))return true}
  for(const v of VS){if(dist(v.x,v.y,P.x,P.y)<28){const c=((v.x-P.x)*dx+(v.y-P.y)*dy)/d;if(c>0)return true}}return false}
 function setCrouch(on){if(!P||P.veh||P.sit)on=false;P.crouch=on?1:0;const b=$('crouch');if(b)b.classList.toggle('on',!!P.crouch);hudDirty=1}
@@ -3896,7 +3896,7 @@ const CTX={
  note:L4('Die Spielstand-Datei funktioniert auch ohne Konto – z. B. um vom Handy auf den PC zu wechseln.','The save file works without an account – e.g. to move from phone to PC.','El archivo funciona sin cuenta – p. ej. para pasar del móvil al PC.','Le fichier marche sans compte – p. ex. pour passer du mobile au PC.')};
 // ---------- alle Spielstand-Schlüssel sammeln ----------
 const zwKeys=()=>{const a=[];try{for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.startsWith('zw4_')&&k!=='zw4_cloud')a.push(k)}}catch(e){}return a};
-const slotOf=k=>{const m=/^zw4_(?:s|m|gv|ad|x|y|h|e)(\d+)$/.exec(k);return m?+m[1]:-1};
+const slotOf=k=>{const m=/^zw4_(?:s|m|gv|ad|x|y|h|e|w|f)(\d+)$/.exec(k);return m?+m[1]:-1};
 // ---------- Komprimieren (Firestore-Dokumente max. 1 MB) ----------
 async function zpack(s){try{if(typeof CompressionStream==='undefined')return'r:'+s;const b=await new Response(new Blob([s]).stream().pipeThrough(new CompressionStream('gzip'))).arrayBuffer();const u=new Uint8Array(b);let bin='';for(let i=0;i<u.length;i+=0x8000)bin+=String.fromCharCode.apply(null,u.subarray(i,i+0x8000));return'g:'+btoa(bin)}catch(e){return'r:'+s}}
 async function zunpack(v){if(typeof v!=='string')return null;if(v.startsWith('r:'))return v.slice(2);if(!v.startsWith('g:'))return v;
@@ -3931,7 +3931,7 @@ async function cloudPull(force){if(!CL.user||!CL.db)return;if(state===1&&force){
   const cg=k=>C[k]==null?null:C[k];let changed=false;
   const slots=new Set();for(const k of[...Object.keys(C),...zwKeys()]){const s=slotOf(k);if(s>=0)slots.add(s)}
   for(const s of slots){if(state===1&&s===slot)continue;const ca=at(cg,s),la=at(LS.get,s);
-   if(C['zw4_s'+s]&&(force||ca>la)){for(const p of['s','m','gv','ad','x','y','h','e']){const k='zw4_'+p+s;if(C[k]!=null)LS.set(k,C[k]);else localStorage.removeItem(k);CL.sent[k]=C[k]}changed=true}}
+   if(C['zw4_s'+s]&&(force||ca>la)){for(const p of['s','m','gv','ad','x','y','h','e','w','f']){const k='zw4_'+p+s;if(C[k]!=null)LS.set(k,C[k]);else localStorage.removeItem(k);CL.sent[k]=C[k]}changed=true}}
   if(C.zw4_last!=null&&(force||LS.get('zw4_last')==null))LS.set('zw4_last',C.zw4_last);
   if(force&&C.zw4_cfg){try{Object.assign(CFG,JSON.parse(C.zw4_cfg));saveCfg()}catch(e){}}
   if(changed){toast(tr(CTX.down),'good');if(typeof renderSlots==='function'&&!$('slots').classList.contains('hide'))renderSlots();if(typeof updMenu==='function')updMenu()}
@@ -3940,7 +3940,7 @@ async function cloudPull(force){if(!CL.user||!CL.db)return;if(state===1&&force){
 function cloudSoon(){if(!CL.user)return;clearTimeout(CL.timer);CL.timer=setTimeout(()=>cloudPush(false),1500)}
 // Speichern → automatisch Cloud
 {const _s=save;save=function(q){_s(q);cloudSoon()}}
-{const _d=LS.del;LS.del=function(k){_d(k);if(CL.user&&CL.db&&k.startsWith('zw4_')){delete CL.sent[k];const s=slotOf(k);const ks=s>=0&&/^zw4_s\d+$/.test(k)?['s','m','gv','ad','x','y','h','e'].map(p=>'zw4_'+p+s):[k];for(const x of ks)kvCol().doc(x).delete().catch(()=>{})}}}
+{const _d=LS.del;LS.del=function(k){_d(k);if(CL.user&&CL.db&&k.startsWith('zw4_')){delete CL.sent[k];const s=slotOf(k);const ks=s>=0&&/^zw4_s\d+$/.test(k)?['s','m','gv','ad','x','y','h','e','w','f'].map(p=>'zw4_'+p+s):[k];for(const x of ks)kvCol().doc(x).delete().catch(()=>{})}}}
 addEventListener('visibilitychange',()=>{if(document.hidden)cloudPush(false)});
 // ---------- Spielstand als Datei (ohne Konto) ----------
 function exportFile(){S.ui();if(state===1)save(true);const o={game:'zombie-wasteland',v:1,at:Date.now(),data:{}};for(const k of zwKeys())o.data[k]=LS.get(k);
@@ -4877,7 +4877,7 @@ const NS32={
  geschuetz_g:mkSp(16,15,P=>{P('#8a7a5a',0,10,16,5);P('#a89a7a',0,10,16,1);for(let x=2;x<16;x+=5)P('#6a5a3a',x,11,1,4);P('#3a3c42',4,3,8,7);P('#5a5e66',4,3,8,1);P('#2a2c30',6,5,4,3);P('#d8b450',5,8,6,1)})};
 S2('treppe',[NS32.treppe]);S2('treppe_ob',[NS32.treppe_ob]);
 DECO[T.treppe]=[NS32.treppe];DECO[T.treppe_ob]=[NS32.treppe_ob];TDECO[T.treppe]=TDECO[T.treppe_ob]=1;NOSWAY[T.treppe]=NOSWAY[T.treppe_ob]=1;
-window.FLAT=new Uint8Array(256);FLAT[T.treppe]=FLAT[T.treppe_ob]=1;
+window.FLAT=new Uint8Array(512);FLAT[T.treppe]=FLAT[T.treppe_ob]=1;
 S2('waffenstaender',[NS32.waffenstaender]);S2('wandhalter',[NS32.wandhalter],-18);S2('solarpanel',[NS32.solarpanel]);S2('lichtschalter',[NS32.lichtschalter],-18);
 S2('deckenlampe',[NS32.deckenlampe],-12);S2('deckenlampe_an',[NS32.deckenlampe_an],-12);S2('wandlampe',[NS32.wandlampe],-19);S2('wandlampe_an',[NS32.wandlampe_an],-19);
 S2('flutlicht',[NS32.flutlicht]);S2('flutlicht_an',[NS32.flutlicht_an]);S2('geschuetz_a',[NS32.geschuetz_a]);S2('geschuetz_g',[NS32.geschuetz_g]);
@@ -6138,5 +6138,237 @@ const CROWS_SP=[cv(6,4,P=>{P('#141418',1,1,4,2);P('#141418',0,2,1,1);P('#e8a020'
  CROWS=CROWS.filter(c=>c.fl<260&&dist(c.x,c.y,P.x,P.y)<700)}}
 {const _cd=CEILDRAW;CEILDRAW=function(a,b,c,d){_cd(a,b,c,d);if(LV)return;for(const q of CROWS){const s=q.fl?CROWS_SP[1+((q.fl>>2)&1)]:CROWS_SP[0],X=RQ(q.x-cx),Y=RQ(q.y-cy-q.z);if(X<-10||Y<-10||X>W+10||Y>Hh+10)continue;
  if(!q.fl){g.fillStyle='rgba(0,0,0,.25)';g.fillRect(X-2,Y+3,5,1)}g.save();g.translate(X,Y);if(q.dir<0)g.scale(-1,1);g.drawImage(s,-s.width/2,-s.height+(q.fl?0:Math.sin(q.ph)>.9?-1:0));g.restore()}}}
+applyLang();
+// ================= v42: Stadt aufgeräumt · Verbündete mit Wegsuche & zäher · Lebensmittel seltener =================
+// ---------- 1. Stadt: weniger Kram auf Straßen und Gehwegen ----------
+const CLUT=new Set(['muellsack','zeitung','steinchen','unkraut','blutfleck','reifen','schutt','loewenzahn','distel','brennnessel','gras_hoch','muell','schild','bank','briefkasten','hydrant','gestruepp','palettenst','gasflaschen','reifenstapel','efeu','wildblume','moos'].map(n=>T[n]).filter(v=>v!=null));
+const STREET=new Set([G.asphalt,G.asph_h,G.asph_v,G.asph_x,G.gehweg,G.ls_v0,G.ls_v1,G.ls_h0,G.ls_h1,G.ls_x,G.kopfstein].filter(v=>v!=null));
+const CITYP=new Set([T.ampel,T.bushaltestelle,T.telefonzelle,T.litfass]);
+{const _gc=genCell;genCell=function(x,y){const v=_gc(x,y),tt=v&255;if(!tt)return v;const gg=v>>8;
+ if(CITYP.has(tt))return hh(x*5+1,y*9+7,SEED+5252)<.28?v:(v&~255);
+ if(!CLUT.has(tt)||!STREET.has(gg))return v;if(!isTown(Math.floor(x/12),Math.floor(y/12)))return v;if(houseAt(x,y))return v;
+ return hh(x*11+3,y*3+13,SEED+5353)<.24?v:(v&~255)}}
+// ---------- 2. Verbündete: richtige Wegsuche statt Hängenbleiben ----------
+const hWalk=(x,y)=>{const q=tile(x,y);if(isW(gnd(x,y)))return false;if(GSOL[gnd(x,y)])return false;if(!q)return true;if(DOORS[q])return true;return!TSOL[q]||TLOW[q]&&!TWALL[q]&&false};
+function hPath(sx,sy,gx,gy){if(sx===gx&&sy===gy)return[];const R=30,key=(x,y)=>(x-sx+R)*(2*R+1)+(y-sy+R),prev=new Map(),q=[[sx,sy]];prev.set(key(sx,sy),-1);let best=[sx,sy],bd=1e9,found=false,n=0;
+ while(q.length&&n<3800){const[x,y]=q.shift();n++;const d=Math.abs(x-gx)+Math.abs(y-gy);if(d<bd){bd=d;best=[x,y]}if(d===0){found=true;break}
+  for(const[dx,dy]of[[1,0],[-1,0],[0,1],[0,-1]]){const nx=x+dx,ny=y+dy;if(Math.abs(nx-sx)>R||Math.abs(ny-sy)>R)continue;const k=key(nx,ny);if(prev.has(k))continue;if(!(nx===gx&&ny===gy)&&!hWalk(nx,ny))continue;prev.set(k,key(x,y));q.push([nx,ny])}}
+ const out=[];let[cx_,cy_]=found?[gx,gy]:best;let k=key(cx_,cy_);const W2=2*R+1;while(k!==-1&&k!==key(sx,sy)){const x=Math.floor(k/W2)-R+sx,y=(k%W2)-R+sy;out.push([x*16+8,y*16+10]);k=prev.get(k)}return out.reverse()}
+function clearLine(x0,y0,x1,y1){const n=Math.ceil(Math.hypot(x1-x0,y1-y0)/8);for(let i=1;i<=n;i++){const x=x0+(x1-x0)*i/n,y=y0+(y1-y0)*i/n;if(!hWalk(Math.floor(x/16),Math.floor(y/16)))return false}return true}
+const _hGo0=hGo;hGo=function(h,tx,ty,sp){if(h.team!=='f')return _hGo0(h,tx,ty,sp);const d=dist(h.x,h.y,tx,ty);if(d<2){h.mv=0;return true}
+ if(d<26||clearLine(h.x,h.y,tx,ty)){h.path=null;const r=hMove(h,tx,ty,sp);if(h.stuck>12){h.stuck=0;h.path=null;h.forceP=40}if(!h.forceP)return r}
+ if(h.forceP>0)h.forceP--;const gk=Math.floor(tx/16)*65536+Math.floor(ty/16);
+ if(!h.path||h.pk!==gk||t-h.pt>90||!h.path.length){h.path=hPath(Math.floor(h.x/16),Math.floor(h.y/16),Math.floor(tx/16),Math.floor(ty/16));h.pk=gk;h.pt=t}
+ if(!h.path.length){return hMove(h,tx,ty,sp)}const[nx,ny]=h.path[0];if(dist(h.x,h.y,nx,ny)<5){h.path.shift();return false}hMove(h,nx,ny,sp);if(h.stuck>20){h.stuck=0;h.path=null}return false};
+// Folgende Verbündete holen auf, wenn sie wirklich festhängen
+{const _st=step;step=function(){_st();if(state!==1||!P||LV||t%30)return;for(const h of HU){if(h.team!=='f'||!h.rec||h.job!=='folgen'||h.sleep)continue;const d=dist(h.x,h.y,P.x,P.y);
+ if(d>40){if(h.lastD!=null&&d>=h.lastD-4)h.noProg=(h.noProg||0)+1;else h.noProg=0;h.lastD=d}else{h.noProg=0;h.lastD=null}
+ if(h.noProg>=6&&!P.veh&&(Math.abs(h.x-cam.x)>W*.6||Math.abs(h.y-cam.y)>Hh*.6||h.noProg>=10)){for(let i=0;i<8;i++){const a=i*.8,x=P.x-Math.cos(a)*22,y=P.y-Math.sin(a)*22;if(!bl(x,y)){h.x=x;h.y=y;h.path=null;h.noProg=0;h.lastD=null;break}}}}}}
+// Verbündete halten mehr aus, heilen sich und ziehen sich verletzt zurück
+{const _mk=mkHuman;mkHuman=function(team,x,y,o){const h=_mk(team,x,y,o);if(team==='f'&&!(o&&o.mh)){h.mh=180;h.hp=Math.max(h.hp,180)}return h};window.mkHuman=mkHuman}
+{const _d=dmgH;dmgH=function(h,dm,kx,ky,src){if(h.team==='f')dm*=.6;return _d(h,dm,kx,ky,src)}}
+{const _u=updH;updH=function(h){if(h.team==='f'&&h.rec&&!h.sleep){if(t%45===h.id%45&&h.hp<h.mh&&!(h.tg&&h.tg.hp>0&&dist(h.tg.x,h.tg.y,h.x,h.y)<90))h.hp=Math.min(h.mh,h.hp+2);
+  if(h.hp<h.mh*.3&&h.tg&&h.tg.hp>0&&dist(h.tg.x,h.tg.y,h.x,h.y)<60){const away=h.job==='folgen'?[P.x,P.y]:[h.x+(h.x-h.tg.x),h.y+(h.y-h.tg.y)];hGo(h,away[0],away[1],1);return}}return _u(h)}}
+// Gespeicherte Verbündete auf neue Werte heben
+{const _l=load;load=function(s){const r=_l(s);for(const h of HU)if(h.team==='f'&&h.mh<180){h.hp=Math.round(h.hp/h.mh*180);h.mh=180}return r}}
+// ---------- 3. Lebensmittel seltener (Farmen & Jagen lohnt sich) ----------
+for(const k in LT){const tb=LT[k];if(!tb||!tb.it)continue;for(const e of tb.it){const d=D[e[0]];if(!d||d.c!=='ver'||!d.use||d.stop||d.seed)continue;const u=d.use;if((u.hp||0)>0&&!(u.hun||u.thi))continue;
+ if((u.hun||0)>0)e[1]*=.42;else if((u.thi||0)>0)e[1]*=.6}}
+applyLang();
+// ================= v43: Farming & Jagd – Gießkanne, Hochbeet, Gewächshaus, Sprinkler, Kompost, Kochen, Krähen, mehr Wild, Hochsitz, Futterkrippe =================
+const V43={can:T4('Gießkanne','Watering can','Regadera','Arrosoir'),fill:L4('Gießkanne aufgefüllt','Watering can filled','Regadera llena','Arrosoir rempli'),
+ waterC:T4('Gießen (Gießkanne)','Water (watering can)','Regar (regadera)','Arroser (arrosoir)'),dung:T4('Düngen','Fertilise','Abonar','Fertiliser'),dungS:L4('+35 % Wachstum','+35 % growth','+35 % crecimiento','+35 % de croissance'),
+ crows:L4('Krähen picken an deinem Beet! Eine Vogelscheuche hilft.','Crows are pecking at your crops! A scarecrow helps.','¡Los cuervos picotean tu huerto! Un espantapájaros ayuda.','Des corbeaux picorent tes cultures ! Un épouvantail aide.'),
+ cook:T4('Kochen','Cooking','Cocina','Cuisine'),needFire:L4('Dafür brauchst du ein Feuer, einen Herd oder Grill in der Nähe','You need a fire, stove or grill nearby','Necesitas un fuego, cocina o parrilla cerca','Il te faut un feu, une cuisinière ou un grill à proximité'),
+ komp:T4('Kompost','Compost','Compost','Compost'),kompIn:T4('Abfälle hinein','Add scraps','Echar restos','Ajouter des déchets'),kompOut:T4('Dünger entnehmen','Take fertiliser','Sacar abono','Prendre l’engrais'),
+ kompS:L4('3 Pflanzenreste → 1 Dünger pro Tag','3 plant scraps → 1 fertiliser per day','3 restos vegetales → 1 abono al día','3 déchets végétaux → 1 engrais par jour'),
+ watch:T4('Ausschau halten','Keep watch','Vigilar','Faire le guet'),watchS:L4('Tiere und Zombies in der Umgebung sind markiert','Animals and zombies nearby are marked','Animales y zombis cercanos marcados','Animaux et zombies proches marqués'),
+ feed:T4('Futter auslegen','Put out feed','Poner comida','Déposer de la nourriture'),feedS:L4('Lockt Wild an – Futter','Attracts game – feed','Atrae caza: comida','Attire le gibier – nourriture'),noFeed:L4('Du brauchst Getreide, Gemüse oder Beeren','You need grain, vegetables or berries','Necesitas grano, verduras o bayas','Il te faut des céréales, légumes ou baies'),
+ spr:L4('Sprinkler: gießt Beete in 3 Feldern – braucht Wasser (Regentonne, Brunnen, Teich) in der Nähe','Sprinkler: waters beds within 3 tiles – needs water (rain barrel, well, pond) nearby','Aspersor: riega a 3 casillas, necesita agua cerca','Arroseur : arrose à 3 cases – il faut de l’eau à proximité')};
+// ---------- Neue Pflanzen ----------
+Object.assign(CROPS,{gurke:[L4('Gurke','Cucumber','Pepino','Concombre'),'#4a9a3a',1.5,[2,4],6,14],paprika:[L4('Paprika','Bell pepper','Pimiento','Poivron'),'#d83a2a',2.5,[2,4],10,6],bohne:[L4('Bohnen','Beans','Judías','Haricots'),'#6a9a3a',2,[3,6],12,0],heilkraut:[L4('Heilkraut','Medicinal herb','Hierba medicinal','Herbe médicinale'),'#5aa86a',2,[2,3],0,0]});
+for(const k of['gurke','paprika','bohne','heilkraut']){const[n,c,days,y,hun,thi]=CROPS[k];D[k]=hun?{n,c:'ver',st:20,use:thi?{hun,thi}:{hun}}:{n,c:'mat',st:40};D['s_'+k]={n:'Samen: '+n,c:'mat',st:20,seed:k};I18N['Samen: '+n]=[(I18N[n]||[n])[0]+' seeds','Semillas: '+((I18N[n]||[n,n])[1]),'Graines : '+((I18N[n]||[n,n,n])[2])];
+ ICO['s_'+k]=outline(cv(16,16,P=>{CI.seed(P);circ(P,8,8,3,c);P(shade(c,1.3),7,7,1,1)}));delete ICU['s_'+k];FEED[k]=k==='heilkraut'?0:2}
+delete FEED.heilkraut;
+Object.assign(ICO,{gurke:outline(cv(16,16,P=>{P('#3a7a2a',3,6,10,5);P('#5aa84a',4,6,8,2);P('#2a5a1e',3,10,10,1);P('#8ac86a',5,7,1,1);P('#8ac86a',9,8,1,1)})),
+ paprika:outline(cv(16,16,P=>{P('#d83a2a',4,5,8,9);P('#f05a4a',5,6,3,4);P('#a82a1e',4,13,8,1);P('#3a7a2a',7,2,2,3)})),
+ bohne:outline(cv(16,16,P=>{for(const[x,y]of[[3,4],[7,7],[10,3]]){P('#6a9a3a',x,y,3,8);P('#8ac85a',x,y,1,8);P('#4a7a2a',x+2,y,1,8)}})),
+ heilkraut:outline(cv(16,16,P=>{P('#3a7a3a',7,6,2,8);for(const[x,y]of[[4,4],[9,3],[5,8],[10,7]]){P('#5aa86a',x,y,3,3);P('#8ad89a',x,y,1,1)}P('#e8e0f0',8,2,2,2)}))});
+for(const k of['gurke','paprika','bohne','heilkraut'])delete ICU[k];
+// ---------- Werkzeuge & Hilfsmittel ----------
+Object.assign(D,{giesskanne:{n:L4('Gießkanne','Watering can','Regadera','Arrosoir'),c:'mat',st:1,d:L4('An Wasser, Brunnen oder Regentonne füllen – gießt 8 Beete.','Fill at water, a well or rain barrel – waters 8 beds.','Llénala en agua, pozo o barril – riega 8 bancales.','Remplis-le à l’eau, un puits ou un tonneau – arrose 8 carrés.')},
+ duenger:{n:L4('Dünger','Fertiliser','Abono','Engrais'),c:'mat',st:20,d:L4('Lässt Pflanzen schneller wachsen.','Makes plants grow faster.','Hace crecer las plantas más rápido.','Fait pousser les plantes plus vite.')}});
+ICO.giesskanne=outline(cv(16,16,P=>{P('#3a8a4a',3,6,8,7);P('#5aaa6a',4,7,3,4);P('#2a6a3a',3,12,8,1);P('#3a8a4a',11,7,4,1);P('#3a8a4a',14,5,1,2);P('#2a6a3a',5,3,5,1);P('#2a6a3a',5,3,1,3);P('#2a6a3a',9,3,1,3)}));
+ICO.duenger=outline(cv(16,16,P=>{P('#8a6a3a',3,3,10,11);P('#a8885a',4,4,8,2);P('#5a3a1e',3,13,10,1);P('#3a8a3a',6,7,4,4);P('#5aaa5a',7,8,2,2)}));delete ICU.giesskanne;delete ICU.duenger;
+// Gießkannen-Füllstand am Gegenstand
+const canW=it=>it&&it.id==='giesskanne'?(it.w==null?0:it.w):0;
+const getCan=()=>inv.find(it=>it&&it.id==='giesskanne');
+function fillCan(){const c=getCan();if(!c||canW(c)>=8)return false;c.w=8;S.drink&&S.drink();A(P.x,P.y,.4,.1,(b,t2)=>nz(b,t2,.6,'bandpass',700,1,.3,1500,.05));toast(tr(V43.fill)+' · 8/8','good');hudDirty=1;return true}
+{const _rd=renderDet;renderDet=function(){_rd();const it=isel&&getS(isel);if(it&&it.id==='giesskanne'){const b=document.querySelector('#det b');if(b)b.textContent=tr(D.giesskanne.n)+' · '+canW(it)+'/8'}}}
+// An Wasser auffüllen
+{const _fa=finishAct;finishAct=function(a){if(a&&a.k==='water'&&getCan()&&canW(getCan())<8){fillCan();return}return _fa(a)}}
+{const _ea=extraAct;extraAct=function(a){const tt=a.tt;if((tt===T.regentonne||tt===T.brunnen||tt===T.wassertank||tt===T.teich)&&getCan()&&canW(getCan())<8){fillCan();return true}return _ea(a)}}
+// ---------- Beete: Gießkanne, Dünger, Hochbeet & Gewächshaus ----------
+let BEETK=null;
+{const _oc=openChooser;openChooser=function(title,opts){if(BEETK!=null){const k=BEETK,f=farm.get(k);BEETK=null;if(f){const c=getCan();
+  if(f.c&&!f.dead&&f.p<1&&c&&f.w<=t)opts.unshift({ic:'giesskanne',l:tr(V43.waterC),sub:canW(c)+'/8',dis:canW(c)<=0,fn:()=>{c.w=canW(c)-1;f.w=t+PER;S.drink&&S.drink();const[x,y]=kxy(k);for(let i=0;i<6;i++)pt({x:x*16+4+rnd()*8,y:y*16+6,z:8,vz:-.3,c:'#7ab0e0',k:'sp',l:20});return null}});
+  if(f.c&&!f.dead&&f.p<1&&countA('duenger'))opts.push({ic:'duenger',l:tr(V43.dung),sub:tr(V43.dungS)+' · '+countA('duenger')+'×',fn:()=>{takeA('duenger',1);f.p=Math.min(.99,f.p+.35);S.rustle&&S.rustle();return null}});
+  if(f.hb)for(const o of opts){if(o.l&&o.l.indexOf(tr('Ernten'))===0){const fn=o.fn;o.fn=()=>{const c2=f.c;const r=fn();if(c2){const[x,y]=kxy(k);give(c2,1,x*16+8,y*16+8)}return r}}}}}
+ return _oc(title,opts)}}
+{const _bm=beetMenu;beetMenu=function(k){BEETK=k;try{return _bm(k)}finally{BEETK=null}}}
+{const _ea=extraAct;extraAct=function(a){const{tx,ty,tt}=a,k=tx*65536+ty;if(tt===T.hochbeet||tt===T.gewaechshaus){let f=farm.get(k);if(!f||f.kind!=='beet'){f={kind:'beet',c:null,p:0,w:0,dead:0};farm.set(k,f)}f.hb=tt===T.hochbeet?1:0;f.gh=tt===T.gewaechshaus?1:0;beetMenu(k);return true}return _ea(a)}}
+{const _ft=farmTick;farmTick=function(dt){for(const[k,f]of farm)if(f.gh&&f.c&&!f.dead)f.w=Math.max(f.w,t+PER*.5);_ft(dt);
+ for(const[k,f]of farm){if(f.kind!=='beet'||!f.c||f.dead||f.p>=1)continue;const bonus=f.gh?.6:f.hb?.35:0;if(bonus&&f.w>t)f.p=Math.min(1,f.p+dt/(CROPS[f.c][2]*PER)*bonus)}}}
+XDRAW[T.hochbeet]=(dx,dy,tx,ty)=>drawPlant(tx*65536+ty,dx,dy-3);
+XDRAW[T.gewaechshaus]=(dx,dy,tx,ty)=>{drawPlant(tx*65536+ty,dx,dy-2);g.fillStyle='rgba(200,230,240,.28)';g.fillRect(RQ(dx+1),RQ(dy-8),14,18);g.fillStyle='rgba(255,255,255,.35)';g.fillRect(RQ(dx+2),RQ(dy-7),3,1)};
+// Sprinkler, Krähen, Kompost – stündlich
+const KOMP=new Map();let SPRW=new Set();
+const nearT=(x,y,R,tts)=>{for(let dx=-R;dx<=R;dx++)for(let dy=-R;dy<=R;dy++){const q=tile(x+dx,y+dy);if(tts.includes(q))return true}return false};
+{let hr=-1,lastCrowT=-1e9;const _st=step;step=function(){_st();if(state!==1||!P||LV)return;const h=Math.floor(t/(PER/24));if(h===hr)return;hr=h;SPRW=new Set();
+ for(const k of own){if(mods.get(k)!==T.sprinkler)continue;const[x,y]=kxy(k);if(!nearT(x,y,8,[T.regentonne,T.brunnen,T.teich,T.wassertank]))continue;SPRW.add(k);for(let dx=-3;dx<=3;dx++)for(let dy=-3;dy<=3;dy++){const f=farm.get((x+dx)*65536+y+dy);if(f&&f.kind==='beet')f.w=Math.max(f.w,t+PER*.6)}}
+ for(const[k,f]of farm){if(f.kind!=='beet'||!f.c||f.dead||f.p>=1||f.gh)continue;const[x,y]=kxy(k);if(nearT(x,y,6,[T.vogelscheuche]))continue;if(rnd()<.045){f.p=Math.max(0,f.p-.18);
+   if(typeof CROWS!=='undefined'&&CROWS.length<18)for(let i=0;i<3;i++)CROWS.push({x:x*16+8+(rnd()-.5)*20,y:y*16+8+(rnd()-.5)*14,z:0,vx:0,vy:0,vz:0,fl:0,ph:rnd()*6,dir:rnd()<.5?-1:1});
+   if(t-lastCrowT>PER/3&&dist(x*16,y*16,P.x,P.y)<600){lastCrowT=t;toast(tr(V43.crows),'bad')}}}}}
+XDRAW[T.sprinkler]=(dx,dy,tx,ty)=>{const k=tx*65536+ty;if(SPRW.has(k)&&fc%40<26)for(let i=0;i<3;i++){const a=fc*.15+i*2.1;g.fillStyle='rgba(140,190,240,.7)';g.fillRect(RQ(dx+8+Math.cos(a)*7),RQ(dy+4+Math.sin(a)*3),1,1)}};
+const SCRAP=new Set(['kartoffel','karotte','tomate','mais','kuerbis','salat','erdbeere','weizen','kohl','zwiebel','gurke','paprika','bohne','beeren','pilze','apfel','fleisch_r','heilkraut']);
+{const _ea=extraAct;extraAct=function(a){const{tx,ty,tt}=a,k=tx*65536+ty;if(tt!==T.kompost)return _ea(a);let c=KOMP.get(k)||{n:0,d:0,day:dayN()};const d=dayN();while(c.day<d&&c.n>=3){c.n-=3;c.d++;c.day++}c.day=d;KOMP.set(k,c);
+ const scraps=inv.filter(it=>it&&SCRAP.has(it.id));const opts=[{ic:'duenger',l:tr(V43.kompIn),sub:tr(V43.kompS)+' · '+c.n+'/12',dis:!scraps.length||c.n>=12,fn:()=>{const it=scraps[0];takeA(it.id,1);c.n++;S.rustle&&S.rustle();return()=>extraAct(a)}},
+  {ic:'duenger',l:tr(V43.kompOut),sub:c.d+'×',dis:!c.d,fn:()=>{give('duenger',c.d,tx*16+8,ty*16+8);c.d=0;return null}}];openChooser(tr(V43.komp),opts);return true}}
+// ---------- Kochen (am Feuer, Herd oder Grill) ----------
+BCAT.push(['koch',V43.cook,'fleisch']);
+const MEAL=(id,de,en,es,fr,use,col,st)=>{D[id]={n:L4(de,en,es,fr),c:'ver',st:st||5,use};ICO[id]=outline(cv(16,16,P=>{P('#e8e4dc',2,8,12,5);P('#c8c4bc',3,12,10,1);P(col,3,7,10,3);P(shade(col,1.25),5,7,3,1);P('#a8a49c',2,8,1,1);P('#a8a49c',13,8,1,1);if(use.thi)for(const x of[6,9])P('rgba(255,255,255,.6)',x,3,1,3)}));delete ICU[id]};
+MEAL('eintopf','Gemüseeintopf','Vegetable stew','Guiso de verduras','Ragoût de légumes',{hun:65,thi:15},'#c8803a');
+MEAL('fleischeintopf','Fleischeintopf','Meat stew','Guiso de carne','Ragoût de viande',{hun:85,thi:10,hp:6},'#8a4a2a');
+MEAL('kuerbissuppe','Kürbissuppe','Pumpkin soup','Sopa de calabaza','Soupe de potiron',{hun:55,thi:25},'#e8902a');
+MEAL('tomatensuppe','Tomatensuppe','Tomato soup','Sopa de tomate','Soupe de tomates',{hun:35,thi:30},'#c83a2a');
+MEAL('bratkartoffeln','Bratkartoffeln','Fried potatoes','Patatas fritas','Pommes sautées',{hun:45},'#d8a840');
+MEAL('ruehrei','Rührei','Scrambled eggs','Huevos revueltos','Œufs brouillés',{hun:30},'#f0d050');
+MEAL('salatteller','Salatteller','Salad plate','Ensalada','Assiette de salade',{hun:24,thi:18,hp:4},'#6ab84a');
+MEAL('bohneneintopf','Bohneneintopf','Bean stew','Potaje de judías','Ragoût de haricots',{hun:62,thi:8},'#8a6a3a');
+MEAL('maisbrot','Maisbrot','Cornbread','Pan de maíz','Pain de maïs',{hun:42},'#e8c060',8);
+MEAL('kraeutertee','Kräutertee','Herbal tea','Infusión','Tisane',{thi:35,hp:8},'#8ab86a');
+MEAL('doerrfleisch','Dörrfleisch','Jerky','Cecina','Viande séchée',{hun:24},'#6a3a1e',20);
+D.kraeutersalbe={n:L4('Kräutersalbe','Herbal salve','Ungüento de hierbas','Baume aux herbes'),c:'ver',st:10,use:{hp:18},stop:1,d:L4('Heilt und stoppt Blutungen.','Heals and stops bleeding.','Cura y detiene hemorragias.','Soigne et arrête les saignements.')};
+ICO.kraeutersalbe=outline(cv(16,16,P=>{P('#e8e4dc',4,6,8,7);P('#5aa86a',5,7,6,3);P('#c8c4bc',4,12,8,1);P('#3a7a3a',4,4,8,2)}));delete ICU.kraeutersalbe;
+const NK=[['k_eintopf','eintopf',1,{kartoffel:1,karotte:1,zwiebel:1,wasser:1}],['k_fleischeintopf','fleischeintopf',1,{fleisch:1,kartoffel:1,zwiebel:1,wasser:1}],['k_kuerbissuppe','kuerbissuppe',2,{kuerbis:1,wasser:1}],
+ ['k_tomatensuppe','tomatensuppe',1,{tomate:2,wasser:1}],['k_bratkartoffeln','bratkartoffeln',1,{kartoffel:2,zwiebel:1}],['k_ruehrei','ruehrei',1,{ei:2}],['k_salatteller','salatteller',1,{salat:1,tomate:1,gurke:1}],
+ ['k_bohneneintopf','bohneneintopf',1,{bohne:3,zwiebel:1,wasser:1}],['k_maisbrot','maisbrot',2,{mais:2,ei:1}],['k_kraeutertee','kraeutertee',1,{heilkraut:1,wasser:1}],['k_doerrfleisch','doerrfleisch',3,{fleisch:2}]];
+for(const[id,tg,amt,cost]of NK)BP[id]={id,cat:'koch',k:'i',tg,cost,n:D[tg].n,amt,cook:1};
+BP.c_salbe={id:'c_salbe',cat:'craft',k:'i',tg:'kraeutersalbe',cost:{heilkraut:2,stoff:1},n:D.kraeutersalbe.n};BP.c_giesskanne={id:'c_giesskanne',cat:'craft',k:'i',tg:'giesskanne',cost:{schrott:3},n:D.giesskanne.n};
+{const ord=['farbe','abriss'];for(const k of ord){const v=BP[k];if(v){delete BP[k];BP[k]=v}}}
+const COOKT=['feuer','herd','ofen','grill','kamin','feuerschale','feuertonne','kuechenzeile','raeucherofen'].map(n=>T[n]).filter(v=>v!=null);
+{const _ci=craftIt;craftIt=function(id){const b=BP[id];if(b&&b.cook){const x=Math.floor(P.x/16),y=Math.floor(P.y/16);if(!nearT(x,y,2,COOKT)){S.dry&&S.dry();toast(tr(V43.needFire),'bad');return}if(!canPay(b.cost)){toast(tr('Nicht genug Material'),'bad');return}
+  for(const m in b.cost)takeA(m,b.cost[m]);if(b.cost.wasser)give('flasche',b.cost.wasser);give(b.tg,b.amt||1);S.cook&&S.cook(P.x,P.y);A(P.x,P.y,.4,.1,(bb,t2)=>nz(bb,t2,1,'bandpass',2600,1,.12));toast(tr('Gekocht')+': '+tr(D[b.tg].n),'good');renderBld();return}return _ci(id)}}
+T4('Gekocht','Cooked','Cocinado','Cuisiné');
+BDESC.k_eintopf=V43.needFire;
+// ---------- Samen häufiger, Startpaket ----------
+for(const k in LT){const tb=LT[k];if(tb&&tb.it)for(const e of tb.it)if(D[e[0]]&&D[e[0]].seed)e[1]*=2.5}
+addL('schrank','s_gurke:3 s_paprika:2 s_bohne:3 s_heilkraut:2 giesskanne:2');addL('regal','s_gurke:3 s_bohne:3 s_heilkraut:3 duenger:3 s_kartoffel:3 s_karotte:3');addL('kiste','s_paprika:2 s_heilkraut:2 duenger:2 giesskanne:1');addL('zom','s_bohne:1 s_kartoffel:1');
+{const _n=newGame;newGame=function(s,cc){const r=_n(s,cc);try{for(const[id,n]of[['s_kartoffel',2],['s_karotte',2],['s_salat',2]])addItem(mkItem(id,n));const c=mkItem('giesskanne',1);c.w=4;addItem(c)}catch(e){}return r}}
+// ---------- Jagd: mehr Wild, mehr Fleisch, Hochsitz, Futterkrippe ----------
+window.ANC=12;window.ANF=150;
+{const _da=dmgA;dmgA=function(a,dm){const was=a.dead;_da(a,dm);if(!was&&a.dead){const n={reh:2,wildschwein:2,ziege:1}[a.k];if(n)dropIt(mkItem('fleisch_r',n),a.x,a.y,1)}}}
+{const _sa=spawnAnimal;spawnAnimal=function(){const n0=As.length;_sa();if(As.length>n0&&As[As.length-1].k==='reh'&&rnd()<.6){const r=As[As.length-1];for(let i=0;i<1+(rnd()*2|0);i++){const ax=r.x+(rnd()-.5)*30,ay=r.y+(rnd()-.5)*30;if(!bl(ax,ay))As.push(Object.assign({},r,{id:++zid,x:ax,y:ay,hx:ax,hy:ay,wp:null}))}}}}
+{const _ea=extraAct;extraAct=function(a){const{tx,ty,tt}=a,k=tx*65536+ty;
+ if(tt===T.hochsitz){for(const an of As)if(!an.dead&&dist(an.x,an.y,P.x,P.y)<340)an.spot=1500;for(const z of Zs)if(dist(z.x,z.y,P.x,P.y)<340)z.spot=1500;S.cloth&&S.cloth();toast(tr(V43.watchS),'good');return true}
+ if(tt===T.futterkrippe){const f=Object.keys(FEED).find(i=>countA(i)>0);const st=stor.get(k)||{food:0};if(!f){toast(tr(V43.noFeed)+' · '+tr('Futter')+' '+(st.food||0)+'/10','bad');return true}takeA(f,1);st.food=Math.min(10,(st.food||0)+FEED[f]);stor.set(k,st);S.rustle&&S.rustle();toast(tr(V43.feedS)+' '+st.food+'/10','good');return true}
+ return _ea(a)}}
+{const _st=step;step=function(){_st();if(state!==1||!P||LV)return;for(const an of As)if(an.spot>0)an.spot--;
+ if(t%420===0&&As.length<(window.ANC||12))for(const k of own){if(mods.get(k)!==T.futterkrippe)continue;const st=stor.get(k);if(!st||!st.food)continue;const[x,y]=kxy(k),X=x*16+8,Y=y*16+8;if(dist(X,Y,P.x,P.y)>520)continue;
+  const a=rnd()*6.28,r=150+rnd()*60,sx=X+Math.cos(a)*r,sy=Y+Math.sin(a)*r;if(bl(sx,sy))continue;const kk=rnd()<.6?'reh':rnd()<.5?'hase':'wildschwein';
+  As.push({id:++zid,x:sx,y:sy,hx:X+(rnd()-.5)*30,hy:Y+(rnd()-.5)*30,k:kk,hp:{hase:2,reh:7,wildschwein:12}[kk],st:'idle',wt:rnd()*100,wp:{x:X,y:Y},f:0,fl:1,tm:0,atk:0,stp:0,wf:0});st.food--;break}}}
+{const _cd=CEILDRAW;CEILDRAW=function(a,b,c,d){_cd(a,b,c,d);if(LV)return;for(const an of As)if(an.spot>0&&!an.dead){const X=RQ(an.x-cx),Y=RQ(an.y-cy-18-Math.sin(fc*.15)*1.5);g.fillStyle='#ffd23a';g.fillRect(X-1,Y,3,3);g.fillRect(X,Y+3,1,2)}}}
+// Speichern
+{const _s=save;save=function(q){_s(q);try{LS.set('zw4_f'+slot,JSON.stringify([...KOMP]))}catch(e){}}}
+{const _l=load;load=function(s){KOMP.clear();const r=_l(s);try{const o=JSON.parse(LS.get('zw4_f'+s));if(o)for(const[k,v]of o)KOMP.set(k,v)}catch(e){}return r}}
+applyLang();
+// ================= v44: Basisbau – Hoftor (3 Felder), Gartentor, Maschendraht, Schießscharte, Fensterladen, Nagelbrett, Farm- & Garten-Teile, Terrasse, Kiesweg =================
+const V44={gate3:L4('Braucht 3 freie Felder nebeneinander','Needs 3 free tiles in a row','Necesita 3 casillas libres seguidas','Il faut 3 cases libres côte à côte')};
+// ---------- Wandtexturen ----------
+const gateF=(part,open)=>cv(16,WH,P=>{const W_='#6a4426',W2='#8a5a32',W3='#4a2e18',M='#3a3c42';
+ if(open){if(part==='l'){P(M,0,0,3,WH);P('#5a5e66',0,0,3,1)}if(part==='r'){P(M,13,0,3,WH);P('#5a5e66',13,0,3,1)}return}
+ P(W_,0,0,16,WH);for(let x=0;x<16;x+=4){P(W2,x,0,1,WH);P(W3,x+3,0,1,WH)}P(M,0,2,16,1);P(M,0,WH-3,16,1);
+ if(part==='l'){P(M,0,0,3,WH);P('#5a5e66',0,0,3,1);for(let i=0;i<8;i++)P(W3,3+i*1.6|0,WH-2-i,2,1)}
+ if(part==='r'){P(M,13,0,3,WH);P('#5a5e66',13,0,3,1);for(let i=0;i<8;i++)P(W3,12-(i*1.6|0),WH-2-i,2,1)}
+ if(part==='m'){P(M,7,0,2,WH);P('#d8b450',5,5,1,2);P('#d8b450',10,5,1,2)}});
+BF.torL=gateF('l');BF.torM=gateF('m');BF.torR=gateF('r');BF.torLo=gateF('l',1);BF.torMo=gateF('m',1);BF.torRo=gateF('r',1);
+CAP.tor=cv(16,16,P=>{P('#5a3a1e',0,0,16,16);P('#7a5230',0,0,16,2);for(let x=0;x<16;x+=4)P('#4a2e18',x,2,1,14);P('#3a3c42',0,7,16,2)});
+BF.scharte=cv(16,WH,P=>{P('#8a8e92',0,0,16,WH);P('#a8acb0',0,0,16,1);for(let y=3;y<WH;y+=4)P('#7a7e82',0,y,16,1);P('#1a1c20',4,4,8,2);P('#3a3c42',3,3,10,1);P('#3a3c42',3,6,10,1)});
+CAP.beton=cv(16,16,P=>{P('#8a8e92',0,0,16,16);P('#9aa0a4',1,1,14,14);P('#7a7e82',0,8,16,1);P('#7a7e82',8,0,1,16)});
+BF.laden=cv(16,WH,P=>{P('#a85a2a',0,0,16,WH);P('#6a4426',0,0,16,1);P('#5a3418',7,0,2,WH);for(let y=1;y<WH;y+=2){P('#c87a3a',1,y,6,1);P('#c87a3a',9,y,6,1)}P('#3a2414',0,WH-1,16,1)});
+BF.ladenO=cv(16,WH,P=>{P('#c8c4b8',0,0,16,WH);P('#1a2a3a',2,1,12,WH-3);P('#4a6a88',3,2,4,3);P('#8ab0d0',3,2,1,1);P('#6a4426',2,WH/2|0,12,1);P('#6a4426',7,1,2,WH-3);P('#a85a2a',0,0,2,WH);P('#a85a2a',14,0,2,WH)});
+for(const n of['hoftor_l','hoftor_m','hoftor_r','schiessscharte','fensterladen'])TWALL[T[n]]=TSOL[T[n]]=TOPQ[T[n]]=1;
+for(const n of['hoftor_lo','hoftor_mo','hoftor_ro'])TWALL[T[n]]=OPEND[T[n]]=1;TWALL[T.fensterladen_o]=TSOL[T.fensterladen_o]=1;TLOW[T.fensterladen_o]=1;TLOW[T.schiessscharte]=1;
+DOORS[T.hoftor_l]=T.hoftor_lo;DOORS[T.hoftor_lo]=T.hoftor_l;DOORS[T.hoftor_m]=T.hoftor_mo;DOORS[T.hoftor_mo]=T.hoftor_m;DOORS[T.hoftor_r]=T.hoftor_ro;DOORS[T.hoftor_ro]=T.hoftor_r;
+DOORS[T.fensterladen]=T.fensterladen_o;DOORS[T.fensterladen_o]=T.fensterladen;
+Object.assign(HPD,{[T.hoftor_l]:300,[T.hoftor_m]:300,[T.hoftor_r]:300,[T.schiessscharte]:420,[T.fensterladen]:120,[T.fensterladen_o]:60,[T.gartentor]:50,[T.maschendraht]:70});
+{const _wt=wallTex;wallTex=function(tt,tx,ty){switch(tt){case T.hoftor_l:return[BF.torL,CAP.tor];case T.hoftor_m:return[BF.torM,CAP.tor];case T.hoftor_r:return[BF.torR,CAP.tor];
+ case T.hoftor_lo:return[BF.torLo,null];case T.hoftor_mo:return[BF.torMo,null];case T.hoftor_ro:return[BF.torRo,null];case T.schiessscharte:return[BF.scharte,CAP.beton];case T.fensterladen:return[BF.laden,CAP.holz];case T.fensterladen_o:return[BF.ladenO,CAP.holz]}return _wt(tt,tx,ty)}}
+for(const n of['hoftor_l','hoftor_m','hoftor_r','hoftor_lo','hoftor_mo','hoftor_ro','fensterladen','fensterladen_o'])if(ACT[T.tuer])ACT[T[n]]=ACT[T.tuer];
+// Ganzes Tor zusammen öffnen/schließen
+const GATEP={[T.hoftor_l]:0,[T.hoftor_lo]:0,[T.hoftor_m]:1,[T.hoftor_mo]:1,[T.hoftor_r]:2,[T.hoftor_ro]:2};
+const gateX=(tx,ty)=>{const q=tile(tx,ty);if(GATEP[q]==null)return null;const x0=tx-GATEP[q];return[x0,x0+1,x0+2].every((x,i)=>GATEP[tile(x,ty)]===i)?x0:null};
+{const _da=doAct;doAct=function(a){if(a&&a.k==='tile'&&GATEP[a.tt]!=null&&P.ac<=0){const x0=gateX(a.tx,a.ty);if(x0!=null){const opening=TSOL[a.tt];for(let i=0;i<3;i++){const q=tile(x0+i,a.ty);setT(x0+i,a.ty,DOORS[q])}
+  A(a.tx*16+8,a.ty*16+8,.6,.2,(b,t2)=>{nz(b,t2,.5,'bandpass',300,2,.5,180);tn(lp(b,500),t2+.4,.15,'square',90,70,.3);for(let i=0;i<4;i++)nz(b,t2+i*.1,.06,'bandpass',1200,6,.15)});noise(a.tx*16+8,a.ty*16+8,60);P.ac=20;return}}return _da(a)}}
+// ---------- Sprites (Garten, Farm, Verteidigung) ----------
+const NS44={
+ gartentor:mkSp(16,10,P=>{P('#8a5a32',0,0,2,10);P('#8a5a32',14,0,2,10);for(let x=3;x<14;x+=3){P('#c8945a',x,1,2,8);P('#e8b47a',x,1,2,1)}P('#a87444',2,3,12,1);P('#a87444',2,7,12,1)}),
+ gartentor_o:mkSp(16,10,P=>{P('#8a5a32',0,0,2,10);P('#8a5a32',14,0,2,10);for(let x=2;x<6;x+=2)P('#c8945a',x,1,2,8)}),
+ maschendraht:mkSp(16,13,P=>{P('#5a5e66',0,0,2,13);P('#5a5e66',14,0,2,13);P('#8a8e96',0,0,16,1);for(let y=1;y<13;y++)for(let x=2;x<14;x++)if((x+y)%4===0||(x-y+40)%4===0)P('#9aa0a8',x,y,1,1)}),
+ nagelbrett:mkSp(16,6,P=>{P('#6a4426',0,2,16,4);P('#8a5a32',0,2,16,1);for(let x=1;x<16;x+=3){P('#c8ccd2',x,0,1,3);P('#e8ecf0',x,0,1,1)}}),
+ hochbeet:mkSp(16,11,P=>{P('#6a4426',0,3,16,8);P('#8a5a32',0,3,16,2);P('#4a2e18',0,10,16,1);P('#4a3020',1,5,14,4);P('#5a3a28',2,5,12,1)}),
+ sprinkler:mkSp(8,9,P=>{P('#3a6ac0',3,2,2,7);P('#5a8ae0',2,0,4,2);P('#2a2c30',1,7,6,2);P('#c8e0f0',1,1,1,1);P('#c8e0f0',6,1,1,1)}),
+ kompost:mkSp(16,12,P=>{P('#5a3a1e',0,2,16,10);P('#7a5230',0,2,16,2);for(let x=1;x<16;x+=5)P('#3a2414',x,4,1,8);P('#4a3a1a',2,0,12,3);P('#5a7a2a',4,0,3,2);P('#8a6a2a',9,0,4,2)}),
+ gewaechshaus:mkSp(16,20,P=>{P('#c8d8e0',0,4,16,16);P('#e8f4f8',1,5,14,14);P('#8a9aa0',0,4,16,1);P('#8a9aa0',7,0,2,5);for(let x=0;x<16;x+=5)P('#8a9aa0',x,5,1,15);P('#8a9aa0',0,12,16,1);P('#6a4426',0,18,16,2)}),
+ waescheleine:mkSp(18,16,P=>{P('#6a4426',0,2,2,14);P('#6a4426',16,2,2,14);P('#c8c4b8',2,3,14,1);P('#e85a4a',3,4,4,5);P('#3a6ac0',8,4,3,7);P('#e8e4dc',12,4,3,4)}),
+ hundehuette:mkSp(16,14,P=>{P('#a85a2a',1,5,14,9);P('#8a3a1a',0,3,16,3);P('#6a2a14',3,0,10,3);P('#1a1210',5,8,6,6);P('#c87a3a',1,5,14,1);P('#e8e4dc',6,11,2,1)}),
+ gartenlaterne:mkSp(6,16,P=>{P('#2a2c30',2,5,2,11);P('#2a2c30',0,14,6,2);P('#3a3c42',0,0,6,2);P('#e8d080',1,2,4,3)}),
+ teich:mkSp(16,12,P=>{P('#6a6e74',0,2,16,10);P('#3a6a9a',2,3,12,7);P('#5a8ac0',3,4,5,2);P('#8ab0e0',4,4,2,1);P('#3a7a3a',12,3,3,3);P('#e8e0f0',13,4,1,1);P('#8a8e94',0,2,16,1)}),
+ hochsitz:mkSp(16,28,P=>{P('#6a4426',1,8,2,20);P('#6a4426',13,8,2,20);for(let y=12;y<28;y+=4)P('#8a5a32',3,y,10,1);P('#5a3a1e',0,6,16,3);P('#8a5a32',0,0,16,2);P('#6a4426',0,2,2,5);P('#6a4426',14,2,2,5);P('#3a2414',2,3,12,3)}),
+ futterkrippe:mkSp(16,13,P=>{P('#6a4426',0,0,2,13);P('#6a4426',14,0,2,13);P('#8a5a32',0,0,16,2);for(let x=2;x<14;x+=2)P('#5a3a1e',x,2,1,6);P('#7a5230',1,8,14,4);P('#d8b860',2,7,12,2)})};
+for(const k in NS44)S2(k,[NS44[k]]);
+for(const k of['gartentor','maschendraht','hochbeet','kompost','gewaechshaus','waescheleine','hundehuette','teich','hochsitz','futterkrippe'])TSOL[T[k]]=1;for(const k of['gartentor','maschendraht','hochbeet','kompost','teich','futterkrippe'])TLOW[T[k]]=1;
+TDECO[T.nagelbrett]=1;TDECO[T.gartentor_o]=1;NOSWAY[T.nagelbrett]=NOSWAY[T.gartentor_o]=1;DECO[T.nagelbrett]=[NS44.nagelbrett];DECO[T.gartentor_o]=[NS44.gartentor_o];DOORS[T.gartentor]=T.gartentor_o;DOORS[T.gartentor_o]=T.gartentor;
+if(ACT[T.tuer]){ACT[T.gartentor]=ACT[T.tuer];ACT[T.gartentor_o]=ACT[T.tuer]}
+Object.assign(XLIGHT,{[T.gartenlaterne]:[3,-2,44,.8,0,1]});
+ACTX('hochbeet','seed','Beet',0);ACTX('gewaechshaus','seed','Beet',0);ACTX('kompost','duenger',V43.komp,0);ACTX('hochsitz','fernglas',V43.watch,0);ACTX('futterkrippe','feed',V43.feed,0);ACTX('teich','drop','Trinken',30);
+if(!ICO.fernglas){ICO.fernglas=outline(cv(16,16,P=>{P('#2a2c30',2,5,5,7);P('#2a2c30',9,5,5,7);P('#5a5e66',7,7,2,3);P('#8ab0d0',3,10,3,2);P('#8ab0d0',10,10,3,2)}));delete ICU.fernglas}
+// Teich: trinken (etwas schmutzig) – Wasser für Gießkanne & Sprinkler
+{const _fa=finishAct;finishAct=function(a){if(a&&a.tt===T.teich&&a.k==='tile'){if(getCan()&&canW(getCan())<8){fillCan();return}P.thi=Math.min(100,P.thi+22);if(rnd()<.25){P.hp=Math.max(1,P.hp-2)}S.drink&&S.drink();return}return _fa(a)}}
+// Nagelbrett: verletzt & bremst Zombies, nicht dich
+{const _st=step;step=function(){_st();if(state!==1||t%24)return;for(const z of Zs){if(z.hp<=0)continue;if(tile(Math.floor(z.x/16),Math.floor(z.y/16))===T.nagelbrett){z.kx*=.2;z.ky*=.2;z.hp-=.9;z.wf=3;blood(z.x,z.y-3,2);if(z.hp<=0)killZ(z,0,0)}}}}
+// Hoftor: 3 Felder auf einmal bauen & abreißen
+{const _ba=buildAct;buildAct=function(){const a=_ba();if(!a||BM!=='hoftor'||a.k!=='build'||!a.ok)return a;for(const dx of[-1,1]){const q=tile(a.tx+dx,a.ty),gg=gnd(a.tx+dx,a.ty);if((q&&!TDECO[q])||isW(gg)||occupied(a.tx+dx,a.ty)){a.ok=false;a.l=V44.gate3;a.lvx=V44.gate3;return a}}return a}}
+{const _db=doBuild;doBuild=function(a){const bid=BM,k0=a?a.tx*65536+a.ty:0,tt0=a?tile(a.tx,a.ty):0;let x0=null;if(a&&a.k==='del'&&GATEP[tt0]!=null)x0=gateX(a.tx,a.ty);
+ const r=_db(a);if(!a)return r;
+ if(a.k==='build'&&bid==='hoftor'&&tile(a.tx,a.ty)===T.hoftor_m){for(const[dx,q]of[[-1,T.hoftor_l],[1,T.hoftor_r]]){const x=a.tx+dx,k=x*65536+a.ty;setT(x,a.ty,q);own.add(k);whp.set(k,HPD[q]);mods.set(k,q)}}
+ if(a.k==='del'&&x0!=null&&!own.has(k0)){for(let i=0;i<3;i++){const x=x0+i,k=x*65536+a.ty;if(own.has(k)){mods.delete(k);own.delete(k);whp.delete(k);restore&&restore(x,a.ty)}}if(GATEP[tt0]!==1&&typeof kitOf==='function'){give(kitOf(BP.hoftor),1,a.tx*16+8,a.ty*16+8)}}
+ return r}}
+// ---------- Böden: Holzterrasse & Kiesweg ----------
+GN.push('holzdeck','kiesweg');G.holzdeck=GN.length-2;G.kiesweg=GN.length-1;
+GT[G.holzdeck]=V4(v=>cv(16,16,P=>{for(let j=0;j<4;j++){P(j%2?'#9a6a3a':'#a8784a',0,j*4,16,4);P('#6a4426',0,j*4+3,16,1);const o=(j*7+v*5)%16;P('#6a4426',o,j*4,1,3);P('#c89a6a',(o+5)%16,j*4+1,2,1)}}));
+GT[G.kiesweg]=V4(v=>cv(16,16,P=>{P('#9a948a',0,0,16,16);for(let i=0;i<40;i++){const x=(i*37+v*11)%16,y=(i*53+v*7)%16;P(['#b8b2a6','#7a746a','#a8a296','#ccc6ba'][i%4],x,y,1,1)}}));
+// ---------- Baukatalog ----------
+const NB44=[
+ ['hoftor','bau','t',T.hoftor_m,{holz:12,schrott:6,mechanik:1},L4('Großes Hoftor','Large yard gate','Portón del patio','Grand portail'),L4('3 Felder breit – Fahrzeuge passen durch','3 tiles wide – vehicles fit through','3 casillas: caben vehículos','3 cases – les véhicules passent'),1],
+ ['gartentor','bau','t',T.gartentor,{holz:3},L4('Gartentor','Garden gate','Puerta de jardín','Portillon'),L4('Niedrig – drüber schießen möglich','Low – you can shoot over it','Baja: se puede disparar por encima','Bas – on peut tirer par-dessus'),0],
+ ['maschendraht','bau','t',T.maschendraht,{schrott:3},L4('Maschendrahtzaun','Chain-link fence','Valla metálica','Grillage'),L4('Durchsichtig, Zombies kommen nicht durch','See-through, zombies can’t pass','Transparente, los zombis no pasan','Transparent, les zombies ne passent pas'),1],
+ ['schiessscharte','bau','t',T.schiessscharte,{stein:6,schrott:2},L4('Schießscharten-Mauer','Loophole wall','Muro aspillerado','Mur à meurtrière'),L4('Sehr stabil – du schießt hindurch','Very sturdy – you can shoot through','Muy resistente: disparas a través','Très solide – on tire au travers'),1],
+ ['fensterladen','bau','t',T.fensterladen,{holz:5,glas:2},L4('Fenster mit Laden','Shuttered window','Ventana con postigo','Fenêtre à volets'),L4('Offen: hinaussehen & schießen, zu: sicher','Open: look out & shoot, closed: safe','Abierta: mirar y disparar; cerrada: segura','Ouverte : voir & tirer, fermée : sûre'),1],
+ ['nagelbrett','vert','t',T.nagelbrett,{holz:2,nagel:6},L4('Nagelbrett','Nail board','Tabla de clavos','Planche à clous'),L4('Verletzt und bremst Zombies','Hurts and slows zombies','Hiere y frena zombis','Blesse et ralentit les zombies'),1],
+ ['hochbeet','farm','t',T.hochbeet,{holz:6,nagel:4},L4('Hochbeet','Raised bed','Bancal elevado','Carré surélevé'),L4('Wächst 35 % schneller, +1 Ernte','Grows 35 % faster, +1 harvest','Crece un 35 % más rápido, +1 cosecha','Pousse 35 % plus vite, +1 récolte'),1],
+ ['gewaechshaus','farm','t',T.gewaechshaus,{glas:6,holz:4,schrott:2},L4('Mini-Gewächshaus','Mini greenhouse','Mini invernadero','Mini-serre'),L4('Nie trocken, 60 % schneller, keine Krähen','Never dry, 60 % faster, no crows','Nunca seco, 60 % más rápido, sin cuervos','Jamais sec, 60 % plus vite, pas de corbeaux'),1],
+ ['sprinkler','farm','t',T.sprinkler,{schrott:3,kabel:1,mechanik:1},L4('Sprinkler','Sprinkler','Aspersor','Arroseur'),V43.spr,1],
+ ['kompost','farm','t',T.kompost,{holz:4,nagel:2},L4('Komposter','Composter','Compostador','Composteur'),V43.kompS,1],
+ ['futterkrippe','farm','t',T.futterkrippe,{holz:5,seil:1},L4('Futterkrippe','Feeding rack','Comedero','Mangeoire'),L4('Mit Futter: lockt Rehe, Hasen und Wildschweine an','With feed: lures deer, rabbits and boars','Con comida: atrae ciervos, conejos y jabalíes','Avec nourriture : attire chevreuils, lapins, sangliers'),1],
+ ['hochsitz','farm','t',T.hochsitz,{holz:10,seil:2},L4('Hochsitz','Hunting stand','Puesto de caza','Mirador de chasse'),L4('Ausschau halten: markiert Wild und Zombies','Keep watch: marks game and zombies','Vigilar: marca caza y zombis','Guetter : marque gibier et zombies'),1],
+ ['teich','farm','t',T.teich,{stein:8},L4('Gartenteich','Garden pond','Estanque','Bassin'),L4('Wasser für Gießkanne und Sprinkler','Water for watering can and sprinkler','Agua para regadera y aspersor','Eau pour arrosoir et arroseur'),1],
+ ['gartenlaterne','deko','t',T.gartenlaterne,{schrott:1,glas:1},L4('Gartenlaterne','Garden lantern','Farol de jardín','Lanterne de jardin'),L4('Solarlicht – leuchtet nachts','Solar light – glows at night','Luz solar: brilla de noche','Lumière solaire – brille la nuit'),1],
+ ['waescheleine','deko','t',T.waescheleine,{holz:2,seil:1,stoff:2},L4('Wäscheleine','Clothesline','Tendedero','Corde à linge'),L4('Deko','Decor','Decoración','Déco'),1],
+ ['hundehuette','deko','t',T.hundehuette,{holz:5},L4('Hundehütte','Dog kennel','Caseta de perro','Niche'),L4('Deko','Decor','Decoración','Déco'),1],
+ ['holzdeck','bau','g',G.holzdeck,{holz:2},L4('Holzterrasse','Wooden deck','Terraza de madera','Terrasse en bois'),L4('Boden','Floor','Suelo','Sol'),0],
+ ['kiesweg','bau','g',G.kiesweg,{stein:2},L4('Kiesweg','Gravel path','Camino de grava','Allée de gravier'),L4('Boden','Floor','Suelo','Sol'),0]];
+for(const[id,cat,k,tg,cost,n,ds,kit]of NB44){for(const m in cost)if(!D[m])delete cost[m];BP[id]={id,cat,k,tg,cost,n};BDESC[id]=ds;if(kit)makeKitAny(BP[id])}
+{const ord=['farbe','abriss'];for(const k of ord){const v=BP[k];if(v){delete BP[k];BP[k]=v}}}
 applyLang();
 </script><script>if('serviceWorker'in navigator&&location.protocol.startsWith('http'))addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));</script></body></html>
