@@ -4128,4 +4128,78 @@ if('ontouchstart' in window){
  .ccl #ccN{padding:clamp(5px,1.6vh,9px) 10px;font-size:15px}
  .ccl .ccb .btn{padding:clamp(5px,1.8vh,10px) 8px!important;font-size:13px!important}
  .ccl #ccGo{flex-direction:row!important;gap:6px}.ccl #ccGo .ic{margin:0!important}}`;document.head.appendChild(st)}
+// ================= v25: Kompaktes Bau-Menü, Abreißen-Knopf, Dächer mit Statik =================
+T4('Abreißen','Demolish','Demoler','Démolir');T4('Dach abreißen','Remove roof','Quitar tejado','Retirer le toit');
+T4('Zurück zum Bauen','Back to building','Volver a construir','Retour à la construction');
+T4('Keine Stütze','No support','Sin soporte','Pas de support');
+const RC_TXT=L4('Das Dach ist eingestürzt!','The roof collapsed!','¡El tejado se ha derrumbado!','Le toit s’est effondré !');
+const RS_TXT=L4('Dächer brauchen eine Mauer in der Nähe (max. 4 Felder)','Roofs need a wall nearby (max. 4 tiles)','Los tejados necesitan un muro cerca (máx. 4 casillas)','Les toits ont besoin d’un mur proche (max. 4 cases)');
+// ---------- Statik: Dach braucht Stütze ----------
+const SPAN=4;
+const kXY=k=>[Math.floor(k/65536),k%65536];
+function roofSupport(k){const[x,y]=kXY(k);const w=(a,b)=>{const q=tile(a,b);return q&&TWALL[q]};return w(x,y)||w(x+1,y)||w(x-1,y)||w(x,y+1)||w(x,y-1)}
+function roofComp(k0){const s=new Set([k0]),q=[k0];while(q.length&&s.size<3000){const c=q.pop();for(const n of[c-1,c+1,c-65536,c+65536])if(rmods.has(n)&&!s.has(n)){s.add(n);q.push(n)}}return s}
+function roofDist(comp){const d=new Map(),q=[];for(const k of comp)if(roofSupport(k)){d.set(k,0);q.push(k)}
+ for(let i=0;i<q.length;i++){const c=q[i],v=d.get(c);for(const n of[c-1,c+1,c-65536,c+65536])if(comp.has(n)&&!d.has(n)){d.set(n,v+1);q.push(n)}}return d}
+function collapseRoofs(tx,ty){const seen=new Set();let fell=0;
+ for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){const k=(tx+dx)*65536+ty+dy;if(!rmods.has(k)||seen.has(k))continue;const comp=roofComp(k);for(const c of comp)seen.add(c);
+  const d=roofDist(comp);const fallK=[...comp].filter(c=>!d.has(c)||d.get(c)>SPAN);
+  for(const c of fallK){rmods.delete(c);fell++;const[x,y]=kXY(c);const px=x*16+8,py=y*16+8;
+   debris(px,py-4,6,['#7a5a30','#5a4026','#8c8f95']);for(let i=0;i<3;i++)pt({x:px+(rnd()-.5)*14,y:py,z:18+rnd()*8,vx:(rnd()-.5)*.6,vy:(rnd()-.5)*.4,vz:.2,c:'#6a6258',k:'sm',l:60,ml:60,s:2});
+   if(rnd()<.5)give('holz',1,px,py);
+   if(Math.abs(P.x-px)<10&&Math.abs(P.y-py)<10)hurt(12,px,py-10,.2);
+   for(const z of Zs)if(Math.abs(z.x-px)<10&&Math.abs(z.y-py)<10){z.hp-=4;z.hit=8}}}
+ if(fell){S.wallbreak(tx*16+8,ty*16+8);setTimeout(()=>S.wallbreak&&S.wallbreak(tx*16+8,ty*16+8),140);noise(tx*16+8,ty*16+8,220);shk=Math.min(8,shk+3+Math.min(5,fell*.4));toast(tr(RC_TXT),'bad');RGHk=-1}
+ return fell}
+// ---------- Abreißen: Dach zuerst, wenn man es von außen sieht ----------
+{const _ba=buildAct;buildAct=function(){const a=_ba();if(!a)return a;const b=BP[BM];const k=a.tx*65536+a.ty;
+  if(b&&b.k==='del'){const roofVis=rmods.has(k)&&!(RGH&&RGH.has(k));
+   if(roofVis||(!own.has(k)&&rmods.has(k))){a.layer='r';a.ok=true;a.l='Dach abreißen'}else a.layer=own.has(k)?'t':gmods.has(k)?'g':null}
+  else if(b&&b.k==='r'&&a.ok){// Stütze prüfen
+   let ok=roofSupport(k);if(!ok){let best=99;for(const n of[k-1,k+1,k-65536,k+65536])if(rmods.has(n)){const d=roofDist(roofComp(n));if(d.has(n))best=Math.min(best,d.get(n)+1)}ok=best<=SPAN}
+   if(!ok){a.ok=false;a.nosup=true;a.l='Keine Stütze'}}
+  return a}}
+{const _db=doBuild;doBuild=function(a){
+  if(a&&a.k==='build'&&a.nosup){toast(tr(RS_TXT),'bad');P.ac=20;return}
+  if(a&&a.k==='del'&&a.layer==='r'){const k=a.tx*65536+a.ty;if(!rmods.has(k))return;rmods.delete(k);const cx_=a.tx*16+8,cy_=a.ty*16+8;
+   for(const m in BP.dach.cost){const n=Math.floor(BP.dach.cost[m]/2);if(n)give(m,n,cx_,cy_)}S.wallbreak(cx_,cy_);debris(cx_,cy_-6,8,['#7a5a30','#5a4026']);P.ac=14;RGHk=-1;
+   collapseRoofs(a.tx,a.ty);hudDirty=1;return}
+  const wasWall=a&&a.k==='del'&&TWALL[tile(a.tx,a.ty)];const r=_db(a);
+  if(wasWall&&!TWALL[tile(a.tx,a.ty)])collapseRoofs(a.tx,a.ty);return r}}
+// Mauern, die von Zombies zerstört werden, lassen Dächer ebenfalls einstürzen
+if(typeof restore==='function'){const _rs=restore;restore=function(tx,ty){const w=TWALL[tile(tx,ty)];const r=_rs(tx,ty);if(w&&!TWALL[tile(tx,ty)]&&state===1)setTimeout(()=>collapseRoofs(tx,ty),0);return r}}
+// ---------- Abreißen-Knopf im Bau-Menü und in der Bauleiste ----------
+let lastBM=null;
+function setDemo(on){if(on){if(BM&&BM!=='abriss')lastBM=BM;BM='abriss'}else BM=lastBM||null;BC=null;S.ui();
+ if(BM){$('bbar').classList.remove('hide');renderBbar()}else $('bbar').classList.add('hide');hudDirty=1}
+{const h=document.querySelector('#bld .hdr');if(h){const b=document.createElement('button');b.className='btn sm demoB';b.id='bldD';b.innerHTML=`<i class="ic">${icoImg('vorschlag')}</i><span data-t>Abreißen</span>`;h.insertBefore(b,$('bldX'));
+  b.onclick=()=>{closeP('bld');setDemo(true)}}
+ const r=document.querySelector('#bbar .bbr');if(r){const b=document.createElement('button');b.className='ib demoT';b.id='bbD';b.innerHTML=icoImg('vorschlag');r.insertBefore(b,$('bbK'));
+  b.onclick=()=>{setDemo(BM!=='abriss')}}}
+{const _rb=renderBbar;renderBbar=function(){_rb();if(!BM)return;const b=BP[BM],d=BM==='abriss';$('bbar').classList.toggle('demo',d);
+  const t=$('bbD');if(t){t.classList.toggle('on',d);t.title=tr(d?'Zurück zum Bauen':'Abreißen');t.style.display=d&&!lastBM?'none':''}
+  const h=document.querySelector('#bbar .bbh');if(h){const ds=BDESC[b.id];h.textContent=d?tr(L4('Tippe auf ein Bauwerk oder Dach – gibt die Hälfte zurück','Tap a structure or roof – refunds half','Toca una construcción o tejado – devuelve la mitad','Touche une construction ou un toit – rend la moitié')):(ds?tr(ds)+' · ':'')+tr('Tippe auf den Boden, um die Position zu wählen')}}}
+// Rahmen-Farbe der Vorschau beim Dach-Abriss: auf Dachhöhe zeichnen
+// ---------- Kompaktes Bau-Menü ----------
+{const _r=renderBld;renderBld=function(){_r();for(const c of document.querySelectorAll('#bl .bc')){const s=c.querySelector('small');const b=BP[c.dataset.k];if(s&&b&&b.k!=='i'){c.title=s.textContent;s.remove()}}}}
+{const st=document.createElement('style');st.textContent=`
+#bld .hdr{gap:8px}#bld .hdr .ttl2{flex:1}
+.demoB{background:var(--noise),linear-gradient(180deg,#9a2a1c,#5a120a)!important;color:#f3d8c8!important;padding:6px 12px!important;font-size:12px!important;margin:0!important;width:auto!important;flex:0 0 auto}
+.demoB .ic{width:16px;height:16px}
+#bbD{background:var(--noise),linear-gradient(180deg,#7a2216,#40100a)!important}#bbD.on,#bbar.demo #bbD{background:var(--noise),linear-gradient(180deg,#c2381f,#7a160c)!important;box-shadow:0 0 0 2px #f0a060 inset!important}
+#bbar.demo{outline:2px solid rgba(200,50,30,.55)}
+#bbar .bbh{font-size:10px;line-height:1.3}
+#bl{grid-template-columns:repeat(auto-fill,minmax(82px,1fr))!important;gap:6px!important;align-content:start}
+#bl .bc{padding:4px 3px 4px!important;gap:1px!important;font-size:10px!important}
+#bl .bc>img{width:24px!important;height:31px!important;object-fit:contain;image-rendering:pixelated}
+#bl .bc b{font-size:9px!important;line-height:1.1;min-height:2.2em;display:flex;align-items:center;justify-content:center}
+#bl .bc .cost{font-size:10px;gap:4px;flex-wrap:wrap;justify-content:center}#bl .bc .cost .ic{width:12px;height:12px}
+#bl .bc small{font-size:9px}
+.btabs .btab{padding:5px 9px!important;font-size:11px!important}
+@media (orientation:landscape){#bld{max-height:none!important;top:calc(env(safe-area-inset-top,0px) + 6px);padding-top:12px!important}
+ #bl{grid-template-columns:repeat(auto-fill,minmax(78px,1fr))!important}}
+@media (orientation:landscape) and (min-height:600px){#bld{top:auto;max-height:70%!important}#bl{grid-template-columns:repeat(auto-fill,minmax(96px,1fr))!important}#bl .bc>img{width:36px!important;height:46px!important}}`;document.head.appendChild(st)}
+// Lexikon-Hinweis
+if(typeof LX!=='undefined'&&Array.isArray(LX)){}
+applyLang();
 </script><script>if('serviceWorker'in navigator&&location.protocol.startsWith('http'))addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));</script></body></html>
