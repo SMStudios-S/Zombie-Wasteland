@@ -18,6 +18,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
 <meta name="apple-mobile-web-app-title" content="Zombie Wasteland">
+
 <title>Zombie Wasteland</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -4666,5 +4667,126 @@ const WT_=[L4('Keine Zombies in Sicht.','No zombies in sight.','No hay zombis a 
 {const _df=drawFrame;drawFrame=function(){_df();if(state!==1||!P)return;for(const z of Zs){if(!z.spot||t-z.spot>60*25||z.hp<=0)continue;const X=z.x-cx,Y=z.y-cy-22,a=.5+.5*Math.sin(fc*.2);g.fillStyle=`rgba(255,70,40,${.55+.4*a})`;g.fillRect(RQ(X)-1,RQ(Y),3,4);g.fillRect(RQ(X),RQ(Y)+5,1,1)}}}
 // Bau-Symbole neu erzeugen
 for(const k in BI)if(BP[k]&&NB4.some(r=>r[0]===k))delete BI[k];
+applyLang();
+// ================= v30: Autos verschrotten, Gelände roden, weniger Kisten draußen, Werkbank für Metall, Airdrop-Timer, iOS-Start =================
+// ---------- Autos: nach dem Durchsuchen komplett verschrotten (10 % Alarm) ----------
+A_('auto_leer','schrott',L4('Verschrotten','Scrap','Desguazar','Démonter'),110);
+A_('auto_ausg','schrott',L4('Wegräumen','Clear away','Retirar','Dégager'),55);
+const ALARM_T=L4('Die Autoalarmanlage geht los!','The car alarm went off!','¡Ha saltado la alarma del coche!','L’alarme de la voiture s’est déclenchée !');
+let CARAL=null;
+S.caralarm=function(x,y){A(x,y,.75,.15,(b,t0)=>{tn(lp(b,2600),t0,.22,'square',880,880,.2,.01);tn(lp(b,2600),t0+.24,.22,'square',660,660,.2,.01)})};
+{const _sa=startAct;startAct=function(a){const fresh=a&&!P.job;_sa(a);if(fresh&&P.job&&a.k==='tile'&&a.tt===T.auto_leer&&rnd()<.1){CARAL={tx:a.tx,ty:a.ty,x:a.tx*16+8,y:a.ty*16+8,until:t+60*25};toast(tr(ALARM_T),'bad');shk=Math.max(shk,3)}}}
+{const _st=step;step=function(){_st();if(!CARAL||state!==1)return;if(tile(CARAL.tx,CARAL.ty)!==T.auto_leer||t>CARAL.until){CARAL=null;return}
+ if(t%28===0){S.caralarm(CARAL.x,CARAL.y);noise(CARAL.x,CARAL.y,330)}if(t%14===0)pt({x:CARAL.x+(rnd()-.5)*10,y:CARAL.y-4,z:10,vz:.3,c:t%28<14?'#ffb020':'#ff5030',k:'sp',l:14})}}
+// ---------- Gelände gestalten: Stümpfe, Büsche, Heu, Schrott wegräumen ----------
+A_('stumpf','axt',L4('Ausgraben','Dig out','Desenterrar','Déterrer'),45);
+A_('busch','axt',L4('Roden','Clear','Talar','Arracher'),30);A_('beeren_leer','axt',L4('Roden','Clear','Talar','Arracher'),30);
+A_('heuballen','hand',L4('Wegräumen','Clear away','Retirar','Dégager'),35);A_('schrotthaufen','schrott',L4('Durchwühlen','Rummage','Rebuscar','Fouiller'),60);
+A_('reifen','hand',L4('Wegräumen','Clear away','Retirar','Dégager'),20);
+{const _fa=finishAct;finishAct=function(a){const{tx,ty,tt}=a,cx_=tx*16+8,cy_=ty*16+8;
+ const clear=(cols)=>{setT(tx,ty,0);mods.set(tx*65536+ty,0);debris(cx_,cy_+2,8,cols);dust&&dust(cx_,cy_,'#8a7a5a');hudDirty=1};
+ if(tt===T.auto_leer){clear(['#7a8088','#a86a3a','#4a4e56']);S.crack&&S.crack(cx_,cy_);S.metal();noise(cx_,cy_,90);give('schrott',6+(rnd()*4|0),cx_,cy_);if(D.mechanik&&rnd()<.35)give('mechanik',1,cx_,cy_);if(D.benzin&&rnd()<.2)give('benzin',1,cx_,cy_);if(CARAL&&CARAL.tx===tx&&CARAL.ty===ty)CARAL=null;return}
+ if(tt===T.auto_ausg){clear(['#5a4a3a','#7a8088']);S.metal();noise(cx_,cy_,70);give('schrott',2+(rnd()*2|0),cx_,cy_);return}
+ if(tt===T.stumpf){clear(['#8a6a40','#5e4026']);S.chop&&S.chop(cx_,cy_);give('holz',1+(rnd()*2|0),cx_,cy_);return}
+ if(tt===T.busch||tt===T.beeren_leer){clear(['#3e7a30','#2e5a24']);S.rustle&&S.rustle();if(rnd()<.5)give('holz',1,cx_,cy_);return}
+ if(tt===T.heuballen){clear(['#d8b860','#b89840']);S.rustle&&S.rustle();if(D.stoff&&rnd()<.3)give('stoff',1,cx_,cy_);return}
+ if(tt===T.reifen){clear(['#1e1e20','#3a3a3e']);return}
+ if(tt===T.schrotthaufen){clear(['#7a8088','#a86a3a']);S.metal();noise(cx_,cy_,60);give('schrott',2+(rnd()*3|0),cx_,cy_);if(D.mechanik&&rnd()<.2)give('mechanik',1,cx_,cy_);return}
+ return _fa(a)}}
+// ---------- Kisten: draußen selten, in Häusern häufiger ----------
+{const _gc=genCell;genCell=function(x,y){const v=_gc(x,y),tt=v&255;if(tt!==T.kiste&&tt!==T.mkiste)return v;
+ const hs=houseAt(x,y);if(hs&&x>=hs.x0&&x<hs.x0+hs.w&&y>=hs.y0&&y<hs.y0+hs.h)return v;
+ const keep=isTown(Math.floor(x/12),Math.floor(y/12))?.35:.25;return hh(x*7+3,y*13+5,SEED+911)<keep?v:(v&~255)}}
+{const _mh=mkHouse;mkHouse=function(key,x0,y0,w,h,sd){const hs=_mh(key,x0,y0,w,h,sd);const s=i=>hh(sd,i*7919+13,SEED+5);
+ if(s(1)<.6){const iy1=y0+h-2;for(let k=0;k<8;k++){const x=x0+1+Math.floor(s(10+k)*(w-2)),y=y0+1+Math.floor(s(30+k)*(h-3));const kk=x*65536+y;if(x===hs.dx||y>=iy1||hs.furn.has(kk))continue;hs.furn.set(kk,s(50)<.12?T.mkiste:T.kiste);break}}
+ return hs}}
+// ---------- Bauen mit Metallschrott braucht eine Werkbank in der Nähe ----------
+const WB_R=7;T4('Werkbank nötig','Workbench needed','Necesitas banco','Établi requis');
+const WBN_T=L4('Für Teile mit Metallschrott brauchst du eine Werkbank in der Nähe (7 Felder).','Parts with scrap metal need a workbench nearby (7 tiles).','Las piezas con chatarra necesitan un banco cerca (7 casillas).','Les pièces en ferraille nécessitent un établi proche (7 cases).');
+const needWB=b=>b&&b.cost&&b.cost.schrott&&b.id!=='werkbank'&&(b.k==='t'||b.k==='g'||b.k==='r');
+let WBC={k:-1,v:false,t:0};
+function nearWB(tx,ty){const k=tx*65536+ty;if(WBC.k===k&&t-WBC.t<30)return WBC.v;let v=false;for(let dy=-WB_R;dy<=WB_R&&!v;dy++)for(let dx=-WB_R;dx<=WB_R;dx++)if(tile(tx+dx,ty+dy)===T.werkbank){v=true;break}WBC={k,v,t};return v}
+{const _ba=buildAct;buildAct=function(){const a=_ba();const b=BP[BM];if(a&&a.k==='build'&&needWB(b)&&!nearWB(a.tx,a.ty)){a.ok=false;a.nowb=true;a.l='Werkbank nötig'}return a}}
+{const _db=doBuild;doBuild=function(a){if(a&&a.nowb){toast(tr(WBN_T),'bad');P.ac=20;return}const r=_db(a);WBC.k=-1;return r}}
+{const _r=renderBld;renderBld=function(){_r();for(const c of document.querySelectorAll('#bl .bc')){const b=BP[c.dataset.k];if(needWB(b)&&!c.querySelector('.wbn'))c.insertAdjacentHTML('beforeend',`<i class="wbn" title="${tr('Werkbank nötig')}">${icoImg('werkbank')}</i>`)}}}
+{const _rb=renderBbar;renderBbar=function(){_rb();const b=BP[BM];if(needWB(b)){const h=document.querySelector('#bbar .bbh');if(h&&!h.textContent.includes(tr('Werkbank nötig')))h.textContent=tr('Werkbank nötig')+' · '+h.textContent}}}
+{const st=document.createElement('style');st.textContent=`#bl .bc{position:relative}#bl .bc .wbn{position:absolute;right:3px;top:3px;width:12px;height:12px;opacity:.85}#bl .bc .wbn img{width:12px;height:12px;image-rendering:pixelated}`;document.head.appendChild(st)}
+// ---------- Airdrop: nur Geräusch + Kartenmarkierung, 5-Minuten-Timer oben rechts ----------
+const AD_LIFE=60*60*5;
+T4('Airdrop','Airdrop','Lanzamiento','Largage');
+{const _at=adTick;adTick=function(){_at();for(const d of AD.list){if(d.ph==='done')continue;if(t-d.t0>AD_LIFE){const k=d.tx*65536+d.ty;if(boxK===k&&!$('inv').classList.contains('hide'))continue;if(tile(d.tx,d.ty)===T.airdrop||tile(d.tx,d.ty)===T.airdrop_l){setT(d.tx,d.ty,0);stor.delete(k)}d.ph='done'}}}}
+// Zeichnen ohne Richtungspfeil am Bildschirmrand
+adDraw=function(){if(state!==1)return;const a0=g.globalAlpha;g.globalAlpha=.72;try{for(const d of AD.list){if(d.ph==='done')continue;
+ const k=(t-d.t0)/480,c=Math.cos(d.pa),s=Math.sin(d.pa);
+ if(k<1){const px=d.x+c*(k-.5)*900-cx,py=d.y+s*(k-.5)*900-cy;if(px>-60&&px<W+60&&py>-60&&py<Hh+60){g.save();g.translate(RQ(px),RQ(py));g.rotate(d.pa);g.fillStyle='rgba(0,0,0,.32)';g.fillRect(-16,-2,32,4);g.fillRect(-3,-18,7,36);g.fillRect(-15,-6,4,12);g.restore()}}
+ if(d.ph==='fall'){const X=RQ(d.x-cx),Y=RQ(d.y-cy),zz=d.z,sw=Math.sin(fc*.05)*2;const sh=Math.max(2,8-zz/25);g.fillStyle='rgba(0,0,0,.3)';g.beginPath();g.ellipse(X,Y+4,sh+3,sh*.5,0,0,6.283);g.fill();
+  const cxp=X+sw,cyp=Y-zz;g.drawImage(NS.airdrop,cxp-9,cyp-14);g.strokeStyle='rgba(230,220,200,.7)';g.lineWidth=.5;g.beginPath();g.moveTo(cxp-8,cyp-13);g.lineTo(cxp-12,cyp-30);g.moveTo(cxp+8,cyp-13);g.lineTo(cxp+12,cyp-30);g.moveTo(cxp,cyp-14);g.lineTo(cxp,cyp-31);g.stroke();
+  for(let i=0;i<8;i++){g.fillStyle=i%2?'#e8e4dc':'#d85a2a';g.beginPath();g.moveTo(cxp,cyp-30);g.arc(cxp,cyp-30,14,Math.PI+i*Math.PI/8,Math.PI+(i+1)*Math.PI/8);g.closePath();g.fill()}}}}finally{g.globalAlpha=a0}};
+{const g_=$('info')||$('game'),e=document.createElement('div');e.id='adT';e.className='hide';ICO.adr=NS.airdrop;delete ICU.adr;e.innerHTML=`<i class="ic">${icoImg('adr')}</i><span id="adTn"></span><b id="adTv"></b>`;g_.appendChild(e)}
+{const _h=hud;let last='';hud=function(){_h();if(state!==1)return;let best=null;for(const d of AD.list){if(d.ph==='done')continue;const left=AD_LIFE-(t-d.t0);if(left>0&&(!best||left<best))best=left}
+ const el=$('adT');if(!best){if(last!==''){el.classList.add('hide');last=''}return}const sec=Math.ceil(best/60),txt=Math.floor(sec/60)+':'+String(sec%60).padStart(2,'0');
+ if(txt!==last){if(last==='')el.classList.remove('hide');last=txt;$('adTn').textContent=tr('Airdrop');$('adTv').textContent=txt;el.classList.toggle('low',sec<=60)}}}
+{const st=document.createElement('style');st.textContent=`#info #adT{display:flex;align-items:center;gap:4px;font-size:10px;color:#e6dcc4;white-space:nowrap}#adT img{width:12px;height:12px;image-rendering:pixelated}#adT b{color:#ffb020;font-variant-numeric:tabular-nums}#adT.low b{color:#ff5a3a;animation:adP 1s steps(2) infinite}@keyframes adP{50%{opacity:.4}}#info #adT.hide{display:none}`;document.head.appendChild(st)}
+
+if(TUT.drop)TUT.drop[0]=L4('Ein Flugzeug wirft Vorräte ab! Die Karte zeigt, wo – oben rechts läuft ein 5-Minuten-Timer. Eine große Horde bewacht die Kiste.','A plane dropped supplies! The map shows where – a 5-minute timer runs top right. A big horde guards the crate.','¡Un avión lanzó suministros! El mapa muestra dónde; arriba a la derecha corre un temporizador de 5 minutos. Una gran horda vigila la caja.','Un avion a largué des provisions ! La carte indique où – un minuteur de 5 minutes tourne en haut à droite. Une grande horde garde la caisse.');
+// ---------- iOS: beim Start im Querformat sauber aufbauen ----------
+{const vm=document.querySelector('meta[name=viewport]');let fixing=false;
+ const exp=()=>{if(!SA_||!screen.width)return 0;const a=Math.min(screen.width,screen.height),b=Math.max(screen.width,screen.height),land=innerWidth>realIH();if(Math.abs(innerWidth-(land?b:a))>2)return 0;return land?a:b};
+ const gap=()=>{const e=exp();return e?e-realIH():0};
+ async function heal(){if(fixing)return;const g0=gap();if(g0<=8||g0>=160)return;fixing=true;const w=ms=>new Promise(r=>setTimeout(r,ms));
+  try{// 1) Viewport neu setzen lassen
+   if(vm){const c=vm.content;vm.content=c.replace('viewport-fit=cover','viewport-fit=auto');await w(60);vm.content=c;await w(250)}
+   if(gap()>8){window.scrollTo(0,1);await w(80);window.scrollTo(0,0);await w(200)}
+   if(gap()>8&&window.vpTry)window.vpTry()}finally{fixing=false;rs();uiScale()}}
+ window.vpHeal=heal;
+ addEventListener('orientationchange',()=>{setTimeout(heal,450);setTimeout(heal,1200)});document.addEventListener('visibilitychange',()=>{if(!document.hidden)setTimeout(heal,500)});
+ addEventListener('pageshow',()=>setTimeout(heal,400));setTimeout(heal,600);setTimeout(heal,1800)}
+// Start im Querformat: Größen erst berechnen, wenn das Drehen fertig ist (kein Flackern)
+{let rt=0;addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(()=>{rs();uiScale()},160)})}
+applyLang();
+// ================= v31: Bausätze – Metallteile an der Werkbank herstellen, überall bauen =================
+// Keine Werkbank-Nähe mehr nötig (v30), stattdessen Bausätze als Gegenstand
+nearWB=function(){return true};
+T4('Bausätze','Kits','Kits','Kits');T4('Bausatz fehlt','Kit missing','Falta kit','Kit manquant');T4('Lager','Storage','Almacén','Stockage');
+const KIT_T={need:L4('Diesen Bausatz stellst du an der Werkbank her.','Make this kit at the workbench.','Fabrica este kit en el banco de trabajo.','Fabrique ce kit à l’établi.'),
+ inv:L4('Bausatz hergestellt – im Rucksack','Kit made – in your backpack','Kit fabricado: en la mochila','Kit fabriqué – dans ton sac'),
+ box:L4('Rucksack voll – Bausatz liegt im Werkbank-Lager','Backpack full – kit is in the workbench storage','Mochila llena: el kit está en el almacén del banco','Sac plein – le kit est dans le stockage de l’établi'),
+ drop:L4('Kein Platz – Bausatz liegt am Boden','No space – kit dropped on the ground','Sin espacio: el kit está en el suelo','Pas de place – kit posé au sol'),
+ hint:L4('Metallteile baust du mit Bausätzen von der Werkbank – danach überall.','Metal parts are built with kits from the workbench – then anywhere.','Las piezas de metal se construyen con kits del banco; luego en cualquier sitio.','Les pièces en métal se construisent avec des kits de l’établi – puis partout.')};
+const KITS=[];
+const kitOf=b=>'bs_'+b.id;
+function kitIcon(b){const src=b.k==='t'&&TWALL[b.tg]?(()=>{const[F,cap]=wallTex(b.tg,0,0);const c=mk(16,16+WH),x=c.getContext('2d');x.drawImage(cap||CAP.lintel,0,0);x.drawImage(F,0,16);return c})():b.k==='t'?SPR[b.tg][0]:b.k==='g'?GT[b.tg][0]:roofTile(0);
+ return outline(cv(16,16,(P,x)=>{x.imageSmoothingEnabled=false;const s=Math.min(13/src.width,13/src.height),w=src.width*s,h=src.height*s;x.drawImage(src,Math.round((16-w)/2),Math.round(14-h),Math.round(w),Math.round(h));
+  P('#c88a30',10,10,6,6);P('#e8a840',10,10,6,1);P('#8a5a1a',10,15,6,1);P('#6a4010',12,10,2,6)}))}
+for(const b of Object.values(BP)){if(!b.cost||!b.cost.schrott||b.id==='werkbank'||!(b.k==='t'||b.k==='g'||b.k==='r'))continue;
+ const id=kitOf(b),de='Bausatz: '+b.n,tl=I18N[b.n];if(tl)I18N[de]=[tl[0]+' kit','Kit: '+tl[1],'Kit : '+tl[2]];else I18N[de]=[b.n+' kit','Kit: '+b.n,'Kit : '+b.n];
+ D[id]={n:de,c:'mat',st:20,kit:b.id,d:L4('Damit baust du das Teil überall – ohne Werkbank.','Build the part anywhere with it – no workbench needed.','Con él construyes la pieza en cualquier sitio.','Permet de construire la pièce n’importe où.')};
+ try{ICO[id]=kitIcon(b);delete ICU[id]}catch(e){ICO[id]=ICO.werkbank}
+ b.wbCost=b.cost;b.cost={[id]:1};KITS.push(b)}
+for(const k in BI)if(KITS.some(b=>b.id===k))delete BI[k];
+// Bauen ohne Bausatz: klare Meldung
+{const _ba=buildAct;buildAct=function(){const a=_ba();const b=BP[BM];if(a&&a.k==='build'&&b&&b.wbCost&&!a.ok&&!canPay(b.cost)){a.nokit=true;a.l='Bausatz fehlt'}return a}}
+{const _db=doBuild;doBuild=function(a){if(a&&a.nokit){toast(tr(KIT_T.need),'bad');P.ac=20;return}
+ let kb=null;if(a&&a.k==='del'&&a.layer!=='r'){const k=a.tx*65536+a.ty;if(own.has(k)){const tt=tile(a.tx,a.ty);kb=KITS.find(q=>q.k==='t'&&(q.tg===tt||DOORS[q.tg]===tt))}}
+ const r=_db(a);if(kb&&!own.has(a.tx*65536+a.ty))give(kitOf(kb),1,a.tx*16+8,a.ty*16+8);return r}}
+{const _rb=renderBbar;renderBbar=function(){_rb();const b=BP[BM];if(b&&b.wbCost){const h=document.querySelector('#bbar .bbh');if(h)h.textContent=tr(KIT_T.hint)}}}
+// ---------- Werkbank: Reiter „Bausätze“ + eigenes Lager ----------
+let WBK=null;
+{const _ea=extraAct;extraAct=function(a){if(a.tt===T.werkbank){WBK=a.tx*65536+a.ty;let st=stor.get(WBK);if(!st||!st.items){st={items:Array(16).fill(null)};stor.set(WBK,st)}}return _ea(a)}}
+{const h=document.querySelector('#wb .hdr');if(h){const b=document.createElement('button');b.className='btn sm';b.id='wbS';b.innerHTML=`<i class="ic">${icoImg('chest')}</i><span data-t>Lager</span>`;h.insertBefore(b,$('wbX'));
+ b.onclick=()=>{if(WBK==null)return;S.ui();$('wb').classList.add('hide');boxK=WBK;paused=false;openInv()}}}
+{const _r=renderWB;renderWB=function(){_r();const T_=$('wbT');if(T_&&!T_.querySelector('[data-c="bau"]'))T_.insertAdjacentHTML('afterbegin',`<div class="btab${wbTab==='bau'?' on':''}" data-c="bau">${icW('brick')}${tr('Bausätze')}</div>`);
+ if(wbTab!=='bau')return;for(const e of T_.querySelectorAll('.btab'))e.classList.toggle('on',e.dataset.c==='bau');
+ $('wbL').innerHTML=KITS.map(b=>{const ok=canPay(b.wbCost),id=kitOf(b),have=countA(id);return `<div class="bc${ok?'':' no'}" data-kit="${b.id}"><img src="${icoUrl(id)}" style="width:36px;height:36px"><b>${tr(b.n)}</b><div class="cost" style="flex-wrap:wrap;justify-content:center">${costH(b.wbCost)}</div>${have?`<small class="kh">×${have}</small>`:''}</div>`}).join('')}}
+if(typeof wbTab!=='undefined')wbTab='bau';
+function craftKit(bid){const b=BP[bid];if(!b||!b.wbCost)return;if(!canPay(b.wbCost)){S.dry&&S.dry();toast(tr('Dir fehlen Teile'),'bad');return}
+ for(const m in b.wbCost)takeA(m,b.wbCost[m]);const it=mkItem(kitOf(b),1);let where='inv';
+ if(!addItem(it)){const st=WBK!=null&&stor.get(WBK);let put=false;if(st&&st.items){for(let i=0;i<st.items.length&&!put;i++){const s=st.items[i];if(s&&s.id===it.id&&s.n<(D[it.id].st||1)){s.n++;put=true}}for(let i=0;i<st.items.length&&!put;i++)if(!st.items[i]){st.items[i]=it;put=true}}
+  if(put)where='box';else{dropIt(it,P.x,P.y,1);where='drop'}}
+ S.build();S.pickMetal&&S.pickMetal();toast(tr(KIT_T[where]),where==='inv'?'good':'bad');renderWB();hudDirty=1}
+$('wbL').addEventListener('click',e=>{const c=e.target.closest('[data-kit]');if(!c)return;e.stopPropagation();craftKit(c.dataset.kit)},true);
+{const st=document.createElement('style');st.textContent=`#wbL .bc{position:relative}#wbL .bc .kh{position:absolute;right:4px;top:3px;color:#d9a441;font-size:10px}#wb .hdr{gap:8px}#wb .hdr .ttl2{flex:1}#wbS{margin:0!important;width:auto!important;padding:5px 10px!important;display:flex;gap:5px;align-items:center}#wbS .ic{width:14px;height:14px}`;document.head.appendChild(st)}
+// Lexikon & Tipp
+if(typeof LG!=='undefined'){const g=LG.find(x=>x[0]==='werkbank');if(g&&Array.isArray(g[3])){for(let i=0;i<g[3].length;i++)if(typeof g[3][i]==='string')g[3][i]+=(['|!Metallteile (Wände, Türen, Fallen …) stellst du als Bausatz an der Werkbank her. Mit dem Bausatz baust du sie danach überall.','|!Metal parts (walls, doors, traps …) are made as kits at the workbench. Then you can build them anywhere.','|!Las piezas de metal se fabrican como kits en el banco. Luego las construyes en cualquier sitio.','|!Les pièces en métal se fabriquent en kits à l’établi. Ensuite tu les construis partout.'][i]||'')}}
 applyLang();
 </script><script>if('serviceWorker'in navigator&&location.protocol.startsWith('http'))addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));</script></body></html>
