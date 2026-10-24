@@ -4039,7 +4039,7 @@ if(IOS){CFG.fs=0;saveCfg();
 }
 // ---------- Touch: Seite darf nie mitscrollen oder zoomen ----------
 const scrollable=el=>{for(let e=el;e&&e!==document.body;e=e.parentElement){const cs=getComputedStyle(e);if((/(auto|scroll)/.test(cs.overflowY)&&e.scrollHeight>e.clientHeight+1)||(/(auto|scroll)/.test(cs.overflowX)&&e.scrollWidth>e.clientWidth+1))return true;if(e.tagName==='INPUT')return true}return false};
-document.addEventListener('touchmove',e=>{if(e.touches.length>1||!scrollable(e.target))e.preventDefault()},{passive:false});
+document.addEventListener('touchmove',e=>{if(e.touches.length>1||!(window.scrollableFast||scrollable)(e.target))e.preventDefault()},{passive:false});
 for(const ev of['gesturestart','gesturechange','gestureend'])document.addEventListener(ev,e=>e.preventDefault(),{passive:false});
 // Touch-Eingaben nach Unterbrechung (Warnung, App-Wechsel) zurücksetzen, damit nichts hängt
 {const rs=()=>{try{relInput()}catch(e){}};addEventListener('blur',rs);document.addEventListener('visibilitychange',rs);addEventListener('pointercancel',e=>{if(e.pointerType==='touch'&&typeof jid!=='undefined'&&e.pointerId===jid){jid=null;jx=jy=0}})}
@@ -4086,20 +4086,8 @@ if('ontouchstart' in window){
 // ================= v24: iOS-App: schwarzer Balken unten (Viewport schrumpft) =================
 // iOS-Bug in Home-Bildschirm-Apps: nach Tastatur/Drehen bleibt die Fläche zu klein.
 // Abhilfe: Seite kurz neu vermessen lassen (Anzeige aus/an in einem Schritt, ohne Flackern).
-{const SA=!!(navigator.standalone||matchMedia('(display-mode: standalone)').matches||matchMedia('(display-mode: fullscreen)').matches);
- const mx={l:0,p:0};const ori=()=>innerWidth>innerHeight?'l':'p';
- const expect=()=>{if(!SA||!screen.width)return 0;const a=Math.min(screen.width,screen.height),b=Math.max(screen.width,screen.height);return ori()==='l'?a:b};
- let tries=0,lastFix=0;
- function fixVP(){const o=ori();mx[o]=Math.max(mx[o],innerHeight);const want=Math.max(mx[o],expect());
-  if(want-innerHeight<=4){tries=0;return}if(tries>=3||performance.now()-lastFix<400)return;tries++;lastFix=performance.now();
-  const b=document.body;b.style.display='none';void b.offsetHeight;b.style.display='';try{rs()}catch(e){}
-  setTimeout(()=>{try{rs()}catch(e){}},60)}
- window.fixVP=fixVP;
- addEventListener('resize',()=>{const o=ori();mx[o]=Math.max(mx[o],innerHeight);setTimeout(fixVP,140)});
- addEventListener('orientationchange',()=>{tries=0;setTimeout(fixVP,350);setTimeout(fixVP,900)});
- document.addEventListener('focusout',e=>{if(e.target&&e.target.matches&&e.target.matches('input,textarea')){tries=0;setTimeout(fixVP,140);setTimeout(fixVP,600)}});
- document.addEventListener('visibilitychange',()=>{if(!document.hidden){tries=0;setTimeout(fixVP,300)}});
- if(SA)setInterval(fixVP,2500);setTimeout(fixVP,500)}
+// (ersetzt durch v26)
+
 // ---------- Formatierung: Fenster füllen den Bildschirm, nichts überlappt ----------
 {const st=document.createElement('style');st.textContent=`
 #sets{max-height:none!important}
@@ -4202,4 +4190,61 @@ function setDemo(on){if(on){if(BM&&BM!=='abriss')lastBM=BM;BM='abriss'}else BM=l
 // Lexikon-Hinweis
 if(typeof LX!=='undefined'&&Array.isArray(LX)){}
 applyLang();
+// ================= v26: 60 fps, automatische UI-Größe + Regler, iOS-Balken, keine Dynamic Island =================
+// ---------- Bildschirmhöhe: iOS-App-Bug (Fläche bleibt nach Tastatur zu klein) ----------
+const SA_=!!(navigator.standalone||matchMedia('(display-mode: standalone)').matches||matchMedia('(display-mode: fullscreen)').matches);
+const IHD=Object.getOwnPropertyDescriptor(window,'innerHeight')||Object.getOwnPropertyDescriptor(Window.prototype,'innerHeight');
+const realIH=()=>IHD&&IHD.get?IHD.get.call(window):document.documentElement.clientHeight;
+let FIXH=0;
+try{Object.defineProperty(window,'innerHeight',{configurable:true,get(){const r=realIH();return FIXH>r?FIXH:r}})}catch(e){}
+function vpCheck(){let fh=0;
+ if(SA_&&screen.width){const a=Math.min(screen.width,screen.height),b=Math.max(screen.width,screen.height),land=innerWidth>realIH(),eh=land?a:b,ew=land?b:a,h=realIH();
+  const typing=document.activeElement&&/^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName);
+  if(!typing&&Math.abs(innerWidth-ew)<=2&&eh-h>8&&eh-h<160)fh=eh}
+ if(fh!==FIXH){FIXH=fh;document.documentElement.style.setProperty('--appH',(fh||realIH())+'px');document.body.classList.toggle('vpfix',!!fh);rs();uiScale()}}
+{const st=document.createElement('style');st.textContent=`body.vpfix{position:fixed!important;left:0;top:0;width:100%;height:var(--appH)!important;transform:translateZ(0);overflow:hidden}`;document.head.appendChild(st)}
+// die alte Neu-Vermessung (Seite aus/an) abschalten – sie kostete Leistung
+window.fixVP=function(){};
+addEventListener('resize',()=>setTimeout(vpCheck,60));addEventListener('orientationchange',()=>setTimeout(vpCheck,400));
+document.addEventListener('focusout',()=>setTimeout(vpCheck,300));document.addEventListener('visibilitychange',()=>{if(!document.hidden)setTimeout(vpCheck,300)});
+// ---------- Schärfe vs. Leistung: Pixelgrafik braucht keine 3-fache Auflösung ----------
+rs=function(){const ih=innerHeight,iw=innerWidth,zb=Math.max(2,Math.round(Math.min(iw,ih)/185)),dpr=Math.max(1,Math.round(window.devicePixelRatio||1));
+ let kq=1;for(let d=Math.min(dpr,KQMAX,3);d>=1;d--)if(zb*d<=4){kq=d;break}
+ SC=zb*kq;Z=zb;W=Math.ceil(iw/Z);Hh=Math.ceil(ih/Z);
+ cv0.width=W*SC;cv0.height=Hh*SC;cv0.style.width=(W*Z)+'px';cv0.style.height=(Hh*Z)+'px';cv0.style.imageRendering='pixelated';
+ lc.width=W;lc.height=Hh;LS_=1;g.imageSmoothingEnabled=false;
+ const vg=(c1)=>{const c=mk(W,Hh),x=c.getContext('2d'),gr_=x.createRadialGradient(W/2,Hh/2,Math.min(W,Hh)*.32,W/2,Hh/2,Math.max(W,Hh)*.72);gr_.addColorStop(0,'rgba(0,0,0,0)');gr_.addColorStop(1,c1);x.fillStyle=gr_;x.fillRect(0,0,W,Hh);return c};
+ VIG=vg('rgba(0,0,0,.5)');RVIG=vg('rgba(150,0,0,.85)')};
+// Leistungswächter: bei Ruckeln Auflösung senken (nicht mehr herauszoomen)
+perfWatch=function(dt){if(state!==1||paused||document.hidden||dt>60){FCNT=0;return}FEMA+=(dt-FEMA)*.04;if(++FCNT>150&&FEMA>19.5&&KQMAX>1){KQMAX--;FCNT=0;FEMA=16.7;rs()}};
+// Film-Körnung nur in Menüs (spart im Spiel eine ganze Bildschirmebene)
+{const _h=hud;let was=null;hud=function(){_h();const on=state===1&&!paused;if(on!==was){was=on;document.body.classList.toggle('ingame',on)}}}
+{const st=document.createElement('style');st.textContent=`body.ingame #grain{display:none}`;document.head.appendChild(st)}
+// Touch-Bewegung: kein teures Layout-Abfragen beim Joystick
+{const SCR=new WeakMap();const fast=el=>{if(!el||el===cv0||el===document.body)return false;let v=SCR.get(el);const now=performance.now();if(v&&now-v[1]<1500)return v[0];
+  let r=false;for(let e=el;e&&e!==document.body;e=e.parentElement){const cs=getComputedStyle(e);if((/(auto|scroll)/.test(cs.overflowY)&&e.scrollHeight>e.clientHeight+1)||(/(auto|scroll)/.test(cs.overflowX)&&e.scrollWidth>e.clientWidth+1)||e.tagName==='INPUT'){r=true;break}}SCR.set(el,[r,now]);return r};
+ window.scrollableFast=fast}
+// ---------- iPhone: keine "Dynamic Island" durch stummen Ton-Trick ----------
+{const _u=unlockIOS;unlockIOS=function(){try{if(navigator.audioSession){navigator.audioSession.type='playback';if(UNL){UNL.pause();UNL=null}return}}catch(e){}_u()};
+ try{if(navigator.audioSession&&UNL){UNL.pause();UNL=null}}catch(e){}}
+// ---------- UI-Größe: automatisch je Gerät + Regler ----------
+if(CFG.uis==null)CFG.uis=1;
+T4('Anzeige','Display','Pantalla','Affichage');T4('UI-Größe','UI size','Tamaño de UI','Taille de l’interface');
+const UIZ='#game>*:not(canvas),.pn,#bld,#chs,#tut,#asv,#intro,#sleepov,#rot';
+function autoUI(){const h=innerHeight,w=innerWidth;if(h>=600&&w>=900)return 1;return Math.max(.62,Math.min(1,h/480,w/960))}
+function uiScale(){const z=Math.round(autoUI()*CFG.uis*100)/100,R=document.documentElement.style,h=innerHeight/100/z,w=innerWidth/100/z;
+ R.setProperty('--uiz',z);R.setProperty('--vh1',h+'px');R.setProperty('--vw1',w+'px');R.setProperty('--vmin1',Math.min(h,w)+'px');R.setProperty('--vmax1',Math.max(h,w)+'px');window.UIZV=z}
+// vh/vw in allen Stilregeln auf die UI-Größe umrechnen (sonst schrumpfen Fenster beim Zoomen)
+function fixUnits(){const re=/(-?\d*\.?\d+)(dvh|svh|lvh|vh|vw|vmin|vmax)\b/g,map={dvh:'vh1',svh:'vh1',lvh:'vh1',vh:'vh1',vw:'vw1',vmin:'vmin1',vmax:'vmax1'};
+ const walk=rules=>{for(const r of rules){if(r.style){for(let i=0;i<r.style.length;i++){const pn=r.style[i],v=r.style.getPropertyValue(pn);if(re.test(v)){re.lastIndex=0;const nv=v.replace(re,(m,n,u)=>`calc(var(--${map[u]}) * ${n})`);try{r.style.setProperty(pn,nv,r.style.getPropertyPriority(pn))}catch(e){}}re.lastIndex=0}}if(r.cssRules)walk(r.cssRules)}};
+ for(const sh of document.styleSheets){let rs_;try{rs_=sh.cssRules}catch(e){continue}walk(rs_)}}
+{const st=document.createElement('style');st.textContent=`${UIZ.split(',').map(s=>s+':not(#ghost)').join(',')}{zoom:var(--uiz,1)}`;document.head.appendChild(st)}
+{const set=document.querySelector('#sets .set');if(set){const d=document.createElement('div');d.className='uiR';
+  d.innerHTML='<h3><i class="ic" data-ic="gear"></i><span data-t>Anzeige</span></h3><label class="sld"><span data-t>UI-Größe</span><input type="range" min="60" max="150" step="5" id="vUI"><b id="vUIv"></b></label>';
+  const ton=$('vM')&&$('vM').closest('div');if(ton&&ton.parentElement===set)ton.after(d);else set.appendChild(d);fillIcons(d)}
+ const r=$('vUI');const show=()=>{$('vUIv').textContent=r.value+'%'};
+ r.addEventListener('input',show);r.addEventListener('change',()=>{CFG.uis=r.value/100;saveCfg();uiScale();S.ui&&S.ui()})}
+{const _rs=renderSets;renderSets=function(){_rs();const r=$('vUI');if(r){r.value=Math.round(CFG.uis*100);$('vUIv').textContent=r.value+'%'}}}
+addEventListener('resize',()=>setTimeout(uiScale,80));
+uiScale();fixUnits();vpCheck();rs();uiScale();applyLang();
 </script><script>if('serviceWorker'in navigator&&location.protocol.startsWith('http'))addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));</script></body></html>
