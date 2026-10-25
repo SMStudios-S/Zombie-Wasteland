@@ -7389,7 +7389,7 @@ let WBLD=[],SLOMO=0,SLT=0,HINT=-9999;
  if(t%20===0&&!LV){FIREW=[];const x0=Math.floor((P.x-W/2-40)/16),x1=Math.ceil((P.x+W/2+40)/16),y0=Math.floor((P.y-Hh/2-40)/16),y1=Math.ceil((P.y+Hh/2+40)/16);
   for(let ty=y0;ty<=y1;ty++)for(let tx=x0;tx<=x1;tx++){const tt=tile(tx,ty);if((tt===T.auto_leer||tt===T.auto)&&!own.has(tx*65536+ty)&&h2(tx,ty,SEED&1023)<.07)FIREW.push([tx*16+8,ty*16+4])}}
  if(CFG.q>0)for(const[x,y]of FIREW){if(rnd()<.5)pt({x:x+(rnd()-.5)*10,y,z:4,vx:(rnd()-.5)*.2,vy:0,vz:.5+rnd()*.5,c:['#ff8030','#ffd040','#ff4020'][(rnd()*3)|0],k:'sp',l:14+rnd()*10});if(t%9===0)smoke(x,y-6,1,2)}
- for(const w of WBLD)w.a=Math.max(.25,w.a-.00008)}}
+ for(const w of WBLD)w.a-=.00022;WBLD=WBLD.filter(w=>w.a>0)}}
 // ---------- Zeichnen ----------
 {const _lp=lightPass;lightPass=function(lights,dk){if(state===1&&P&&!LV){
   for(const w of WBLD){const X=RQ(w.x-cx),Y=RQ(w.y-cy);if(X<-10||Y<-20||X>W+10||Y>Hh+10)continue;g.globalAlpha=w.a;g.fillStyle='#6a0c0c';g.fillRect(X-w.s/2,Y-w.s/2,w.s,w.s);g.fillStyle='#8a1414';g.fillRect(X-w.s/2+1,Y-w.s/2,Math.max(1,w.s-2),Math.max(1,w.s-2));g.fillStyle='#6a0c0c';g.fillRect(X,Y,1,w.dr);g.globalAlpha=1}
@@ -7670,5 +7670,105 @@ updDailyBtn=function(){const b=$('mDaily');if(!b)return;const o=dailyGet();b.tit
  if(k!==key||!pts){key=k;pts=[];const rec={moveTo:(x,y)=>pts.push([0,x-X,y-Y]),lineTo:(x,y)=>pts.push([1,x-X,y-Y])};_fp(rec,X,Y,a,R,FA)}for(const[m,x,y]of pts)m?c.lineTo(X+x,Y+y):c.moveTo(X+x,Y+y)}}
 // Minikarte nicht öfter als nötig neu zeichnen
 {let lastK='',lastT=0;const _dm=drawMini;drawMini=function(c){const k=Math.floor(P.x/16)+','+Math.floor(P.y/16)+','+(dark>.4?1:0);if(k===lastK&&t-lastT<45)return;lastK=k;lastT=t;return _dm(c)}}
+applyLang();
+// ================= v62: Pixel-Notizen mit Blut & Rissen · ruhigere Meldungen · Menü-Einblendung · mehr Nahkampf-Blut · Tutorial wählbar =================
+const V62={tut:L4('Tutorial in der ersten Nacht','Tutorial on the first night','Tutorial en la primera noche','Tutoriel la première nuit'),
+ on:L4('An','On','Sí','Oui'),off:L4('Aus','Off','No','Non'),
+ dOn:L4('Tipps und „Erste Schritte“ helfen dir durch den ersten Tag und die erste Nacht.','Tips and “First steps” guide you through the first day and night.','Consejos y «Primeros pasos» te guían el primer día y la primera noche.','Astuces et « Premiers pas » te guident le premier jour et la première nuit.'),
+ dOff:L4('Keine Hilfen – du findest alles selbst heraus.','No help – you figure everything out yourself.','Sin ayudas: lo descubres todo tú.','Aucune aide – tu découvres tout toi-même.')};
+
+// ---------- 1. Notizen: Pixel-Papier, zerknittert, eingerissen, mit Blut ----------
+function paperTex(w,h,seed,radio){const SC=3,cw=Math.max(40,Math.ceil(w/SC)),ch=Math.max(30,Math.ceil(h/SC));
+ let s=(seed>>>0)||7;const r=()=>(s=(Math.imul(s,1664525)+1013904223)>>>0)/4294967296,ri=(a,b)=>a+Math.floor(r()*(b-a+1));
+ // gerissene Ränder (Zufallspfad je Kante)
+ const walk=n=>{const o=[];let a=r()*2;for(let i=0;i<n;i++){a+=(r()-.5)*1.3;if(r()<.06)a+=1.5;a=Math.max(0,Math.min(3.4,a));o.push(Math.round(a))}return o};
+ const T=walk(cw),B=walk(cw),L=walk(ch),R=walk(ch);
+ // abgerissene Ecke
+ const cor=ri(0,3),cs=ri(6,13),bite=(x,y)=>{const X=cor&1?cw-1-x:x,Y=cor&2?ch-1-y:y;return X+Y<cs+((x*7+y*3)%3)};
+ const inside=(x,y)=>y>=T[x]&&y<ch-B[x]&&x>=L[y]&&x<cw-R[y]&&!bite(x,y);
+ const c=document.createElement('canvas');c.width=cw;c.height=ch;const g=c.getContext('2d');const im=g.createImageData(cw,ch),D=im.data;
+ const base=radio?[214,206,150]:[224,212,180],foldY=Math.floor(ch*(.42+r()*.16)),foldX=r()<.5?Math.floor(cw*(.4+r()*.2)):-1;
+ const burn=r()<.35?ri(0,3):-1,BW=walk(Math.max(cw,ch));
+ for(let y=0;y<ch;y++)for(let x=0;x<cw;x++){const i=(y*cw+x)*4;if(!inside(x,y)){D[i+3]=0;continue}
+  const ed=Math.min(y-T[x],ch-B[x]-1-y,x-L[y],cw-R[y]-1-x);let m=1-(ed<1?.2:ed<3?.09:0);
+  m-=((x*13+y*7)%11===0?.05:0)+(r()-.5)*.07;m-=(y/ch)*.05+(Math.abs(x-cw/2)/cw)*.05;
+  if(y===foldY||x===foldX)m-=.1;else if(y===foldY+1||x===foldX+1)m+=.05;
+  if(radio&&y>6&&(y-6)%6===0)m-=.08;
+  if(burn>=0){const bd=[y,cw-1-x,ch-1-y,x][burn]+BW[[x,y,x,y][burn]]*1.4;if(bd<4){D[i+3]=0;continue}if(bd<6)m=.32;else if(bd<10)m-=(.5-(bd-6)*.11)}
+  D[i]=base[0]*m;D[i+1]=base[1]*m;D[i+2]=base[2]*m;D[i+3]=255}
+ g.putImageData(im,0,0);
+ const dot=(x,y,rad,col,al)=>{g.globalAlpha=al;g.fillStyle=col;for(let yy=-rad;yy<=rad;yy++)for(let xx=-rad;xx<=rad;xx++)if(xx*xx+yy*yy<=rad*rad+.5)g.fillRect(Math.round(x+xx),Math.round(y+yy),1,1);g.globalAlpha=1};
+ // Schmutz
+ for(let i=0;i<cw*ch/90;i++)dot(r()*cw,r()*ch,0,r()<.5?'#3a2a18':'#6a5232',.25+r()*.3);
+ // Kaffee-/Wasserrand
+ if(r()<.6){const x=ri(8,cw-8),y=ri(8,ch-8),rr=ri(4,7);g.globalAlpha=.22;g.fillStyle='#6a4520';for(let a=0;a<60;a++){const t=a/60*Math.PI*2;if(r()<.85)g.fillRect(Math.round(x+Math.cos(t)*rr),Math.round(y+Math.sin(t)*rr),1,1)}g.globalAlpha=1}
+ // Blut
+ const nb=radio?ri(0,1):ri(1,2);
+ for(let k=0;k<nb;k++){const ex=r()<.6,x=ex?(r()<.5?ri(2,cw*.12):ri(cw*.88,cw-3)):ri(4,cw-5),y=ex?ri(3,ch-4):(r()<.5?ri(2,ch*.14):ri(ch*.86,ch-3)),big=ri(3,6);
+  for(let i=0;i<5;i++)dot(x+(r()-.5)*big*1.6,y+(r()-.5)*big*1.2,ri(1,big-1),'#6e0c0c',.85);
+  dot(x,y,Math.max(1,big-2),'#8c1414',.9);dot(x-1,y-1,1,'#a82020',.7);
+  const ang=r()*Math.PI*2;for(let i=0;i<ri(6,14);i++){const d=big+r()*big*2.4,a=ang+(r()-.5)*1.4;dot(x+Math.cos(a)*d,y+Math.sin(a)*d,r()<.25?1:0,'#7a0e0e',.8)}
+  for(let i=0;i<ri(1,3);i++){const dx=x+ri(-big+1,big-1),len=ri(3,11);g.fillStyle='#6e0c0c';g.globalAlpha=.85;g.fillRect(dx,y,1,len);dot(dx,y+len,1,'#6e0c0c',.85)}}
+ // verwischter Fingerabdruck
+ if(!radio&&r()<.45){const x=ri(6,cw-8),y=ri(6,ch-8);for(let i=0;i<3;i++)for(let j=-3;j<=3;j++)if(r()<.7)dot(x+j+i,y+i*2,0,'#7a1010',.35)}
+ // alles außerhalb des Papiers wieder wegschneiden
+ g.globalCompositeOperation='destination-in';const mk=document.createElement('canvas');mk.width=cw;mk.height=ch;mk.getContext('2d').putImageData(im,0,0);g.drawImage(mk,0,0);g.globalCompositeOperation='source-over';
+ return c.toDataURL()}
+{const st=document.createElement('style');st.textContent=`
+#nrd .nrp{background:transparent center/100% 100% no-repeat;image-rendering:pixelated;box-shadow:none;border:0;border-radius:0;transform:none;rotate:-1.2deg;filter:drop-shadow(0 10px 16px rgba(0,0,0,.75));
+ font-family:'Pixelify Sans',ui-monospace,monospace;color:#2b1d12;padding:30px 30px 24px;gap:9px;min-height:160px;width:min(440px,88vw)}
+#nrd small{font-family:inherit;font-size:11px;letter-spacing:3px;opacity:1;color:#7a5a38}
+#nrd b{font-size:21px;letter-spacing:.5px;color:#24170d;text-shadow:1px 1px 0 rgba(120,80,40,.25)}
+#nrd p{font-family:inherit;font-style:normal;font-size:15px;line-height:1.5;color:#2e2016;text-shadow:.6px .4px 0 rgba(46,32,22,.35)}
+#nrd em{font-family:inherit;font-size:12px;color:#8a1a10;letter-spacing:.5px}
+#nrd .zb2{font-family:inherit;background:#3a2a1c;color:#ecdcb4;border-radius:0;padding:7px 20px;font-size:14px;letter-spacing:1px;box-shadow:inset -2px -2px 0 #1e140c,inset 2px 2px 0 #5c4630,0 2px 0 rgba(0,0,0,.4)}
+#nrd .zb2:active{box-shadow:inset 2px 2px 0 #1e140c}
+#nrd.radio p{font-size:14px;letter-spacing:.4px}`;document.head.appendChild(st)}
+{const _sp=showPaper;showPaper=function(kind,title,text,mark){_sp(kind,title,text,mark);const d=$('nrd'),p=d&&d.querySelector('.nrp');if(!p)return;
+ const radio=kind===tr(V59.radio);d.classList.toggle('radio',radio);let h=0;for(const ch of String(title)+String(text))h=(Math.imul(h,31)+ch.charCodeAt(0))|0;
+ p.style.rotate=(((h>>>3)%5)-2)*.6+'deg';p.style.backgroundImage='none';
+ try{p.style.backgroundImage=`url(${paperTex(p.offsetWidth||400,p.offsetHeight||240,h,radio)})`}catch(e){}}}
+
+// ---------- 2. Ruhigere Meldungen: nacheinander statt alle auf einmal ----------
+{const _t=toast,Q=[];let last=0,tm=0;
+ const pump=()=>{clearTimeout(tm);if(!Q.length)return;const now=performance.now();if(now-last<700||tq.children.length>=2){tm=setTimeout(pump,260);return}
+  last=now;const[m,cl]=Q.shift();_t(m,cl);if(Q.length)tm=setTimeout(pump,720)};
+ toast=function(m,cl){m=String(m);for(const d of tq.children)if(d.textContent===m)return;if(Q.some(q=>q[0]===m))return;Q.push([m,cl]);if(Q.length>5)Q.splice(0,Q.length-5);pump()}}
+{const _b=evBanner,Q=[];let busy=false;
+ const run=()=>{const q=Q.shift();if(!q){busy=false;return}busy=true;_b(q[0],q[1]);setTimeout(()=>{if(!Q.length){busy=false;return}const e=$('evB');if(e)e.classList.add('hide');setTimeout(run,700)},3300)};
+ evBanner=function(a,b){if(Q.some(q=>q[0]===a&&q[1]===b))return;Q.push([a,b]);if(Q.length>4)Q.shift();if(!busy)run()}}
+// Tipps warten, bis große Einblendungen weg sind, und kommen mit mehr Abstand
+{const _p=tutPump;tutPump=function(){const e=$('evB');if(!tutCur&&tutQ.length&&((e&&!e.classList.contains('hide'))||performance.now()-tutLast<4200||(state===1&&t<240))){setTimeout(tutPump,700);return}return _p()}}
+
+// ---------- 3. Hauptmenü: „Herausforderung“ blendet genauso ein wie die anderen ----------
+{const st=document.createElement('style');st.textContent=`#menu:not(.hide) #mNew{animation:slideL .6s .62s var(--spring) backwards}
+#menu:not(.hide) #mDaily{animation:slideR .6s .72s var(--spring) backwards}
+#menu:not(.hide) #mLoad{animation:slideL .6s .82s var(--spring) backwards}
+#menu:not(.hide) #mSet{animation:slideR .6s .92s var(--spring) backwards}`;document.head.appendChild(st)}
+
+// ---------- 4. Mehr Blut bei Nahkampf – verschwindet mit der Zeit wieder ----------
+const msplat=(x,y,sc,l)=>{Dc.push({k:'s',x,y,v:rnd()*6|0,l,ml:l,s:sc});if(Dc.length>190)Dc.splice(0,Dc.length-190)};
+{const _d=dmgZ;dmgZ=function(z,dm,kx,ky){const mel=!!window.__mel57&&z&&z.hp>0;const r=_d(z,dm,kx,ky);
+ if(mel){const l=Math.hypot(kx||0,ky||0)||1,ux=(kx||0)/l,uy=(ky||0)/l;blood(z.x,z.y-8,12,ux*1.6,uy*1.6);
+  msplat(z.x+ux*(6+rnd()*8),z.y+2+uy*(4+rnd()*6),.45+rnd()*.35,2200+rnd()*1200|0);
+  if(rnd()<.6)msplat(z.x+ux*(14+rnd()*10)+(rnd()-.5)*6,z.y+2+uy*(10+rnd()*8),.25+rnd()*.2,1800+rnd()*1000|0);
+  if(rnd()<.3){const x=z.x+ux*12,y=z.y-4+uy*12,tx=Math.floor(x/16),ty=Math.floor((y+6)/16),tt=tile(tx,ty);if(TWALL[tt]&&!DOORS[tt]){WBLD.push({x:x+(rnd()-.5)*6,y:ty*16+2-rnd()*10,s:2+rnd()*2,a:1,dr:rnd()*5|0});if(WBLD.length>140)WBLD.shift()}}}
+ return r}}
+{const _k=killZ;killZ=function(z,kx,ky){const mel=!!window.__mel57;const r=_k(z,kx,ky);
+ if(mel&&z){const l=Math.hypot(kx||0,ky||0)||1,ux=(kx||0)/l,uy=(ky||0)/l;blood(z.x,z.y-6,22,ux*2,uy*2);msplat(z.x,z.y+3,1.15+rnd()*.35,3400+rnd()*1200|0);
+  for(let i=0;i<3;i++)msplat(z.x+ux*(10+i*7)+(rnd()-.5)*8,z.y+3+uy*(8+i*6)+(rnd()-.5)*6,.3+rnd()*.25,2400+rnd()*1200|0)}
+ return r}}
+
+// ---------- 5. Tutorial in der Charaktererstellung wählbar ----------
+{const cr=document.querySelector('#cc .ccrw');if(cr){const d=document.createElement('div');d.innerHTML=`<div class="lbl" style="margin:10px 0 6px">${tr(V62.tut)}</div><div class="dfr" id="ccTu"><button data-v="1">${tr(V62.on)}</button><button data-v="0">${tr(V62.off)}</button></div><small id="ccTud" style="opacity:.65;font-size:11px"></small>`;cr.appendChild(d);
+ const st=document.createElement('style');st.textContent='#ccTu{display:flex;gap:6px}#ccTu button{flex:1;background:#221d19;border:1px solid #3a332b;border-radius:8px;padding:8px 4px;color:#cfc3a8;font:inherit;font-weight:700;font-size:12px;transition:background-color .15s,border-color .15s,color .15s}#ccTu button.on{border-color:#ffd23a;color:#ffd23a;background:#2a2210}';document.head.appendChild(st);
+ const sync=()=>{const v=CCR&&CCR.tut!=null?CCR.tut:1;for(const b of $('ccTu').children)b.classList.toggle('on',+b.dataset.v===v);$('ccTud').textContent=tr(v?V62.dOn:V62.dOff)};
+ $('ccTu').onclick=e=>{const b=e.target.closest('[data-v]');if(!b||!CCR)return;CCR.tut=+b.dataset.v;S.ui&&S.ui();sync()};
+ const _o=openCC;openCC=function(s){_o(s);if(CCR&&CCR.tut==null){let seen=0;try{seen=Object.keys(CFG.tut||{}).length}catch(e){}CCR.tut=seen>=6?0:1}sync()}}}
+{const _n=newGame;newGame=function(s,cc){const r=_n(s,cc);if(P&&cc&&cc.tut!=null){P.tutOn=cc.tut;if(cc.tut){CFG.tips=1;CFG.tut={};P.guide=0;P.gW=300}else{CFG.tips=0;P.guide=2;tutQ=[]}try{saveCfg()}catch(e){}}return r}}
+{const _st=step;step=function(){_st();if(state!==1||!P)return;
+ if(P.gW>0&&--P.gW===0&&P.guide===0)P.guide=1;
+ // Tutorial endet mit dem Morgen des zweiten Tages
+ if(P.tutOn&&t%60===0&&dayN()>=2&&hourOf(t)>=7){P.tutOn=0;if(P.guide!==2){P.guide=2;const e=$('guide');if(e)e.classList.add('hide')}}}}
 applyLang();
 </script><script>if('serviceWorker'in navigator&&location.protocol.startsWith('http'))addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));</script></body></html>
