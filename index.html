@@ -925,7 +925,7 @@ const TN=['leer','baum','tanne','totbaum','busch','beeren','beeren_leer','pilze'
  'unkraut','distel','brennnessel','wildblume','loewenzahn','moos','gestruepp','efeu',
  'wellblech','bretterwand','zinnen','rolltor','rolltor_o','lagerregal','feuertonne','wachturm','betonsperre',
  'gitarre','teddy','kerzenst','totempfahl','reifenstapel','palettenst','keepout','oellampe','blumenkuebel','sonnenliege','gasflaschen','pflanzregal',
- 'treppe','treppe_ob','waffenstaender','wandhalter','solarpanel','lichtschalter','deckenlampe','deckenlampe_an','wandlampe','wandlampe_an','flutlicht','flutlicht_an','geschuetz_a','geschuetz_g','stahlwand','stahltuer','stahltuer_o','etagenbett','haengematte','couchtisch','bild','wanduhr','spiegel','dartscheibe','boxsack','waschmaschine','kaffeemaschine','weinregal','werkzeugwand','barhocker','tresen','jukebox','generator','holzstapel','tonne','schaukelstuhl','arcade','automat','pinnwand','kronleuchter','kronleuchter_an','neonschild','neonschild_an','lavalampe','ampel','bushaltestelle','telefonzelle','litfass','aktenschrank','buerostuhl','kopierer','wasserspender','globus','hoftor_l','hoftor_m','hoftor_r','hoftor_lo','hoftor_mo','hoftor_ro','gartentor','gartentor_o','maschendraht','schiessscharte','fensterladen','fensterladen_o','nagelbrett','hochbeet','sprinkler','kompost','gewaechshaus','waescheleine','hundehuette','gartenlaterne','teich','hochsitz','futterkrippe','spieltisch','roulette','slotmaschine','alarmanlage','kamera'];
+ 'treppe','treppe_ob','waffenstaender','wandhalter','solarpanel','lichtschalter','deckenlampe','deckenlampe_an','wandlampe','wandlampe_an','flutlicht','flutlicht_an','geschuetz_a','geschuetz_g','stahlwand','stahltuer','stahltuer_o','etagenbett','haengematte','couchtisch','bild','wanduhr','spiegel','dartscheibe','boxsack','waschmaschine','kaffeemaschine','weinregal','werkzeugwand','barhocker','tresen','jukebox','generator','holzstapel','tonne','schaukelstuhl','arcade','automat','pinnwand','kronleuchter','kronleuchter_an','neonschild','neonschild_an','lavalampe','ampel','bushaltestelle','telefonzelle','litfass','aktenschrank','buerostuhl','kopierer','wasserspender','globus','hoftor_l','hoftor_m','hoftor_r','hoftor_lo','hoftor_mo','hoftor_ro','gartentor','gartentor_o','maschendraht','schiessscharte','fensterladen','fensterladen_o','nagelbrett','hochbeet','sprinkler','kompost','gewaechshaus','waescheleine','hundehuette','gartenlaterne','teich','hochsitz','futterkrippe','spieltisch','roulette','slotmaschine','alarmanlage','kamera','funkturm','betonwand'];
 const T={};TN.forEach((n,i)=>T[n]=i);const COOK=new Uint8Array(512),XLIGHT={},XDRAW={},NOSWAY=new Uint8Array(512),CONN={};
 const flag=l=>{const a=new Uint8Array(512);l.forEach(n=>a[T[n]]=1);return a};
 const TSOL=flag(['baum','tanne','totbaum','stein','kiste','mkiste','kiste_offen','auto','auto_leer','fass','muell','muell_leer','laterne','hwand','hfassade','hfenster','htuer','schrank','schrank_leer','regal','regal_leer','kuehl','kuehl_leer','bett','tisch','sofa','herd','holzwand','steinwand','tuer','feuer','ziegelwand','metallwand','fensterwand','mtuer','zaun','stuhl','tv','tv_an','lampe','lampe_an','pflanze','regentonne','kiste_s','kiste_m','spind','auto_ausg',
@@ -6975,7 +6975,7 @@ let FOGK=0,SNOW=[],lastSe=-1,coldW=0;
 // Winter: Felder wachsen draußen nicht
 {const _ft=farmTick;farmTick=function(dt){if(!WINTER())return _ft(dt);const keep=[];for(const[k,f]of farm)if(!f.gh&&f.c&&!f.dead)keep.push([f,f.p]);const r=_ft(dt);for(const[f,p]of keep)f.p=p;return r}}
 // ---------- Zeichnen: Schnee, Nebel ----------
-{const _lp=lightPass;lightPass=function(lights,dk){if(WINTER()&&!LV&&!insideH){g.save();g.globalCompositeOperation='saturation';g.fillStyle='rgba(128,128,128,.6)';g.fillRect(0,0,W,Hh);g.restore();g.fillStyle='rgba(236,242,250,.34)';g.fillRect(0,0,W,Hh)}return _lp(lights,dk)}}
+{const _lp=lightPass;lightPass=function(lights,dk){if(WINTER()&&!LV&&!insideH){g.save();g.globalCompositeOperation='saturation';g.fillStyle='rgba(128,128,128,.28)';g.fillRect(0,0,W,Hh);g.restore();g.fillStyle='rgba(236,242,250,.1)';g.fillRect(0,0,W,Hh)}return _lp(lights,dk)}}
 {const _df=drawFrame;drawFrame=function(){_df.apply(this,arguments);if(state!==1||!P)return;
  if(SNOW.length){g.fillStyle='rgba(245,248,255,.85)';for(const s of SNOW)g.fillRect(s.x|0,s.y|0,s.s,s.s)}
  if(FOGK>.03){const X=P.x-cx,Y=P.y-cy-6,nt=dark>.4;const gg=g.createRadialGradient(X,Y,40,X,Y,170);const c=nt?'40,44,50':'176,182,188';gg.addColorStop(0,`rgba(${c},0)`);gg.addColorStop(.5,`rgba(${c},${.55*FOGK})`);gg.addColorStop(1,`rgba(${c},${.93*FOGK})`);g.fillStyle=gg;g.fillRect(0,0,W,Hh)}
@@ -7263,5 +7263,412 @@ const alSiren=()=>{if(!AC)return;A(P.x,P.y,.7,0,(b,t2)=>{for(let i=0;i<6;i++){tn
 #bld #bldD{background:#2a1512!important;border:1px solid #6a2a22!important;border-image:none!important;border-radius:999px!important;box-shadow:none!important;clip-path:none!important;padding:6px 14px!important;min-width:0!important;font-size:12px!important;color:#ffb0a0!important}
 #bld #bldD .ic{width:16px;height:16px}
 #bld #bldX{border-radius:999px!important;background:#1b1815!important;border:1px solid #2f2923!important;border-image:none!important;box-shadow:none!important}`;document.head.appendChild(st)}
+applyLang();
+// ================= v56: Einstellungen neu sortiert · Bildrate 30/60/Max · Grafikqualität · Controller-Unterstützung =================
+const V56={
+ tabs:{all:T4('Allgemein','General','General','Général'),gfx:T4('Grafik','Graphics','Gráficos','Graphismes'),snd:T4('Ton','Sound','Sonido','Son'),ctl:T4('Steuerung','Controls','Controles','Commandes'),sav:T4('Spielstand','Save data','Partida','Sauvegarde')},
+ fps:T4('Bildrate','Frame rate','Fotogramas','Images/s'),max:T4('Max','Max','Máx','Max'),q:T4('Qualität','Quality','Calidad','Qualité'),
+ qN:[T4('Akku sparen','Battery saver','Ahorro','Économie'),T4('Ausgewogen','Balanced','Equilibrado','Équilibré'),T4('Hoch','High','Alta','Haute')],
+ qD:L4('„Akku sparen“ halbiert Effekte und Auflösung – ideal für ältere Handys.','“Battery saver” halves effects and resolution – ideal for older phones.','“Ahorro” reduce efectos y resolución a la mitad: ideal para móviles antiguos.','« Économie » divise effets et résolution par deux – idéal pour les vieux téléphones.'),
+ fpsD:L4('60 ist am flüssigsten, 30 spart Akku. „Max“ nutzt am PC die volle Bildwiederholrate.','60 is smoothest, 30 saves battery. “Max” uses your monitor’s full refresh rate on PC.','60 es lo más fluido, 30 ahorra batería. «Máx» usa toda la frecuencia del monitor en PC.','60 est le plus fluide, 30 économise la batterie. « Max » utilise toute la fréquence de l’écran sur PC.'),
+ pad:L4('Controller verbunden','Controller connected','Mando conectado','Manette connectée'),padH:L4('Controller: Linker Stick laufen · A angreifen · B benutzen · X nachladen · Y ducken · LB/RB Waffe · Start Pause · Select Rucksack','Controller: left stick move · A attack · B use · X reload · Y crouch · LB/RB weapon · Start pause · Select backpack','Mando: stick izq. mover · A atacar · B usar · X recargar · Y agacharse · LB/RB arma · Start pausa · Select mochila','Manette : stick gauche marcher · A attaquer · B utiliser · X recharger · Y s’accroupir · LB/RB arme · Start pause · Select sac'),
+ kb:L4('Tastatur: WASD laufen · Leertaste angreifen · E benutzen · R nachladen · C ducken · 1–3 Waffe · I Rucksack · B Bauen · M Karte · Esc Pause','Keyboard: WASD move · Space attack · E use · R reload · C crouch · 1–3 weapon · I backpack · B build · M map · Esc pause','Teclado: WASD mover · Espacio atacar · E usar · R recargar · C agacharse · 1–3 arma · I mochila · B construir · M mapa · Esc pausa','Clavier : ZQSD/WASD · Espace attaquer · E utiliser · R recharger · C s’accroupir · 1–3 arme · I sac · B construire · M carte · Échap pause')};
+if(CFG.fps==null)CFG.fps=60;if(CFG.q==null)CFG.q=2;
+const isPC=()=>matchMedia('(pointer:fine)').matches&&!(navigator.maxTouchPoints>0);
+if(!isPC()&&CFG.fps===0)CFG.fps=60;
+// ---------- Bildrate ----------
+{let lastR=0;const _l=loop;loop=function(ts){const cap=CFG.fps||0;if(cap&&ts-lastR<1000/cap-1.5){requestAnimationFrame(loop);return}lastR=ts;return _l(ts)}}
+{const _pw=perfWatch;perfWatch=function(dt){const cap=CFG.fps||0;return _pw(cap===30?dt*.5:dt)}}
+// ---------- Qualität ----------
+const applyQ=()=>{const q=CFG.q;KQMAX=q===0?1:q===1?2:3;try{rs()}catch(e){}};applyQ();
+{const _p=pt;pt=function(o){if(CFG.q===0&&Math.random()<.5)return;return _p(o)}}
+// ---------- Einstellungen mit Reitern ----------
+{const S_=document.querySelector('#sets .set');if(S_){const kids=[...S_.children];const grab=id=>{const e=$(id);if(!e)return null;let n=e;while(n&&n.parentNode!==S_)n=n.parentNode;return n};
+ const g={all:[grab('lang'),grab('tTip'),grab('tAS')],gfx:[grab('vUI'),grab('tSh'),grab('tFS')],snd:[grab('vM')],ctl:[grab('tVC')],sav:[grab('clG')||S_.querySelector('.cloud')]};
+ const used=new Set();for(const k in g){g[k]=g[k].filter(Boolean);g[k].forEach(e=>used.add(e))}for(const e of kids)if(!used.has(e))g.all.push(e);
+ const bar=document.createElement('div');bar.className='stabs';bar.innerHTML=Object.keys(V56.tabs).map(k=>`<button data-st="${k}">${tr(V56.tabs[k])}</button>`).join('');
+ const panes={};for(const k in g){const p=document.createElement('div');p.className='spane';p.dataset.p=k;for(const e of g[k])p.appendChild(e);panes[k]=p}
+ // Grafik: Bildrate & Qualität
+ const fp=document.createElement('div');fp.className='sopt';fp.innerHTML=`<h3>${tr(V56.fps)}</h3><div class="seg3" id="sFps"><button data-v="30">30</button><button data-v="60">60</button><button data-v="0" class="pcO">${tr(V56.max)}</button></div><small>${tr(V56.fpsD)}</small>`;
+ const qp=document.createElement('div');qp.className='sopt';qp.innerHTML=`<h3>${tr(V56.q)}</h3><div class="seg3" id="sQ">${V56.qN.map((n,i)=>`<button data-v="${i}">${tr(n)}</button>`).join('')}</div><small>${tr(V56.qD)}</small>`;
+ panes.gfx.prepend(qp);panes.gfx.prepend(fp);
+ const hp=document.createElement('div');hp.className='sopt';hp.innerHTML=`<small>${tr(V56.kb)}</small><small style="margin-top:6px">${tr(V56.padH)}</small>`;panes.ctl.appendChild(hp);
+ S_.innerHTML='';S_.appendChild(bar);for(const k in panes)S_.appendChild(panes[k]);S_.classList.add('tabbed');
+ let cur='all';const show=k=>{cur=k;for(const b of bar.children)b.classList.toggle('on',b.dataset.st===k);for(const p of Object.values(panes))p.classList.toggle('hide',p.dataset.p!==k);sync()};
+ const sync=()=>{for(const b of $('sFps').children){b.classList.toggle('on',+b.dataset.v===CFG.fps);if(b.classList.contains('pcO'))b.style.display=isPC()?'':'none'}for(const b of $('sQ').children)b.classList.toggle('on',+b.dataset.v===CFG.q)};
+ bar.onclick=e=>{const b=e.target.closest('[data-st]');if(b){S.ui&&S.ui();show(b.dataset.st)}};
+ $('sFps').onclick=e=>{const b=e.target.closest('[data-v]');if(!b)return;CFG.fps=+b.dataset.v;saveCfg();S.ui&&S.ui();sync()};
+ $('sQ').onclick=e=>{const b=e.target.closest('[data-v]');if(!b)return;CFG.q=+b.dataset.v;saveCfg();applyQ();S.ui&&S.ui();sync()};
+ show('all');window.setTab=show}
+ const st=document.createElement('style');st.textContent=`
+#sets .set.tabbed{display:flex!important;flex-direction:column!important;gap:10px!important;width:min(640px,94vw)!important}
+#sets .stabs{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-bottom:4px}
+#sets .stabs button{background:#1b1815;border:1px solid #2f2923;border-radius:999px;padding:6px 14px;color:#b8ab92;font:inherit;font-size:12px;font-weight:700;letter-spacing:.6px;text-transform:uppercase}
+#sets .stabs button.on{background:#ffd23a;border-color:#ffd23a;color:#1a1408}
+#sets .spane{display:flex;flex-direction:column;gap:12px;background:#15120f;border:1px solid #2c2620;border-radius:12px;padding:14px;max-height:56vh;overflow-y:auto}
+#sets .spane .tog{grid-column:auto}
+#sets .sopt{display:flex;flex-direction:column;gap:6px}#sets .sopt small{opacity:.65;font-size:11px;line-height:1.35}
+#sets .seg3{display:flex;gap:6px}#sets .seg3 button{flex:1;background:#221d19;border:1px solid #3a332b;border-radius:8px;padding:8px 6px;color:#cfc3a8;font:inherit;font-weight:700}
+#sets .seg3 button.on{border-color:#ffd23a;color:#ffd23a;background:#2a2210}`;document.head.appendChild(st)}
+// ---------- Controller ----------
+let PADON=false,PADB=[];
+addEventListener('gamepadconnected',()=>{PADON=true;if(state===1)toast(tr(V56.pad),'good')});
+function padPoll(){const ps=navigator.getGamepads?navigator.getGamepads():[];let gp=null;for(const p of ps)if(p&&p.connected){gp=p;break}if(!gp)return;PADON=true;
+ const B=gp.buttons.map(b=>b&&(b.pressed||b.value>.5)),pr=i=>B[i]&&!PADB[i];
+ const ax=gp.axes[0]||0,ay=gp.axes[1]||0,m=Math.hypot(ax,ay);
+ if(state===1&&!paused){if(m>.22){jx=ax;jy=ay;window.__padJ=1}else if(window.__padJ){jx=jy=0;window.__padJ=0}
+  if(B[0]){firing=true;if(pr(0))fireEdge=true;window.__padF=1}else if(window.__padF){firing=false;window.__padF=0}
+  if(pr(1)&&P){P.act=findAct();if(P.act)startAct(P.act)}if(B[1]){actHeld=true;window.__padA=1}else if(window.__padA){actHeld=false;window.__padA=0}
+  if(pr(2)&&P){if(P.veh){S.horn&&S.horn()}else{const it=qs[P.sel];if(it)startReload(it)}}
+  if(pr(3))setCrouch(!P.crouch);
+  if(pr(4)||pr(5)){P.sel=(P.sel+(pr(5)?1:2))%3;hudDirty=1;lastQS='';S.ui&&S.ui()}
+  if(pr(8)){boxK=null;openInv()}if(pr(12))openP('map');if(pr(9))openP('pau')}
+ else if(state===1&&paused){if(pr(9)||pr(1)){closeAll&&closeAll();for(const id of['pau','map','bld','inv'])if($(id)&&!$(id).classList.contains('hide')){if(id==='inv')closeAll();else closeP(id)}if(!$('chs').classList.contains('hide'))closeChooser()}}
+ PADB=B}
+{const _l=loop;loop=function(ts){try{padPoll()}catch(e){}return _l(ts)}}
+applyLang();
+// ================= v57: Lebendige Welt – Herbstlaub, Schnee auf dem Boden, Ratten, brennende Wracks · Atem-Animation · Treffer-Feedback & Zeitlupe =================
+const V57={hs:L4('KOPFTREFFER','HEADSHOT','DISPARO','TETE')};
+// ---------- 1. Jahreszeiten-Grafik (Boden, Bäume, Pflanzen) ----------
+const SEAORIG=new Map(),SEACACHE=new Map();let SEAAPP=-1;
+const h2=(x,y,s)=>{let h=(x*374761393+y*668265263+s*982451653)|0;h=(h^(h>>>13))*1274126177|0;return((h^(h>>>16))>>>0)/4294967295};
+function tfCanvas(c,mode,kind,seed){if(!c||!c.getContext)return c;const w=c.width,h=c.height,src=c.getContext('2d').getImageData(0,0,w,h),d=src.data,o=mk(w,h),ox=o.getContext('2d'),od=ox.createImageData(w,h),q=od.data;
+ const AU=[[200,116,42],[216,154,58],[168,80,42],[138,106,42],[190,70,40]];
+ for(let y=0;y<h;y++)for(let x=0;x<w;x++){const i=(y*w+x)*4;let r=d[i],g=d[i+1],b=d[i+2],a=d[i+3];if(!a){continue}
+  const green=g>r*1.04&&g>b*1.04,lum=(r+g+b)/3,hv=h2(x,y,seed);
+  if(mode===2){ // Herbst
+   if(green){const p=AU[Math.floor(hv*AU.length)],k=.55+lum/255*.7;if(kind==='g'){r=r*.35+p[0]*.65*k;g=g*.35+p[1]*.65*k;b=b*.35+p[2]*.65*k;if(hv>.93){r=p[0];g=p[1]*.9;b=p[2]}}else{r=p[0]*k;g=p[1]*k;b=p[2]*k}}}
+  else if(mode===3){ // Winter
+   if(kind==='g'){const s=226+(lum-110)*.14+(hv-.5)*10;r=r*.12+s*.88;g=g*.12+(s+4)*.88;b=b*.12+(s+12)*.88;if(hv>.97){r-=40;g-=36;b-=26}}
+   else if(kind==='r'){const k=hv<.18?.55:.22;r=r*(1-k)+236*k;g=g*(1-k)+240*k;b=b*(1-k)+248*k}
+   else{if(green){const m=(r+g+b)/3;r=r*.45+m*.35+20;g=g*.45+m*.35+24;b=b*.45+m*.35+34}const up=y===0||!d[((y-1)*w+x)*4+3],up2=y>1&&!d[((y-2)*w+x)*4+3];if(up){r=240;g=244;b=250}else if(up2&&hv<.7){r=r*.4+228*.6;g=g*.4+234*.6;b=b*.4+244*.6}}}
+  q[i]=Math.max(0,Math.min(255,r));q[i+1]=Math.max(0,Math.min(255,g));q[i+2]=Math.max(0,Math.min(255,b));q[i+3]=a}
+ ox.putImageData(od,0,0);return o}
+const tfArr=(arr,mode,kind,seed)=>Array.isArray(arr)?arr.map((c,i)=>Array.isArray(c)?tfArr(c,mode,kind,seed+i*7):tfCanvas(c,mode,kind,seed+i*7)):arr;
+const SGND=['gras','gras2','wiese','waldboden','erde','sand','kies','schlamm'].map(n=>G[n]).filter(v=>v!=null);
+const SROAD=['asphalt','asph_h','asph_v','asph_x','gehweg','kopfstein','kiesweg','ls_v0','ls_v1','ls_h0','ls_h1','ls_x'].map(n=>G[n]).filter(v=>v!=null);
+const SPLANT=['baum','tanne','totbaum','busch','beeren','beeren_leer','hecke','gestruepp','efeu','unkraut','distel','brennnessel','wildblume','loewenzahn','moos','gras_hoch','farn','blumen','blumen2','schilf','trockengras','laub','stumpf'].map(n=>T[n]).filter(v=>v!=null);
+function seasonVis(se){const mode=se===2?2:se===3?3:0;if(mode===SEAAPP)return;
+ const put=(store,key,cur,make)=>{const K=store+':'+key;if(!SEAORIG.has(K))SEAORIG.set(K,cur);const orig=SEAORIG.get(K);if(!mode)return orig;const CK=K+':'+mode;if(!SEACACHE.has(CK))SEACACHE.set(CK,make(orig));return SEACACHE.get(CK)};
+ for(const g_ of SGND)if(GT[g_])GT[g_]=put('GT',g_,GT[g_],o=>tfArr(o,mode,'g',g_*13));
+ for(const g_ of SROAD)if(GT[g_])GT[g_]=put('GT',g_,GT[g_],o=>mode===3?tfArr(o,mode,'r',g_*17):o);
+ const ALLP=new Set(SPLANT);for(let t_=0;t_<TN.length;t_++)if(TDECO[t_]&&(DECO[t_]||SPR[t_]))ALLP.add(t_);
+ for(const t_ of ALLP){if(SPR[t_])SPR[t_]=put('SPR',t_,SPR[t_],o=>tfArr(o,mode,'s',t_*5));if(DECO[t_])DECO[t_]=put('DECO',t_,DECO[t_],o=>tfArr(o,mode,'s',t_*3))}
+ SEAAPP=mode;if(typeof CC!=='undefined'&&CC.clear)CC.clear()}
+// Winter-Overlay aus v52 abschwächen (der Boden ist jetzt selbst verschneit)
+{const _lp=lightPass;lightPass=function(lights,dk){return _lp(lights,dk)}}
+// ---------- 2. Herbstlaub ----------
+let LEAF=[];
+// ---------- 3. Ratten & brennende Wracks ----------
+let RATS=[],ratH=null,FIREW=[];
+const RATSP=[0,1].map(f=>outline(cv(7,3,P=>{P('#6a625a',1,0,4,2);P('#8a8278',1,0,4,1);P('#3a3430',0,1,1,1);P('#c8a0a0',5+f,2,2,1);P('#1a1a1a',1,0,1,1)}),'#14110e'));
+// ---------- 4. Treffer-Feedback ----------
+let WBLD=[],SLOMO=0,SLT=0,HINT=-9999;
+{const _d=dmgZ;dmgZ=function(z,dm,kx,ky){const it=qs[P.sel],d=it?D[it.id]:null,gun=d&&!d.mel&&d.mag&&t-(P.lastAtk||0)<90&&!window.__mel57;
+ if(gun&&z.k!=='boss'&&rnd()<.12){dm*=1.7;ft(z.x,z.y-30,tr(V57.hs),'#ffd23a');z.stg=20;shk=Math.min(6,shk+1.5)}else z.stg=Math.max(z.stg||0,window.__mel57?11:6);
+ if(gun&&(d.pel||0)>1&&dist(z.x,z.y,P.x,P.y)<70){kx*=2.4;ky*=2.4}
+ return _d(z,dm,kx,ky)}}
+{const _m=melee;melee=function(d,r){window.__mel57=1;try{return _m(d,r)}finally{window.__mel57=0}}}
+{const _u=updZ;updZ=function(z){if(!(z.stg>0))return _u(z);z.stg--;const s0=z.cs,s1=z.is,s2=z.ws;z.cs*=.12;z.is*=.12;z.ws*=.12;if(z.atk>0)z.atk=0;try{return _u(z)}finally{z.cs=s0;z.is=s1;z.ws=s2}}}
+{const _k=killZ;killZ=function(z,kx,ky){const r=_k(z,kx,ky);const l=Math.hypot(kx||0,ky||0)||1,ux=(kx||0)/l,uy=(ky||0)/l;
+ for(const dd of[8,14,20]){const x=z.x+ux*dd,y=z.y-4+uy*dd,tx=Math.floor(x/16),ty=Math.floor((y+6)/16),tt=tile(tx,ty);if(TWALL[tt]&&!DOORS[tt]){WBLD.push({x:x+(rnd()-.5)*6,y:ty*16+2-rnd()*10,s:2+rnd()*3,a:1,dr:rnd()*6|0});if(WBLD.length>140)WBLD.shift();break}}
+ if(t-HINT<360){let left=0;for(const o of Zs)if(o!==z&&o.hp>0&&o.st==='chase'&&dist(o.x,o.y,P.x,P.y)<320)left++;if(!left){SLOMO=48;HINT=-9999;A(P.x,P.y,.6,0,(b,t2)=>nz(b,t2,.9,'lowpass',900,1,.5,120))}}return r}}
+{const _t=tick;tick=function(){if(SLOMO>0&&state===1&&!paused){SLOMO--;SLT^=1;if(SLT)return}return _t()}}
+// ---------- 5. Atem- & Leerlauf-Animation ----------
+{const _dc=drawChar;drawChar=function(fr,dir,f,x,y,moving,white,scale){if(!moving)y+=Math.sin((fc+(x*7|0))*.055)*.45;return _dc(fr,dir,f,x,y,moving,white,scale)}}
+// ---------- Ablauf ----------
+{const _st=step;step=function(){_st();if(state!==1||!P)return;
+ if(t%30===0){seasonVis(typeof SEAS==='function'?SEAS():0);let ch=0;for(const z of Zs)if(z.hp>0&&z.st==='chase'&&dist(z.x,z.y,P.x,P.y)<320)ch++;if(ch>=7)HINT=t}
+ const se=typeof SEAS==='function'?SEAS():0;
+ if(se===2&&!LV&&!insideH){if(LEAF.length<(CFG.q===0?20:55)&&rnd()<.5)LEAF.push({x:rnd()*(W+40)-20,y:-4,v:.25+rnd()*.3,ph:rnd()*6,c:['#c8742a','#d89a3a','#a8502a','#e0b040','#8a3a20'][(rnd()*5)|0],r:rnd()*6});for(const l of LEAF){l.y+=l.v;l.x+=Math.sin(fc*.03+l.ph)*.45+.15;l.r+=.08}LEAF=LEAF.filter(l=>l.y<Hh+6)}else if(LEAF.length)LEAF.length=0;
+ // Ratten in Häusern
+ if(insideH!==ratH){ratH=insideH;RATS=[];if(insideH&&rnd()<.55){const h=insideH,n=1+(rnd()*2.4|0);for(let i=0;i<n;i++){const x=(h.x0+1+rnd()*(h.w-2))*16,y=(h.y0+1+rnd()*(h.h-2.5))*16;if(!bl(x,y))RATS.push({x,y,vx:0,vy:0,t:rnd()*60,f:0})}}}
+ for(const r of RATS){const d=dist(r.x,r.y,P.x,P.y);if(d<46){const l=d||1;r.vx=(r.x-P.x)/l*1.6;r.vy=(r.y-P.y)/l*1.6;if(rnd()<.02)A(r.x,r.y,.25,0,(b,t2)=>tn(b,t2,.06,'sine',2800,3400,.08))}else if(--r.t<=0){r.t=40+rnd()*120;const a=rnd()*6.283,s=rnd()<.5?0:.7;r.vx=Math.cos(a)*s;r.vy=Math.sin(a)*s}
+  const nx=r.x+r.vx,ny=r.y+r.vy;if(!bl(nx,r.y))r.x=nx;else r.vx*=-1;if(!bl(r.x,ny))r.y=ny;else r.vy*=-1;r.vx*=.96;r.vy*=.96;r.f+=Math.abs(r.vx)+Math.abs(r.vy)}
+ // brennende Wracks suchen
+ if(t%20===0&&!LV){FIREW=[];const x0=Math.floor((P.x-W/2-40)/16),x1=Math.ceil((P.x+W/2+40)/16),y0=Math.floor((P.y-Hh/2-40)/16),y1=Math.ceil((P.y+Hh/2+40)/16);
+  for(let ty=y0;ty<=y1;ty++)for(let tx=x0;tx<=x1;tx++){const tt=tile(tx,ty);if((tt===T.auto_leer||tt===T.auto)&&!own.has(tx*65536+ty)&&h2(tx,ty,SEED&1023)<.07)FIREW.push([tx*16+8,ty*16+4])}}
+ if(CFG.q>0)for(const[x,y]of FIREW){if(rnd()<.5)pt({x:x+(rnd()-.5)*10,y,z:4,vx:(rnd()-.5)*.2,vy:0,vz:.5+rnd()*.5,c:['#ff8030','#ffd040','#ff4020'][(rnd()*3)|0],k:'sp',l:14+rnd()*10});if(t%9===0)smoke(x,y-6,1,2)}
+ for(const w of WBLD)w.a=Math.max(.25,w.a-.00008)}}
+// ---------- Zeichnen ----------
+{const _lp=lightPass;lightPass=function(lights,dk){if(state===1&&P&&!LV){
+  for(const w of WBLD){const X=RQ(w.x-cx),Y=RQ(w.y-cy);if(X<-10||Y<-20||X>W+10||Y>Hh+10)continue;g.globalAlpha=w.a;g.fillStyle='#6a0c0c';g.fillRect(X-w.s/2,Y-w.s/2,w.s,w.s);g.fillStyle='#8a1414';g.fillRect(X-w.s/2+1,Y-w.s/2,Math.max(1,w.s-2),Math.max(1,w.s-2));g.fillStyle='#6a0c0c';g.fillRect(X,Y,1,w.dr);g.globalAlpha=1}
+  for(const r of RATS){const s=RATSP[(r.f|0)%2],X=RQ(r.x-cx),Y=RQ(r.y-cy);g.save();if(r.vx<0){g.translate(X,Y);g.scale(-1,1);g.drawImage(s,-4,-2)}else g.drawImage(s,X-4,Y-2);g.restore()}
+  if(FIREW.length)lights=lights.concat(FIREW.map(([x,y])=>[x,y-4,46+Math.sin(fc*.35+x)*6,.95,1]))}
+ return _lp(lights,dk)}}
+{const _df=drawFrame;drawFrame=function(){_df.apply(this,arguments);if(state!==1||!P)return;
+ if(LEAF.length){for(const l of LEAF){g.fillStyle=l.c;const w=Math.abs(Math.cos(l.r))*2+1;g.fillRect(l.x|0,l.y|0,w|0,1);g.fillRect((l.x|0)+1,(l.y|0)+1,1,1)}}
+ if(SLOMO>0){g.globalAlpha=Math.min(1,SLOMO/12)*.22;g.fillStyle='#0a0a12';g.fillRect(0,0,W,Hh);g.globalAlpha=1}}}
+{const _n=newGame;newGame=function(s,cc){WBLD=[];RATS=[];LEAF=[];SEAAPP=-1;const r=_n(s,cc);seasonVis(typeof SEAS==='function'?SEAS():0);return r}}
+{const _l=load;load=function(s){WBLD=[];RATS=[];SEAAPP=-1;const r=_l(s);try{seasonVis(SEAS())}catch(e){}return r}}
+{const _tm=toMenu;toMenu=function(){const r=_tm.apply(this,arguments);seasonVis(0);return r}}
+applyLang();
+// ================= v58: Dynamische Musik – ruhig beim Erkunden, Spannung bei Verfolgung, treibend bei Horden & Koloss =================
+const DM={lv:0,want:0,next:0,i:0,on:false,G:[],drone:null,timer:0,calmT:0};
+function dmInit(){if(DM.on||!AC||!MUSB)return;DM.on=true;for(let i=0;i<3;i++){const g=AC.createGain();g.gain.value=0;g.connect(MUSB);DM.G.push(g)}
+ // Spannungs-Drone (läuft dauerhaft, Lautstärke über Gain)
+ const lp=AC.createBiquadFilter();lp.type='lowpass';lp.frequency.value=260;lp.Q.value=3;lp.connect(DM.G[1]);
+ for(const[f,d]of[[55,0],[55,-9],[82.4,6]]){const o=AC.createOscillator();o.type='sawtooth';o.frequency.value=f;o.detune.value=d;const og=AC.createGain();og.gain.value=.05;o.connect(og);og.connect(lp);o.start()}
+ const lfo=AC.createOscillator(),lg=AC.createGain();lfo.frequency.value=.13;lg.gain.value=90;lfo.connect(lg);lg.connect(lp.frequency);lfo.start();
+ DM.next=AC.currentTime+.2;DM.timer=setInterval(dmTick,110)}
+const BASSL=[45,45,48,45,43,45,40,43];
+function dmTick(){if(!AC||!DM.on)return;const now=AC.currentTime,e=.25;
+ const tg=[DM.lv===0?1:.35,DM.lv>=1?1:0,DM.lv>=2?1:0];for(let i=0;i<3;i++)DM.G[i].gain.setTargetAtTime(state===1&&!paused?tg[i]*[.55,.5,.62][i]:0,now,DM.lv>=2?.6:1.6);
+ while(DM.next<now+.5){const w=DM.next,s=DM.i%16;
+  // Spannung: Herzschlag-Puls
+  if(DM.lv>=1&&(s===0||s===8)){for(const[dt,a]of[[0,1],[.16,.6]]){const o=AC.createOscillator(),g=AC.createGain();o.frequency.setValueAtTime(70,w+dt);o.frequency.exponentialRampToValueAtTime(38,w+dt+.15);g.gain.setValueAtTime(0,w+dt);g.gain.linearRampToValueAtTime(.32*a,w+dt+.01);g.gain.exponentialRampToValueAtTime(.0001,w+dt+.28);o.connect(g);g.connect(DM.G[1]);o.start(w+dt);o.stop(w+dt+.3)}}
+  // Kampf: Kick, Snare, Hi-Hat, Bass
+  if(DM.lv>=2){if(s%4===0){const o=AC.createOscillator(),g=AC.createGain();o.frequency.setValueAtTime(120,w);o.frequency.exponentialRampToValueAtTime(42,w+.12);g.gain.setValueAtTime(.55,w);g.gain.exponentialRampToValueAtTime(.0001,w+.24);o.connect(g);g.connect(DM.G[2]);o.start(w);o.stop(w+.26)}
+   if(s%8===4)nz(DM.G[2],w,.14,'bandpass',1800,.8,.32);if(s%2===1)nz(DM.G[2],w,.04,'highpass',6000,1,.12);
+   if(s%2===0){const n=BASSL[(s/2)|0],f=440*Math.pow(2,(n-69)/12),o=AC.createOscillator(),g=AC.createGain(),lp=AC.createBiquadFilter();o.type='sawtooth';o.frequency.value=f;lp.type='lowpass';lp.frequency.setValueAtTime(700,w);lp.frequency.exponentialRampToValueAtTime(180,w+e*1.8);g.gain.setValueAtTime(0,w);g.gain.linearRampToValueAtTime(.22,w+.01);g.gain.exponentialRampToValueAtTime(.0001,w+e*1.9);o.connect(lp);lp.connect(g);g.connect(DM.G[2]);o.start(w);o.stop(w+e*2)}}
+  DM.i++;DM.next+=e}
+ // Ruhe: vereinzelte, leise Klaviertöne
+ if(DM.lv===0&&state===1&&!paused&&now>DM.calmT){DM.calmT=now+5+Math.random()*7;const sc=dark>.4?[57,60,64,62,55]:[60,64,67,69,72,62];const m=sc[(Math.random()*sc.length)|0];try{const g0=MUSB;pnote(m,now+.05,.09,5);if(Math.random()<.5)pnote(m-12,now+.6,.06,5)}catch(e){}}}
+{const _st=step;step=function(){_st();if(state!==1||!P||t%30)return;if(AC&&!DM.on)dmInit();
+ let ch=0,boss=false;for(const z of Zs){if(z.hp<=0||z.st!=='chase')continue;const d=dist(z.x,z.y,P.x,P.y);if(d<280)ch++;if(z.k==='boss'&&d<420)boss=true}
+ let bf=0;for(const h of(window.HU||[]))if(h.team==='b'&&h.st==='fight'&&dist(h.x,h.y,P.x,P.y)<300)bf++;
+ const horde=typeof EV!=='undefined'&&EV&&EV.h&&!EV.h.end;const want=boss||horde||ch>=6||bf>=2?2:ch>=1||bf>=1?1:0;
+ if(want>DM.lv)DM.lv=want;else if(want<DM.lv){DM.cool=(DM.cool||0)+1;if(DM.cool>=8){DM.lv=want;DM.cool=0}}else DM.cool=0}}
+applyLang();
+// ================= v59: Erste Schritte · Schwierigkeitsgrade · Notizen & Funkgerät (Hinweise statt Missionen) · Verstecke · Funkturm & Rettung · Wände verstärken =================
+const V59={
+ diff:T4('Schwierigkeit','Difficulty','Dificultad','Difficulté'),dN:[T4('Entspannt','Relaxed','Relajado','Détendu'),T4('Normal','Normal','Normal','Normal'),T4('Albtraum','Nightmare','Pesadilla','Cauchemar')],
+ dD:[L4('Weniger und schwächere Zombies, langsamer Hunger.','Fewer, weaker zombies, slower hunger.','Menos zombis y más débiles, hambre más lenta.','Moins de zombies, plus faibles, faim plus lente.'),L4('Das Spiel wie gedacht.','The game as intended.','El juego tal como se pensó.','Le jeu tel qu’il est conçu.'),L4('Mehr, stärkere Zombies. Jeder Fehler kostet.','More, stronger zombies. Every mistake costs.','Más zombis y más fuertes. Cada error cuesta.','Plus de zombies, plus forts. Chaque erreur coûte.')],
+ g:T4('Erste Schritte','First steps','Primeros pasos','Premiers pas'),gS:[L4('Durchsuche Möbel in einem Haus','Search furniture in a house','Registra muebles en una casa','Fouille des meubles dans une maison'),L4('Lege eine Waffe in einen Schnellplatz','Put a weapon in a quick slot','Pon un arma en una ranura rápida','Mets une arme dans un emplacement rapide'),
+  L4('Iss oder trink etwas','Eat or drink something','Come o bebe algo','Mange ou bois quelque chose'),L4('Baue eine Wand, Tür oder Barrikade','Build a wall, door or barricade','Construye una pared, puerta o barricada','Construis un mur, une porte ou une barricade'),L4('Überlebe die erste Nacht','Survive the first night','Sobrevive a la primera noche','Survis à la première nuit')],
+ gDone:L4('Gut gemacht – ab jetzt gehört die Welt dir.','Well done – the world is yours now.','Bien hecho: ahora el mundo es tuyo.','Bien joué – le monde est à toi.'),gHide:T4('Ausblenden','Hide','Ocultar','Masquer'),
+ note:T4('Notiz','Note','Nota','Note'),notes:T4('Notizen','Notes','Notas','Notes'),radio:T4('Funkgerät','Radio','Radio','Radio'),radioD:L4('Empfängt nachts Funksprüche anderer Überlebender.','Picks up survivor broadcasts at night.','Capta emisiones de supervivientes por la noche.','Capte la nuit les messages d’autres survivants.'),
+ noteD:L4('Antippen und lesen.','Tap to read.','Toca para leer.','Touche pour lire.'),read:T4('Lesen','Read','Leer','Lire'),marked:L4('Ein Ort wurde auf deiner Karte markiert.','A place has been marked on your map.','Se ha marcado un lugar en tu mapa.','Un lieu a été marqué sur ta carte.'),
+ stash:T4('Versteck','Stash','Escondite','Cachette'),stashF:L4('Du hast ein Versteck gefunden!','You found a stash!','¡Has encontrado un escondite!','Tu as trouvé une cachette !'),
+ tower:T4('Funkturm','Radio tower','Torre de radio','Tour radio'),tRep:T4('Reparieren','Repair','Reparar','Réparer'),tCall:T4('Hilfe rufen','Call for help','Pedir ayuda','Appeler à l’aide'),
+ tNeed:L4('Der Sender ist kaputt. Du brauchst Ersatzteile.','The transmitter is broken. You need spare parts.','El transmisor está roto. Necesitas piezas.','L’émetteur est cassé. Il te faut des pièces.'),tOk:L4('Der Funkturm sendet wieder!','The radio tower is transmitting again!','¡La torre de radio vuelve a emitir!','La tour radio émet de nouveau !'),
+ call:L4('Hilfe gerufen!','Help is on the way!','¡Ayuda en camino!','Les secours arrivent !'),callS:L4('Ein Hubschrauber kommt in 5 Stunden. Halte durch – der Lärm lockt alles an.','A helicopter arrives in 5 hours. Hold out – the noise draws everything in.','Un helicóptero llega en 5 horas. Resiste: el ruido atrae a todos.','Un hélicoptère arrive dans 5 heures. Tiens bon – le bruit attire tout.'),
+ heli:L4('Der Hubschrauber ist gelandet!','The helicopter has landed!','¡El helicóptero ha aterrizado!','L’hélicoptère s’est posé !'),heliS:L4('Lauf hin und steig ein!','Run to it and get in!','¡Corre y sube!','Cours et monte !'),board:T4('Einsteigen','Get in','Subir','Monter'),
+ resc:T4('Rettung in','Rescue in','Rescate en','Secours dans'),won:T4('GERETTET','RESCUED','RESCATADO','SECOURU'),wonS:L4('Du hast es geschafft und die Wasteland überlebt.','You made it and survived the wasteland.','Lo lograste y sobreviviste al páramo.','Tu as réussi et survécu aux terres désolées.'),
+ cont:T4('Weiterspielen','Keep playing','Seguir jugando','Continuer'),menu:T4('Hauptmenü','Main menu','Menú principal','Menu principal'),
+ up:T4('Wände verstärken','Reinforce walls','Reforzar muros','Renforcer les murs'),upD:L4('Holz → Stahl → Beton. Tippe eine eigene Wand an.','Wood → steel → concrete. Tap one of your walls.','Madera → acero → hormigón. Toca uno de tus muros.','Bois → acier → béton. Touche un de tes murs.'),
+ upNo:T4('Keine eigene Wand','Not your wall','No es tu muro','Pas ton mur'),upMax:T4('Schon am stärksten','Already strongest','Ya es lo más fuerte','Déjà au maximum'),beton:T4('Betonwand','Concrete wall','Muro de hormigón','Mur en béton')};
+const NOTES=[
+ [L4('Tagebuch, Tag 1','Diary, day 1','Diary, day 1','Diary, day 1'),L4('Im Radio sagen sie, wir sollen in den Häusern bleiben. Die Nachbarn haben geschrien. Dann war es still.','The radio says to stay indoors. The neighbours screamed. Then it went quiet.','The radio says to stay indoors. The neighbours screamed. Then it went quiet.','The radio says to stay indoors. The neighbours screamed. Then it went quiet.')],
+ [L4('Zettel an einer Tür','Note on a door','Note on a door','Note on a door'),L4('Sind zum Militärposten gefahren. Sie sagen, dort gibt es Schutz. – Mara & Jonas','Gone to the military post. They say there is shelter. – Mara & Jonas','Gone to the military post. They say there is shelter. – Mara & Jonas','Gone to the military post. They say there is shelter. – Mara & Jonas')],
+ [L4('Funkerprotokoll','Radio operator log','Radio operator log','Radio operator log'),L4('Der alte Funkturm steht noch. Wenn jemand den Sender repariert, erreicht man die Evakuierungsflieger. Ich habe die Stelle auf meiner Karte eingezeichnet.','The old radio tower still stands. If someone repairs the transmitter, the evacuation flights can be reached. I marked the spot on my map.','The old radio tower still stands. If someone repairs the transmitter, the evacuation flights can be reached. I marked the spot on my map.','The old radio tower still stands. If someone repairs the transmitter, the evacuation flights can be reached. I marked the spot on my map.'),'tower'],
+ [L4('Arztbericht','Doctor’s report','Doctor’s report','Doctor’s report'),L4('Die Bisse entzünden sich in Stunden. Antibiotika verlangsamen es. Das Antiserum wirkt – aber es gibt kaum Vorräte.','Bites get infected within hours. Antibiotics slow it down. The antiserum works – but there is barely any left.','Bites get infected within hours. Antibiotics slow it down. The antiserum works – but there is barely any left.','Bites get infected within hours. Antibiotics slow it down. The antiserum works – but there is barely any left.')],
+ [L4('Gekritzel','Scribble','Scribble','Scribble'),L4('Sie hören dich. Sie riechen dich nicht. Bleib leise, bleib geduckt.','They hear you. They don’t smell you. Stay quiet, stay low.','They hear you. They don’t smell you. Stay quiet, stay low.','They hear you. They don’t smell you. Stay quiet, stay low.')],
+ [L4('Notiz eines Plünderers','A looter’s note','A looter’s note','A looter’s note'),L4('Ich habe meine Vorräte versteckt, bevor sie mich kriegen. Wer das liest: nimm sie dir. Ich hab die Stelle markiert.','I hid my supplies before they get me. Whoever reads this: take them. I marked the spot.','I hid my supplies before they get me. Whoever reads this: take them. I marked the spot.','I hid my supplies before they get me. Whoever reads this: take them. I marked the spot.'),'stash'],
+ [L4('Militärbefehl 7-B','Military order 7-B','Military order 7-B','Military order 7-B'),L4('Sektor aufgegeben. Keine Evakuierung mehr. Funkturm als letzte Verbindung erhalten.','Sector abandoned. No more evacuations. Keep the radio tower as the last link.','Sector abandoned. No more evacuations. Keep the radio tower as the last link.','Sector abandoned. No more evacuations. Keep the radio tower as the last link.')],
+ [L4('Kinderzeichnung','Child’s drawing','Child’s drawing','Child’s drawing'),L4('Ein Haus, eine Familie und ein großer grüner Mann. Darunter steht: „Papa kommt bald zurück.“','A house, a family and a big green man. Underneath: “Daddy will be back soon.”','A house, a family and a big green man. Underneath: “Daddy will be back soon.”','A house, a family and a big green man. Underneath: “Daddy will be back soon.”')],
+ [L4('Lieferschein','Delivery note','Delivery note','Delivery note'),L4('Lieferung Medikamente an das Krankenhaus in der Stadt. Empfänger: niemand mehr.','Medicine delivery to the hospital in town. Recipient: no one anymore.','Medicine delivery to the hospital in town. Recipient: no one anymore.','Medicine delivery to the hospital in town. Recipient: no one anymore.'),'kh'],
+ [L4('Tagebuch, Tag 12','Diary, day 12','Diary, day 12','Diary, day 12'),L4('Die Nächte werden länger. Die Hunde aus dem Tierheim sind keine Hunde mehr.','The nights grow longer. The dogs from the shelter aren’t dogs anymore.','The nights grow longer. The dogs from the shelter aren’t dogs anymore.','The nights grow longer. The dogs from the shelter aren’t dogs anymore.')],
+ [L4('Warnung','Warning','Warning','Warning'),L4('Geh NICHT in den Nebel. Man hört sie, bevor man sie sieht – wenn man Glück hat.','Do NOT go into the fog. You hear them before you see them – if you’re lucky.','Do NOT go into the fog. You hear them before you see them – if you’re lucky.','Do NOT go into the fog. You hear them before you see them – if you’re lucky.')],
+ [L4('Karte mit Kreuz','Map with an X','Map with an X','Map with an X'),L4('Ein Kreuz auf einer zerknitterten Karte. Daneben: „Notvorrat – nicht anfassen!“','An X on a crumpled map. Next to it: “Emergency supplies – don’t touch!”','An X on a crumpled map. Next to it: “Emergency supplies – don’t touch!”','An X on a crumpled map. Next to it: “Emergency supplies – don’t touch!”'),'stash'],
+ [L4('Banditen-Liste','Bandit list','Bandit list','Bandit list'),L4('Wer an unser Lager kommt, zahlt. Wer nicht zahlt, bleibt für immer.','Whoever comes to our camp pays. Whoever doesn’t, stays forever.','Whoever comes to our camp pays. Whoever doesn’t, stays forever.','Whoever comes to our camp pays. Whoever doesn’t, stays forever.')],
+ [L4('Brief','Letter','Letter','Letter'),L4('Wenn du das findest, bin ich zum Außenposten gegangen. Dort gibt es Wachen – und Dollar sind wieder etwas wert.','If you find this, I went to the outpost. There are guards – and dollars are worth something again.','If you find this, I went to the outpost. There are guards – and dollars are worth something again.','If you find this, I went to the outpost. There are guards – and dollars are worth something again.')],
+ [L4('Funkspruch (Abschrift)','Radio message (transcript)','Radio message (transcript)','Radio message (transcript)'),L4('„…Hubschrauber fliegen noch, wenn der Turm sendet… wiederhole: wenn der Turm sendet…“','“…helicopters still fly if the tower transmits… repeat: if the tower transmits…”','“…helicopters still fly if the tower transmits… repeat: if the tower transmits…”','“…helicopters still fly if the tower transmits… repeat: if the tower transmits…”'),'tower'],
+ [L4('Tagebuch, Tag 30','Diary, day 30','Diary, day 30','Diary, day 30'),L4('Der Koloss war wieder da. Er kommt nur nachts. Der Boden bebt, wenn er läuft.','The Colossus came back. It only comes at night. The ground shakes when it walks.','The Colossus came back. It only comes at night. The ground shakes when it walks.','The Colossus came back. It only comes at night. The ground shakes when it walks.')],
+ [L4('Laborbericht','Lab report','Lab report','Lab report'),L4('Die Kälte macht sie langsamer – aber nicht ungefährlicher. Uns macht sie schwächer.','The cold slows them down – but doesn’t make them less dangerous. It makes us weaker.','The cold slows them down – but doesn’t make them less dangerous. It makes us weaker.','The cold slows them down – but doesn’t make them less dangerous. It makes us weaker.')],
+ [L4('Versteck-Skizze','Stash sketch','Stash sketch','Stash sketch'),L4('Eine Skizze mit Bäumen, einem Felsen und einem Pfeil. „Unter den Brettern.“','A sketch with trees, a rock and an arrow. “Under the planks.”','A sketch with trees, a rock and an arrow. “Under the planks.”','A sketch with trees, a rock and an arrow. “Under the planks.”'),'stash'],
+ [L4('Gebet','Prayer','Prayer','Prayer'),L4('Gib uns Kraft für noch einen Tag. Nur noch einen.','Give us strength for one more day. Just one more.','Give us strength for one more day. Just one more.','Give us strength for one more day. Just one more.')],
+ [L4('Letzte Seite','Last page','Last page','Last page'),L4('Ich höre sie an der Tür. Wer das liest: Hör nicht auf. Es gibt noch Hoffnung.','I hear them at the door. Whoever reads this: don’t give up. There is still hope.','I hear them at the door. Whoever reads this: don’t give up. There is still hope.','I hear them at the door. Whoever reads this: don’t give up. There is still hope.')]];
+const BCAST=[[L4('Hier spricht der Funkturm… Sender beschädigt… wer das hört, repariert ihn… Koordinaten folgen…','This is the radio tower… transmitter damaged… whoever hears this, repair it… coordinates follow…','This is the radio tower… transmitter damaged… whoever hears this, repair it… coordinates follow…','This is the radio tower… transmitter damaged… whoever hears this, repair it… coordinates follow…'),'tower'],
+ [L4('Fort Hope an alle: Der Händler hat neue Munition. Wachen am Tor, keine Waffen ziehen.','Fort Hope to all: the trader has fresh ammo. Guards at the gate, no drawn weapons.','Fort Hope to all: the trader has fresh ammo. Guards at the gate, no drawn weapons.','Fort Hope to all: the trader has fresh ammo. Guards at the gate, no drawn weapons.')],
+ [L4('…Banditen ziehen durch die Gegend… meidet offene Straßen bei Nacht…','…bandits are moving through the area… avoid open roads at night…','…bandits are moving through the area… avoid open roads at night…','…bandits are moving through the area… avoid open roads at night…')],
+ [L4('Wetterdienst der Überlebenden: Kältewelle erwartet. Sammelt Holz.','Survivor weather service: cold wave expected. Gather wood.','Survivor weather service: cold wave expected. Gather wood.','Survivor weather service: cold wave expected. Gather wood.')],
+ [L4('…jemand hat Vorräte vergraben… beim alten Felsen… ich kann nicht mehr hin…','…someone buried supplies… by the old rock… I can’t get there anymore…','…someone buried supplies… by the old rock… I can’t get there anymore…','…someone buried supplies… by the old rock… I can’t get there anymore…'),'stash'],
+ [L4('Rauschen. Dann eine Kinderstimme: „Ist da jemand?“','Static. Then a child’s voice: “Is anyone there?”','Static. Then a child’s voice: “Is anyone there?”','Static. Then a child’s voice: “Is anyone there?”')]];
+// ---------- Gegenstände ----------
+Object.assign(D,{notiz:{n:V59.note,c:'ver',st:5,use:{},d:V59.noteD},funkgeraet:{n:V59.radio,c:'teil',st:1,d:V59.radioD}});
+ICO.notiz=outline(cv(16,16,P=>{P('#e8e0c8',3,2,10,12);P('#d8d0b8',3,12,10,2);for(let y=4;y<12;y+=2)P('#8a8070',5,y,6,1);P('#c03a2a',10,3,2,2)}));
+ICO.funkgeraet=outline(cv(16,16,P=>{P('#2a2c30',4,4,8,10);P('#4a4e56',4,4,8,1);P('#1a1a1a',10,0,1,4);P('#6a6e76',5,6,6,3);P('#40ff60',6,7,2,1);P('#c03a2a',9,11,2,2);P('#8a8e96',5,11,2,2)}));delete ICU.notiz;delete ICU.funkgeraet;
+addL('kiste','notiz:3');addL('schrank','notiz:3');addL('regal','notiz:2');addL('auto','notiz:3 funkgeraet:1');if(LT.zelt)addL('zelt','notiz:5');addL('zom','notiz:1');addL('mkiste','funkgeraet:3 notiz:2');addL('zsol','funkgeraet:2 notiz:2');
+if(typeof SPLT!=='undefined'){for(const k in SPLT)SPLT[k].it.push(['notiz',5,0,0]);SPLT.pol.it.push(['funkgeraet',4,0,0]);SPLT.mil.it.push(['funkgeraet',5,0,0])}
+if(typeof PRICE!=='undefined'){PRICE.funkgeraet=[450];if(typeof ROT!=='undefined')ROT.push('funkgeraet')}
+// ---------- Zustand ----------
+let LORE={read:[],tower:null,stash:[],bc:0,lastBc:-1};
+const markTower=()=>{towerInit();if(LORE.tower&&!LORE.tower.known){LORE.tower.known=1;return true}return false};
+function towerInit(){if(LORE.tower||!P)return;const[sx,sy]=SPAWN0||[Math.floor(P.x/16),Math.floor(P.y/16)];const a=hh(19,23,SEED+6161)*Math.PI*2;const[x,y]=typeof opFind==='function'?opFind(sx,sy,a,165):[Math.round(sx+Math.cos(a)*165),Math.round(sy+Math.sin(a)*165)];LORE.tower={x,y,known:0,b:0,ph:0}}
+function addStash(){const ok=(x,y)=>{for(let dx=-1;dx<=1;dx++)for(let dy=-1;dy<=1;dy++){if(houseAt(x+dx,y+dy)||isW(gnd(x+dx,y+dy)))return false}return true};
+ for(let i=0;i<40;i++){const a=rnd()*6.283,r=35+rnd()*50,x=Math.round(P.x/16+Math.cos(a)*r),y=Math.round(P.y/16+Math.sin(a)*r);if(ok(x,y)){LORE.stash.push({x,y,b:0,f:0});return true}}return false}
+function markKind(k){if(typeof SPH==='undefined')return false;let best=null,bd=1e9;for(const s of SPH.values()){if(s.k!==k)continue;const d=Math.hypot(s.x-P.x/16,s.y-P.y/16);if(d<bd){bd=d;best=s}}if(best&&!best.mk){best.mk=1;best.hint=1;return true}return false}
+function reveal(kind){if(kind==='tower')return markTower();if(kind==='stash')return addStash();if(kind==='kh')return markKind('kh');return false}
+// ---------- Lesen ----------
+{const d=document.createElement('div');d.id='nrd';d.className='hide';d.innerHTML='<div class="nrp"><small id="nrK"></small><b id="nrT"></b><p id="nrX"></p><em id="nrM"></em><button class="zb2" id="nrC"></button></div>';document.body.appendChild(d);
+ const st=document.createElement('style');st.textContent=`#nrd{position:fixed;inset:0;z-index:45;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.55)}#nrd.hide{display:none}
+#nrd .nrp{width:min(460px,90vw);background:#e8e0c8;color:#2a2418;padding:20px 22px;box-shadow:0 12px 40px rgba(0,0,0,.6);transform:rotate(-1deg);display:flex;flex-direction:column;gap:10px;border-left:6px solid #c8b890;font-family:Georgia,serif}
+#nrd small{text-transform:uppercase;letter-spacing:2px;font-size:10px;opacity:.6;font-family:inherit}#nrd b{font-size:18px}#nrd p{font-size:15px;line-height:1.5;margin:0;font-style:italic}#nrd em{font-size:12px;color:#8a3a20;font-style:normal;font-weight:700}
+#nrd .zb2{align-self:flex-end;background:#2a2418;color:#e8e0c8;border:0;padding:8px 18px;font:inherit;font-weight:700;font-size:14px;border-radius:6px}`;document.head.appendChild(st);
+ $('nrC').onclick=()=>{$('nrd').classList.add('hide');paused=!!window.__nrP;S.ui&&S.ui()}}
+function showPaper(kind,title,text,mark){window.__nrP=paused;paused=true;$('nrK').textContent=kind;$('nrT').textContent=title;$('nrX').textContent=text;$('nrM').textContent=mark?tr(V59.marked):'';$('nrC').textContent='OK';$('nrd').classList.remove('hide');A(P.x,P.y,.4,0,(b,t2)=>nz(b,t2,.25,'bandpass',2600,1.5,.25,900))}
+function readNote(){let idx=-1;for(let i=0;i<NOTES.length;i++)if(!LORE.read.includes(i)){idx=i;break}if(idx<0)idx=(rnd()*NOTES.length)|0;else LORE.read.push(idx);const n=NOTES[idx];const m=n[2]?reveal(n[2]):false;showPaper(tr(V59.note),tr(n[0]),tr(n[1]),m)}
+{const _u=useIt;useIt=function(it,ref){if(it.id==='notiz'){it.n--;if(!it.n)setS(ref,null);readNote();hudDirty=1;try{renderInv()}catch(e){}return}return _u(it,ref)}}
+// Funkgerät: nachts ein Funkspruch
+{const _st=step;step=function(){_st();if(state!==1||!P||paused||t%120)return;const h=hourOf(t);if(!(h>21||h<3))return;const d=dayN();if(LORE.lastBc===d)return;if(!countA('funkgeraet')&&!qs.some(q=>q&&q.id==='funkgeraet'))return;LORE.lastBc=d;
+ const i=LORE.bc<BCAST.length?LORE.bc:(rnd()*BCAST.length)|0;LORE.bc++;const b=BCAST[i];const m=b[1]?reveal(b[1]):false;showPaper(tr(V59.radio),'···',tr(b[0]),m)}}
+// ---------- Verstecke ----------
+{const _st=step;step=function(){_st();if(state!==1||!P||LV||t%30)return;for(const s of LORE.stash){if(s.f)continue;const d=Math.hypot(s.x-P.x/16,s.y-P.y/16);
+ if(!s.b&&d<40){s.b=1;const k=s.x*65536+s.y;setT(s.x,s.y,T.mkiste);const its=Array(12).fill(null);roll(LT.mkiste).concat(roll(LT.kiste),roll(LT.mkiste)).forEach((it,q)=>{if(q<12)its[q]=it});its[11]=mkItem('dollar',80+(rnd()*120|0));stor.set(k,{items:its});SEARCHED.add(k)}
+ if(s.b&&d<1.6){s.f=1;evBanner(tr(V59.stash),tr(V59.stashF));STATS.stash=(STATS.stash||0)+1;coinS&&coinS(3)}}}}
+// ---------- Funkturm ----------
+S2('funkturm',[mkSp(22,62,P=>{P('#3a3c42',2,58,18,4);for(let y=6;y<58;y++){const w=Math.round(2+(y/58)*8);P('#5a5e66',11-w,y,1,1);P('#5a5e66',10+w,y,1,1);if(y%6===0)P('#4a4e56',11-w,y,w*2,1)}for(let y=10;y<56;y+=6){const w=Math.round(2+(y/58)*8);for(let i=0;i<w*2;i++)if((i+y)%4<1)P('#6a6e76',11-w+i,y+((i%6)<3?2:4),1,1)}
+ P('#8a8e96',10,0,2,8);P('#c03a2a',10,0,2,2);P('#e8e4dc',4,20,4,3);P('#e8e4dc',14,28,4,3);P('#3a3c42',7,48,8,8);P('#c8a030',9,50,4,2)})]);
+TSOL[T.funkturm]=1;ACTX('funkturm','hand',V59.tower,0);
+XDRAW[T.funkturm]=(dx,dy,tx,ty)=>{const T_=LORE.tower;const on=T_&&T_.ph>=1;g.fillStyle=on?(fc%40<20?'#ff3020':'#600'):'#300';g.fillRect(RQ(dx+7),RQ(dy-46),2,2)};
+const TCOST={elektronik:4,kabel:8,schrott:15,batterie:3};
+function towerBuild(T_){const{x,y}=T_;for(let dx=-6;dx<=6;dx++)for(let dy=-5;dy<=4;dy++){const k=(x+dx)*65536+y+dy;if(own.has(k))continue;stor.delete(k);setT(x+dx,y+dy,0);gmods.set(k,G.kies)}
+ for(let dx=-6;dx<=6;dx++){setT(x+dx,y-5,T.zaun||T.palisade);if(Math.abs(dx)>1)setT(x+dx,y+4,T.zaun||T.palisade)}for(let dy=-4;dy<=3;dy++){setT(x-6,y+dy,T.zaun||T.palisade);setT(x+6,y+dy,T.zaun||T.palisade)}
+ setT(x,y,T.funkturm);if(T.generator)setT(x-3,y+1,T.generator);if(T.kistenstapel)setT(x+3,y-2,T.kistenstapel);if(T.feuertonne)setT(x+4,y+2,T.feuertonne);if(T.keepout)setT(x+2,y+4,T.keepout);
+ if(typeof CC!=='undefined')CC.clear();T_.b=1}
+let HELI=null;
+{const _e=extraAct;extraAct=function(a){if(a.tt===T.funkturm){const T_=LORE.tower;if(!T_)return true;T_.known=1;
+  if(T_.ph===0){const have=Object.entries(TCOST).map(([m,n])=>`${tr(D[m].n)} ${countA(m)}/${n}`).join(' · ');openChooser(tr(V59.tower),[{ic:'wrench',l:tr(V59.tRep),sub:have,dis:!canPay(TCOST),fn:()=>{for(const m in TCOST)takeA(m,TCOST[m]);T_.ph=1;evBanner(tr(V59.tower),tr(V59.tOk));S.build&&S.build();return null}},{ic:'x',l:tr(V59.tNeed),sub:'',fn:()=>null}])}
+  else if(T_.ph===1){openChooser(tr(V59.tower),[{ic:'radio',l:tr(V59.tCall),sub:tr(V59.callS),fn:()=>{T_.ph=2;T_.t0=t;T_.t1=t+PER/24*5;evBanner(tr(V59.call),tr(V59.callS));noise(P.x,P.y,600);return null}}])}
+  return true}return _e(a)}}
+{const _st=step;step=function(){_st();if(state!==1||!P||LV)return;if(t%30===0)towerInit();const T_=LORE.tower;if(!T_)return;const d=Math.hypot(T_.x-P.x/16,T_.y-P.y/16);
+ if(!T_.b&&d<45&&t%30===0){towerBuild(T_);T_.known=1}
+ if(T_.ph===2){if(t%420===0){const n=4+(rnd()*4|0)+Math.min(4,dayN()>>2);const a=rnd()*6.283;for(let i=0;i<n;i++){const x=P.x+Math.cos(a)*330+(rnd()-.5)*60,y=P.y+Math.sin(a)*330+(rnd()-.5)*60;if(bl(x,y))continue;const z=mkZ(x,y,++zid,curReg);if(z.hp>0){z.st='chase';z.gx=P.x;z.gy=P.y;z.ls=t;z.guard=1}}}
+  if(t>=T_.t1){T_.ph=3;HELI={x:(T_.x+3)*16,y:(T_.y+2)*16,z:160,on:1};evBanner(tr(V59.heli),tr(V59.heliS))}}
+ if(HELI){if(HELI.z>0)HELI.z=Math.max(0,HELI.z-.8);if(t%14===0&&dist(HELI.x,HELI.y,P.x,P.y)<500)A(HELI.x,HELI.y,.7,.3,(b,t2)=>{for(let i=0;i<4;i++)nz(b,t2+i*.035,.03,'lowpass',260,1,.6)});if(HELI.z<40&&t%6===0)dust(HELI.x+(rnd()-.5)*40,HELI.y+(rnd()-.5)*20,'#b8a07a')}}}
+{const _fa=findAct;findAct=function(){const a=_fa();if(HELI&&HELI.z<=0&&!P.veh&&dist(HELI.x,HELI.y,P.x,P.y)<34)return{k:'heli',ic:'hand',l:V59.board};return a}}
+{const _da=doAct;doAct=function(a){if(a&&a.k==='heli'){winGame();return}return _da(a)}}
+{const _df=drawFrame;drawFrame=function(){_df.apply(this,arguments);if(state!==1||!HELI)return;const X=RQ(HELI.x-cx),Y=RQ(HELI.y-cy-HELI.z);
+ g.fillStyle='rgba(0,0,0,.35)';g.beginPath();g.ellipse(HELI.x-cx,HELI.y-cy+6,22,8,0,0,6.283);g.fill();
+ g.fillStyle='#3a4424';g.fillRect(X-16,Y-8,26,12);g.fillStyle='#4e5a32';g.fillRect(X-16,Y-8,26,3);g.fillStyle='#7ab0e0';g.fillRect(X+4,Y-6,6,5);g.fillStyle='#3a4424';g.fillRect(X+10,Y-4,22,3);g.fillRect(X+30,Y-8,3,8);
+ g.fillStyle='#1a1a1a';g.fillRect(X-14,Y+5,22,2);g.fillRect(X-12,Y+3,1,3);g.fillRect(X+4,Y+3,1,3);const r=(fc*.6)%6.283;g.strokeStyle='rgba(30,30,30,.8)';g.lineWidth=2;g.beginPath();g.moveTo(X-2-Math.cos(r)*30,Y-10-Math.sin(r)*4);g.lineTo(X-2+Math.cos(r)*30,Y-10+Math.sin(r)*4);g.stroke();g.lineWidth=1}}
+// Sieg
+{const d=document.createElement('div');d.id='win';d.className='pn hide';d.innerHTML='<div class="wnw"><b id="wnT"></b><p id="wnS"></p><div id="wnG"></div><div class="wnb"><button class="btn pr" id="wnC"></button><button class="btn" id="wnM"></button></div></div>';document.body.appendChild(d);
+ const st=document.createElement('style');st.textContent=`#win{z-index:44;align-items:center;justify-content:center}#win .wnw{display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center}#win b{font-size:44px;letter-spacing:8px;color:#ffd23a;text-shadow:0 4px 0 #3a1606}#win p{opacity:.8}
+#win #wnG{display:grid;grid-template-columns:repeat(3,minmax(120px,1fr));gap:8px}#win #wnG div{background:#1a1612;border:1px solid #332c25;padding:8px;border-radius:8px}#win #wnG span{display:block;font-size:11px;opacity:.6}#win .wnb{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}`;document.head.appendChild(st);
+ $('wnC').onclick=()=>{$('win').classList.add('hide');paused=false;S.ui&&S.ui()};$('wnM').onclick=()=>{$('win').classList.add('hide');save&&save();toMenu()}}
+function winGame(){const T_=LORE.tower;if(T_)T_.ph=4;HELI=null;STATS.rescued=(STATS.rescued||0)+1;paused=true;
+ $('wnT').textContent=tr(V59.won);$('wnS').textContent=tr(V59.wonS);$('wnC').textContent=tr(V59.cont);$('wnM').textContent=tr(V59.menu);
+ const f=(l,v)=>`<div><span>${l}</span>${v}</div>`;$('wnG').innerHTML=f(tr('Tag'),dayN())+f(tr(V54.sN.zk),STATS.zk||0)+f(tr(V54.sN.bk),STATS.bk||0)+f(tr(V54.sN.walk),((STATS.walk||0)/1000).toFixed(1))+f(tr(V54.sN.built),STATS.built||0)+f(tr(V59.diff),tr(V59.dN[P.diff==null?1:P.diff]));
+ $('win').classList.remove('hide');try{achCheck()}catch(e){}}
+ACH.push(['rescue',T4('Gerettet','Rescued','Rescatado','Secouru'),L4('Repariere den Funkturm und entkomme mit dem Hubschrauber','Repair the radio tower and escape by helicopter','Repara la torre y escapa en helicóptero','Répare la tour radio et fuis en hélicoptère'),()=>STATS.rescued>=1],
+ ['stash3',T4('Schatzsucher','Treasure hunter','Buscatesoros','Chasseur de trésors'),L4('Finde 3 Verstecke','Find 3 stashes','Encuentra 3 escondites','Trouve 3 cachettes'),()=>STATS.stash>=3],
+ ['notes10',T4('Chronist','Chronicler','Cronista','Chroniqueur'),L4('Lies 10 Notizen','Read 10 notes','Lee 10 notas','Lis 10 notes'),()=>LORE.read.length>=10]);
+// Karte: Turm, Verstecke, markierte Orte
+{const _dm=drawMap;drawMap=function(c,R){const r=_dm(c,R);if(!P||LV)return r;const mini=c&&c.id==='mm',x=c.getContext('2d'),ptx=P.x/16,pty=P.y/16;
+ const mark=(wx,wy,col,sym)=>{let i,j,s;const n=mini?c.width:R*2+1;if(mini){if(typeof MMR==='undefined')return;i=(wx-ptx+MMR)*MMS;j=(wy-pty+MMR)*MMS;s=4}else{i=wx-ptx+R;j=wy-pty+R;s=3}i=Math.max(s+1,Math.min(n-s-2,i));j=Math.max(s+1,Math.min(n-s-2,j));
+  x.fillStyle='#0b0907';x.fillRect(Math.round(i-s-1),Math.round(j-s-1),s*2+3,s*2+3);x.fillStyle=col;x.fillRect(Math.round(i-s),Math.round(j-s),s*2+1,s*2+1);if(sym){x.fillStyle='#0b0907';x.fillRect(Math.round(i),Math.round(j-s+1),1,s*2-1)}};
+ const T_=LORE.tower;if(T_&&T_.known)mark(T_.x,T_.y,T_.ph>=1?'#ff3020':'#c050ff',1);for(const s of LORE.stash)if(!s.f)mark(s.x,s.y,'#40e0ff',0);
+ if(typeof SPH!=='undefined')for(const s of SPH.values())if(s.hint&&!isExp(Math.floor(s.x),Math.floor(s.y)))mark(s.x,s.y,typeof V53!=='undefined'?V53[s.k][2]:'#fff',0);return r}}
+{const lg=document.querySelector('#map .lg');if(lg){const sm=lg.querySelector('small');for(const[c,n]of[['#c050ff',V59.tower],['#40e0ff',V59.stash]]){const sp=document.createElement('span');sp.innerHTML=`<i style="background:${c}"></i><span>${tr(n)}</span>`;lg.insertBefore(sp,sm||null)}}}
+// Rettungs-Countdown in der Anzeige
+{const _h=hud;hud=function(){_h();if(state!==1||!P)return;const T_=LORE.tower,el=$('fx2');if(!el||!T_||T_.ph!==2)return;const s=Math.max(0,Math.ceil((T_.t1-t)/60)),txt=tr(V59.resc)+' '+Math.floor(s/60)+':'+String(s%60).padStart(2,'0');if(!el.querySelector('.resc')){const sp=document.createElement('span');sp.className='fxc ok resc';el.appendChild(sp)}el.querySelector('.resc').textContent=txt}}
+// ---------- Notizen im Fortschritt ----------
+{const _r=renderProg;renderProg=function(){_r();const b=document.createElement('button');b.dataset.pt='notes';b.className=PGT==='notes'?'on':'';b.textContent=tr(V59.notes)+' '+LORE.read.length+'/'+NOTES.length;$('pgT').appendChild(b);
+ if(PGT==='notes')$('pgB').innerHTML=LORE.read.length?LORE.read.map(i=>`<div class="row"><b>${tr(NOTES[i][0])}</b><small style="opacity:.85;font-style:italic">${tr(NOTES[i][1])}</small></div>`).join(''):`<div class="row"><small>–</small></div>`}}
+// ---------- Erste Schritte ----------
+{const d=document.createElement('div');d.id='guide';d.className='hide';$('game').appendChild(d);const st=document.createElement('style');st.textContent=`#guide{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 8px);transform:translateX(-50%);background:rgba(14,12,10,.78);border:1px solid #3a332b;border-radius:10px;padding:6px 10px;font-size:10.5px;z-index:6;min-width:230px;pointer-events:auto}#guide.hide{display:none}
+#guide b{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:#ffd23a;margin-bottom:4px}#guide b button{background:none;border:0;color:#8a8070;font:inherit;font-size:10px}#guide div{display:flex;gap:6px;align-items:center;opacity:.9;line-height:1.5}#guide div i{width:10px;height:10px;border:1px solid #8a8070;border-radius:2px;flex:none}#guide div.ok{opacity:.45;text-decoration:line-through}#guide div.ok i{background:#5ad66a;border-color:#5ad66a}`;document.head.appendChild(st)}
+const gSteps=()=>[(STATS.srch||0)>0,qs.some(q=>q&&D[q.id]&&D[q.id].c==='waf'),(STATS.ate||0)>0,(STATS.built||0)>0,dayN()>=2];
+{const _f=finishAct;finishAct=function(a){const tt=a&&a.tt;const r=_f(a);if(tt!=null&&(LOOTT()[tt]||TSTOR[tt]))STATS.srch=(STATS.srch||0)+1;return r}}
+{const _u=useIt;useIt=function(it,ref){const u=D[it.id]&&D[it.id].use;const r=_u(it,ref);if(u&&(u.hun>0||u.thi>0))STATS.ate=(STATS.ate||0)+1;return r}}
+{let lastG='';const _h=hud;hud=function(){_h();const el=$('guide');if(!el)return;if(state!==1||!P||!P.guide||P.guide===2||paused){if(!el.classList.contains('hide'))el.classList.add('hide');return}
+ const s=gSteps();if(s.every(Boolean)){P.guide=2;evBanner(tr(V59.g),tr(V59.gDone));el.classList.add('hide');return}const h=`<b>${tr(V59.g)}<button id="gX">${tr(V59.gHide)}</button></b>`+V59.gS.map((x,i)=>`<div class="${s[i]?'ok':''}"><i></i>${tr(x)}</div>`).join('');
+ if(h!==lastG){el.innerHTML=h;lastG=h;$('gX').onclick=()=>{P.guide=2;el.classList.add('hide')}}el.classList.remove('hide')}}
+// ---------- Schwierigkeit ----------
+{const cr=document.querySelector('#cc .ccrw');if(cr){const d=document.createElement('div');d.innerHTML=`<div class="lbl" style="margin:10px 0 6px">${tr(V59.diff)}</div><div class="dfr" id="ccD">${V59.dN.map((n,i)=>`<button data-d="${i}">${tr(n)}</button>`).join('')}</div><small id="ccDd" style="opacity:.65;font-size:11px"></small>`;cr.appendChild(d);
+ const st=document.createElement('style');st.textContent='#ccD{display:flex;gap:6px}#ccD button{flex:1;background:#221d19;border:1px solid #3a332b;border-radius:8px;padding:8px 4px;color:#cfc3a8;font:inherit;font-weight:700;font-size:12px}#ccD button.on{border-color:#ffd23a;color:#ffd23a;background:#2a2210}';document.head.appendChild(st);
+ const sync=()=>{const v=CCR&&CCR.diff!=null?CCR.diff:1;for(const b of $('ccD').children)b.classList.toggle('on',+b.dataset.d===v);$('ccDd').textContent=tr(V59.dD[v])};
+ $('ccD').onclick=e=>{const b=e.target.closest('[data-d]');if(!b||!CCR)return;CCR.diff=+b.dataset.d;S.ui&&S.ui();sync()};const _o=openCC;openCC=function(s){_o(s);if(CCR&&CCR.diff==null)CCR.diff=1;sync()}}}
+const DK=()=>P&&P.diff!=null?P.diff:1;
+{const _m=mkZ;mkZ=function(x,y,gid,reg){const z=_m(x,y,gid,reg);const k=[.72,1,1.3][DK()];if(k!==1&&z.hp>0){z.hp*=k;z.mh=z.hp;z.cs*=DK()===2?1.08:.93}return z}}
+{const _h=hurt;hurt=function(dm,sx,sy,b){return _h(dm*[.6,1,1.35][DK()],sx,sy,b)}}
+{const _zp=window.ZPOP;window.ZPOP=()=>Math.round(_zp()*[.72,1,1.25][DK()])}
+{const _st=step;step=function(){_st();if(state!==1||!P||paused)return;const k=DK();if(k===0){P.hun+=100/32400*.35;P.thi+=100/21600*.35}else if(k===2){P.hun-=100/32400*.2;P.thi-=100/21600*.2}}}
+// ---------- Wände verstärken ----------
+BF.beton=cv(16,WH,P=>{P('#8a8a86',0,0,16,WH);P('#a2a29e',0,0,16,1);for(let i=0;i<30;i++)P(i%3?'#7a7a76':'#9a9a96',(i*7)%16,(i*11)%WH,1,1);P('#6a6a66',0,(WH/2)|0,16,1);P('#5a5a56',0,WH-1,16,1)});
+CAP.beton=cv(16,16,P=>{P('#9a9a96',0,0,16,16);P('#b2b2ae',1,1,14,1);for(let i=0;i<20;i++)P('#8a8a86',(i*5)%16,(i*7)%16,1,1);P('#7a7a76',0,15,16,1)});
+TWALL[T.betonwand]=TSOL[T.betonwand]=TOPQ[T.betonwand]=1;HPD[T.betonwand]=1100;
+{const _wt=wallTex;wallTex=function(tt,tx,ty){if(tt===T.betonwand)return[BF.beton,CAP.beton];return _wt(tt,tx,ty)}}
+const UPG={[T.holzwand]:[T.stahlwand,{schrott:4,nagel:4}],[T.steinwand]:[T.betonwand,{stein:6,schrott:2}],[T.stahlwand]:[T.betonwand,{stein:8,schrott:3}]};
+if(T.ziegelwand!=null)UPG[T.ziegelwand]=[T.betonwand,{stein:6,schrott:2}];for(const k in UPG)for(const m in UPG[k][1])if(!D[m])delete UPG[k][1][m];
+BP.verstaerken={id:'verstaerken',cat:'bau',k:'t',tg:T.betonwand,cost:{},n:V59.up};BDESC.verstaerken=V59.upD;
+{const _ba=buildAct;buildAct=function(){const a=_ba();if(!a||BM!=='verstaerken')return a;const k=a.tx*65536+a.ty,tt=tile(a.tx,a.ty),u=UPG[tt];
+ if(!own.has(k)||!TWALL[tt]){a.ok=false;a.l=tr(V59.upNo)}else if(!u){a.ok=false;a.l=tr(V59.upMax)}else{a.ok=canPay(u[1]);a.l=tr(V59.up)+' → '+Object.entries(u[1]).map(([m,n])=>n+'× '+tr(D[m].n)).join(', ')}a.k='build';return a}}
+{const _db=doBuild;doBuild=function(a){if(BM!=='verstaerken')return _db(a);const k=a.tx*65536+a.ty,tt=tile(a.tx,a.ty),u=UPG[tt];if(!a.ok||!u||!own.has(k)){S.dry&&S.dry();return}for(const m in u[1])takeA(m,u[1][m]);setT(a.tx,a.ty,u[0]);whp.delete(k);S.build&&S.build();debris(a.tx*16+8,a.ty*16+8,8,['#8a8a86','#5a5e66']);STATS.built=(STATS.built||0)+1;if(typeof skXP==='function')skXP('bau',4);hudDirty=1;if(typeof ROOMV!=='undefined')ROOMV++}}
+// ---------- Speichern ----------
+{const _s=save;save=function(q){_s(q);try{const k='zw4_h'+slot,o=JSON.parse(LS.get(k)||'{}')||{};o.v59={lore:LORE,heli:HELI};LS.set(k,JSON.stringify(o))}catch(e){}}}
+{const _l=load;load=function(s){LORE={read:[],tower:null,stash:[],bc:0,lastBc:-1};HELI=null;const r=_l(s);try{const o=JSON.parse(LS.get('zw4_h'+s));if(o&&o.v59){LORE=Object.assign(LORE,o.v59.lore||{});HELI=o.v59.heli||null}}catch(e){}return r}}
+{const _n=newGame;newGame=function(s,cc){LORE={read:[],tower:null,stash:[],bc:0,lastBc:-1};HELI=null;const r=_n(s,cc);if(P){P.diff=cc&&cc.diff!=null?cc.diff:1;P.guide=1}return r}}
+applyLang();
+// ================= v60: Teilbares Ergebnis nach dem Tod · Todesursache · Tägliche Herausforderung =================
+const V60={
+ share:T4('Ergebnis teilen','Share result','Compartir resultado','Partager le résultat'),cause:T4('Getötet von','Killed by','Muerto por','Tué par'),
+ cs:{z:T4('Zombie','Zombie','Zombi','Zombie'),bandit:T4('Bandit','Bandit','Bandido','Bandit'),hun:T4('Hunger','Hunger','Hambre','Faim'),thi:T4('Durst','Thirst','Sed','Soif'),cold:T4('Kälte','Cold','Frío','Froid'),inf:T4('Infektion','Infection','Infección','Infection'),boom:T4('Explosion','Explosion','Explosión','Explosion'),acid:T4('Säure','Acid','Ácido','Acide'),x:T4('Unbekannt','Unknown','Desconocido','Inconnu')},
+ surv:T4('Tage überlebt','days survived','días sobrevividos','jours survécus'),play:L4('Kostenlos spielen','Play for free','Juega gratis','Joue gratuitement'),
+ daily:T4('Tägliche Herausforderung','Daily challenge','Desafío diario','Défi quotidien'),dailyS:L4('Heute dieselbe Welt für alle. Wie lange hältst du durch?','The same world for everyone today. How long can you last?','Hoy el mismo mundo para todos. ¿Cuánto aguantas?','Aujourd’hui le même monde pour tous. Combien de temps tiens-tu ?'),
+ best:T4('Bestwert heute','Today’s best','Mejor de hoy','Meilleur du jour'),end:L4('Die Herausforderung ist vorbei.','The challenge is over.','El desafío ha terminado.','Le défi est terminé.'),rec:T4('Neuer Tagesrekord!','New daily record!','¡Nuevo récord diario!','Nouveau record du jour !'),score:T4('Punkte','Score','Puntos','Points')};
+// ---------- Todesursache ----------
+{const _h=hurt;hurt=function(dm,sx,sy,b){const z=window.__zcur;P.lastSrc=window.__bsrc?'bandit':z?(z.k==='sp'&&!z.id?'acid':'z:'+z.k):window.__boom?'boom':'z';P.lastT=t;return _h(dm,sx,sy,b)}}
+{const _s=stepHB;stepHB=function(){window.__bsrc=1;try{return _s()}finally{window.__bsrc=0}}}
+{const _a=hAttack;hAttack=function(h,tg){window.__bsrc=h.team==='b'?1:0;try{return _a(h,tg)}finally{window.__bsrc=0}}}
+{const _b=boom;boom=function(x,y){window.__boom=1;try{return _b(x,y)}finally{window.__boom=0}}}
+const ZNM=()=>({w:V60.cs.z,r:T4('Renner','Runner','Corredor','Coureur'),b:T4('Brecher','Brute','Bruto','Brute'),s:T4('Soldat','Soldier','Soldado','Soldat'),sp:typeof V53!=='undefined'?V53.zt.sp:V60.cs.z,ar:typeof V53!=='undefined'?V53.zt.ar:V60.cs.z,sl:typeof V53!=='undefined'?V53.zt.sl:V60.cs.z,hund:typeof V53!=='undefined'?V53.zt.hund:V60.cs.z,boss:typeof V53!=='undefined'?V53.zt.boss:V60.cs.z});
+function causeTxt(){const s=P.lastSrc;if(P.lastT!=null&&t-P.lastT<240&&s){if(s==='bandit')return tr(V60.cs.bandit);if(s==='boom')return tr(V60.cs.boom);if(s==='acid')return tr(V60.cs.acid);if(s.startsWith('z:')){const n=ZNM()[s.slice(2)];return tr(n||V60.cs.z)}return tr(V60.cs.z)}
+ if((P.inf||0)>=85)return tr(V60.cs.inf);if((P.cold||0)>75)return tr(V60.cs.cold);if(P.hun<=1)return tr(V60.cs.hun);if(P.thi<=1)return tr(V60.cs.thi);return tr(V60.cs.x)}
+let LASTDEATH=null;
+{const _o=over;over=function(){if(state!==1)return _o.apply(this,arguments);LASTDEATH={cause:causeTxt(),day:dayN(),zk:STATS.zk||0,bk:STATS.bk||0,boss:STATS.boss||0,km:((STATS.walk||0)/1000).toFixed(1),ach:typeof ACHG!=='undefined'?ACHG.size:0,diff:P.diff==null?1:P.diff,daily:P.daily||null,name:P.name||''};
+ const r=_o.apply(this,arguments);
+ setTimeout(()=>{const ds=$('dS');if(ds&&LASTDEATH)ds.insertAdjacentHTML('afterbegin',`<div style="color:#ff8a7a;font-weight:700;margin-bottom:4px">${tr(V60.cause)}: ${LASTDEATH.cause}</div>`);
+  if(LASTDEATH&&LASTDEATH.daily){const rec=dailyRecord(LASTDEATH);$('dLive')&&$('dLive').classList.add('hide');ds.insertAdjacentHTML('beforeend',`<div style="margin-top:6px;color:#ffd23a"><b>${tr(V60.daily)}</b> · ${tr(V60.score)} ${dScore(LASTDEATH)}${rec?' · '+tr(V60.rec):''}</div><small>${tr(V60.end)}</small>`)}},950);return r}}
+// Teilen-Knopf
+{const b=document.createElement('button');b.className='btn';b.id='dShare';b.innerHTML=`<i class="ic">${icoImg('star')}</i><span>${tr(V60.share)}</span>`;const m=$('dMen');if(m)m.before(b);b.onclick=()=>shareCard()}
+function cardCanvas(){const L=LASTDEATH||{day:dayN(),zk:STATS.zk||0,bk:STATS.bk||0,boss:STATS.boss||0,km:'0',ach:0,diff:1,cause:'',name:''};const S_=1080,c=mk(S_,S_),x=c.getContext('2d');x.imageSmoothingEnabled=false;
+ let gr=x.createLinearGradient(0,0,0,S_);gr.addColorStop(0,'#14100d');gr.addColorStop(1,'#070605');x.fillStyle=gr;x.fillRect(0,0,S_,S_);
+ gr=x.createRadialGradient(S_*.72,S_*.36,40,S_*.72,S_*.36,520);gr.addColorStop(0,'rgba(170,40,28,.45)');gr.addColorStop(1,'rgba(170,40,28,0)');x.fillStyle=gr;x.fillRect(0,0,S_,S_);
+ x.fillStyle='#8a2a20';x.beginPath();x.arc(S_*.72,S_*.36,190,0,6.283);x.fill();x.fillStyle='rgba(0,0,0,.18)';x.beginPath();x.arc(S_*.72-50,S_*.36-30,40,0,6.283);x.arc(S_*.72+60,S_*.36+40,28,0,6.283);x.fill();
+ x.fillStyle='#0c0f10';let X=0,s=7;const R_=()=>(s=(s*16807)%2147483647)/2147483647;while(X<S_){const w=40+R_()*90,h=80+R_()*240;x.fillRect(X,700-h,w,h+400);X+=w+6}x.fillStyle='#060707';x.fillRect(0,700,S_,400);
+ try{const sp=PSPR[3][0];x.drawImage(sp,170,360,sp.width*14,sp.height*14)}catch(e){}
+ x.textAlign='left';x.fillStyle='#e6efd2';x.font='bold 64px "Courier New",monospace';x.fillText('ZOMBIE',70,120);x.fillStyle='#f6d060';x.font='bold 46px "Courier New",monospace';x.fillText('WASTELAND',72,172);
+ x.textAlign='right';x.fillStyle='#ffffff';x.font='bold 150px "Courier New",monospace';x.fillText(String(L.day),S_-70,170);x.font='bold 30px "Courier New",monospace';x.fillStyle='#cfc3a8';x.fillText(tr(V60.surv).toUpperCase(),S_-72,212);
+ const st=[[tr(V54.sN.zk),L.zk],[tr(V54.sN.bk),L.bk],[tr(V54.sN.boss),L.boss],[tr(V54.sN.walk),L.km],[tr(V54.ach),L.ach],[tr(V59.diff),tr(V59.dN[L.diff])]];
+ x.textAlign='left';st.forEach(([k,v],i)=>{const cx_=70+(i%3)*325,cy_=790+((i/3)|0)*110;x.fillStyle='rgba(255,255,255,.06)';x.fillRect(cx_,cy_,300,92);x.fillStyle='#8a8070';x.font='22px "Courier New",monospace';x.fillText(String(k).toUpperCase(),cx_+18,cy_+32);x.fillStyle='#ffd23a';x.font='bold 40px "Courier New",monospace';x.fillText(String(v),cx_+18,cy_+76)});
+ if(L.cause){x.fillStyle='#ff8a7a';x.font='bold 30px "Courier New",monospace';x.fillText(tr(V60.cause)+': '+L.cause,70,760)}
+ x.fillStyle='#cfc3a8';x.font='24px "Courier New",monospace';x.fillText(tr(V60.play)+' · smstudios-s.github.io/Zombie-Wasteland',70,1040);if(L.daily){x.textAlign='right';x.fillStyle='#ffd23a';x.fillText(tr(V60.daily)+' · '+L.daily,S_-70,175+70)}return c}
+function shareCard(){const c=cardCanvas();S.ui&&S.ui();c.toBlob(async b=>{if(!b)return;const f=new File([b],'zombie-wasteland.png',{type:'image/png'});try{if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:'Zombie Wasteland',text:'#ZombieWasteland'});return}}catch(e){if(e&&e.name==='AbortError')return}
+ const u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download='zombie-wasteland.png';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000)},'image/png')}
+// ---------- Tägliche Herausforderung ----------
+const dKey=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
+const dSeed=k=>{let h=2166136261;for(const ch of k){h^=ch.charCodeAt(0);h=Math.imul(h,16777619)}return(h>>>0)%1e9};
+const dScore=L=>L.day*100+L.zk*2+L.bk*10+L.boss*150;
+function dailyGet(){try{const o=JSON.parse(LS.get('zw4_daily')||'{}');return o&&o.date===dKey()?o:{date:dKey(),best:null}}catch(e){return{date:dKey(),best:null}}}
+function dailyRecord(L){const o=dailyGet(),sc=dScore(L);let rec=false;if(!o.best||sc>o.best.sc){o.best={sc,day:L.day,zk:L.zk};rec=true}try{LS.set('zw4_daily',JSON.stringify(o))}catch(e){}updDailyBtn();return rec}
+let DAILYSEED=null;
+{const _c=clearWorldCache;clearWorldCache=function(){if(DAILYSEED!=null)SEED=DAILYSEED;return _c.apply(this,arguments)}}
+{const _f=findSpawn;findSpawn=function(){if(DAILYSEED!=null&&typeof RSPAWN!=='undefined')RSPAWN=false;return _f()}}
+function startDaily(){initAudio&&initAudio();S.ui&&S.ui();DAILYSEED=dSeed(dKey());try{newGame(3,{look:defLook(),bg:'buerger',name:'',diff:1})}finally{DAILYSEED=null}P.daily=dKey();P.guide=2;$('menu').classList.add('hide');start();evBanner(tr(V60.daily),tr(V60.dailyS))}
+{const mn=$('mNew');if(mn){const b=document.createElement('button');b.className='btn';b.id='mDaily';b.innerHTML=`<i class="ic">${icoImg('star')}</i><span>${tr(V60.daily)}</span><small id="mDailyS" style="display:block;font-size:10px;opacity:.7"></small>`;mn.after(b);b.onclick=startDaily}}
+function updDailyBtn(){const e=$('mDailyS');if(!e)return;const o=dailyGet();e.textContent=o.best?tr(V60.best)+': '+tr('Tag')+' '+o.best.day+' · '+o.best.zk+' Zombies':''}updDailyBtn();
+{const _tm=toMenu;toMenu=function(){const r=_tm.apply(this,arguments);updDailyBtn();return r}}
+ACH.push(['daily',T4('Tagesheld','Daily hero','Héroe diario','Héros du jour'),L4('Überlebe in der täglichen Herausforderung bis Tag 3','Reach day 3 in the daily challenge','Llega al día 3 en el desafío diario','Atteins le jour 3 au défi quotidien'),()=>!!(P&&P.daily&&dayN()>=3)]);
+applyLang();
+// ================= v61: Keine künstlich klingenden Stimmen-Flächen in der Musik · Herausforderungs-Knopf wie die anderen · Weichere Übergänge =================
+T4('Herausforderung','Challenge','Desafío','Défi');
+// ---------- 1. Musik: die singende Drone-Fläche entfernen, nur Herzschlag & Trommeln bleiben ----------
+{const _i=dmInit;dmInit=function(){if(DM.on||!AC||!MUSB)return;DM.on=true;for(let i=0;i<3;i++){const g=AC.createGain();g.gain.value=0;g.connect(MUSB);DM.G.push(g)}DM.next=AC.currentTime+.2;DM.timer=setInterval(dmTick,110)}}
+// ---------- 2. Hauptmenü: gleicher Knopf wie „Spiel laden“ ----------
+{const b=$('mDaily');if(b){b.className='btn big';b.innerHTML=`<i class="ic">${icoImg('star')}</i><span data-t>Herausforderung</span>`;b.onclick=startDaily}}
+updDailyBtn=function(){const b=$('mDaily');if(!b)return;const o=dailyGet();b.title=o.best?tr(V60.best)+': '+tr('Tag')+' '+o.best.day+' · '+o.best.zk+' Zombies':''};
+{const _sd=startDaily;startDaily=function(){_sd();const o=dailyGet();if(o.best)setTimeout(()=>toast(tr(V60.best)+': '+tr('Tag')+' '+o.best.day+' · '+o.best.zk+' Zombies'),2600)}}
+{const b=$('mDaily');if(b)b.onclick=()=>startDaily()}
+// ---------- 3. Weicher: Fenster blenden sanft ein, Knöpfe reagieren weich ----------
+{const st=document.createElement('style');st.textContent=`
+@keyframes zwIn{from{opacity:0;transform:translateY(6px) scale(.985)}to{opacity:1;transform:none}}
+@keyframes zwFade{from{opacity:0}to{opacity:1}}
+.pn:not(.hide){animation:zwFade .22s ease-out both}
+.pn:not(.hide)>.set,.pn:not(.hide)>.wrap,#prog:not(.hide) .pgw,#win:not(.hide) .wnw,#nrd:not(.hide) .nrp{animation:zwIn .26s cubic-bezier(.2,.8,.2,1) both}
+#chs:not(.hide){animation:zwIn .22s cubic-bezier(.2,.8,.2,1) both}
+#guide:not(.hide){animation:zwFade .35s ease-out both}
+.btn,.zb,.cho,.btab,.bc,.seg3 button,.stabs button,.sl,.q{transition:transform .12s ease,background-color .15s ease,border-color .15s ease,opacity .15s ease!important}
+.btn:active,.zb:active,.cho:active,.seg3 button:active,.stabs button:active{transform:scale(.97)}
+#toast .t{animation:zwIn .25s ease-out both}
+#game canvas{will-change:transform}`;document.head.appendChild(st)}
+// ---------- 4. Flüssiger: teure Dinge seltener berechnen ----------
+// Lichtkegel-Strahlen nur neu berechnen, wenn sich Position oder Richtung geändert hat
+{const _fp=window.flPath;let key='',pts=null;window.flPath=(c,X,Y,a,R,FA)=>{const k=Math.round(P.x)+','+Math.round(P.y)+','+Math.round(a*40)+','+R+','+LV;
+ if(k!==key||!pts){key=k;pts=[];const rec={moveTo:(x,y)=>pts.push([0,x-X,y-Y]),lineTo:(x,y)=>pts.push([1,x-X,y-Y])};_fp(rec,X,Y,a,R,FA)}for(const[m,x,y]of pts)m?c.lineTo(X+x,Y+y):c.moveTo(X+x,Y+y)}}
+// Minikarte nicht öfter als nötig neu zeichnen
+{let lastK='',lastT=0;const _dm=drawMini;drawMini=function(c){const k=Math.floor(P.x/16)+','+Math.floor(P.y/16)+','+(dark>.4?1:0);if(k===lastK&&t-lastT<45)return;lastK=k;lastT=t;return _dm(c)}}
 applyLang();
 </script><script>if('serviceWorker'in navigator&&location.protocol.startsWith('http'))addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));</script></body></html>
