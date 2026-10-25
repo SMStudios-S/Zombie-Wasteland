@@ -2370,7 +2370,7 @@ function drawObj(tt,tx,ty,lights){const X=tx*16-cx,Y=ty*16-cy,k=tx*65536+ty,sh=s
  const dx=X+8-(s.width>>1)+sx+((tt===T.baum||tt===T.tanne)&&W8.rain>.3?RQ(Math.sin(fc*.05+tx)*W8.rain):0),dy=Y+16-s.height+(SO[tt]||0);
  if((tt===T.baum||tt===T.tanne||tt===T.totbaum)&&P&&state!==0){const px=P.x-cx,py=P.y-cy;if(px>dx+2&&px<dx+s.width-2&&py>dy&&py<Y+10)g.globalAlpha=.45}
  g.drawImage(s,dx,dy);g.globalAlpha=1;
- if(tt===T.tv_an){g.fillStyle=['#3a5a8a','#5a7ab0','#8aa0c8','#4a6a9a'][(fc>>2)%4];g.fillRect(dx+3,dy+3,12,6);g.fillStyle='rgba(255,255,255,.25)';g.fillRect(dx+3,dy+3+((fc>>1)%6),12,1)}
+ if(tt===T.tv_an&&window.tvScr)tvScr(g,dx+3,dy+3,tx,ty);else if(tt===T.tv_an){g.fillStyle=['#3a5a8a','#5a7ab0','#8aa0c8','#4a6a9a'][(fc>>2)%4];g.fillRect(dx+3,dy+3,12,6);g.fillStyle='rgba(255,255,255,.25)';g.fillRect(dx+3,dy+3+((fc>>1)%6),12,1)}
  if(tt===T.regentonne){const st=stor.get(k);if(st&&st.w>0){g.fillStyle='#3a7ad0';g.fillRect(dx+2,dy+3,10,2);g.fillStyle='#8ac0f0';g.fillRect(dx+3,dy+3,3,1)}}
  if(XDRAW[tt])XDRAW[tt](dx,dy,tx,ty,s);if(tt===T.beet)drawPlant(k,dx,dy);if(STALL[tt])drawStall(k,tt,X,Y);
  if(tt===T.kamin){const f=Math.sin(fc*.33+tx)*1.2;g.fillStyle='#e04a1a';g.fillRect(dx+5,dy+12-f,8,6+f);g.fillStyle='#ffb040';g.fillRect(dx+7,dy+14-f*.6,4,4);g.fillStyle='#ffe9a0';g.fillRect(dx+8,dy+16,2,2)}
@@ -7247,9 +7247,8 @@ const alSiren=()=>{if(!AC)return;A(P.x,P.y,.7,0,(b,t2)=>{for(let i=0;i<6;i++){tn
 #bld::before{display:none!important}
 #bld .hdr{margin-bottom:4px}#bld .ttl2{font-size:15px!important;letter-spacing:2px}
 #btabs{display:flex!important;flex-wrap:nowrap!important;gap:6px!important;overflow-x:auto;padding:2px 0 6px;scrollbar-width:none}#btabs::-webkit-scrollbar{display:none}
-#bld .btab{background:#1b1815!important;border:1px solid #2f2923!important;border-radius:999px!important;clip-path:none!important;box-shadow:none!important;padding:6px 12px!important;font-size:11px!important;letter-spacing:.6px;color:#b8ab92!important;flex:none}
-#bld .btab .ic{width:14px;height:14px;opacity:.85}
-#bld .btab.on{background:#ffd23a!important;border-color:#ffd23a!important;color:#1a1408!important}#bld .btab.on .ic{filter:brightness(.2)}
+#bld .btab{flex:none;display:inline-flex;align-items:center;gap:6px;padding:4px 11px!important;font-size:11px!important;letter-spacing:1px}
+#bld .btab .ic{width:14px;height:14px}#bld .btab.on .ic{filter:brightness(.25)}
 #bl{grid-template-columns:repeat(auto-fill,minmax(104px,1fr))!important;gap:8px!important;padding-top:4px}
 #bl .bc{background:#1a1714!important;border:1px solid #2c2620!important;border-radius:10px!important;clip-path:none!important;box-shadow:none!important;padding:10px 6px 8px!important;gap:5px!important;transition:border-color .15s,transform .1s}
 #bl .bc:active{transform:scale(.97);border-color:#ffd23a!important}
@@ -7303,8 +7302,8 @@ const applyQ=()=>{const q=CFG.q;KQMAX=q===0?1:q===1?2:3;try{rs()}catch(e){}};app
  const st=document.createElement('style');st.textContent=`
 #sets .set.tabbed{display:flex!important;flex-direction:column!important;gap:10px!important;width:min(640px,94vw)!important}
 #sets .stabs{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-bottom:4px}
-#sets .stabs button{background:#1b1815;border:1px solid #2f2923;border-radius:999px;padding:6px 14px;color:#b8ab92;font:inherit;font-size:12px;font-weight:700;letter-spacing:.6px;text-transform:uppercase}
-#sets .stabs button.on{background:#ffd23a;border-color:#ffd23a;color:#1a1408}
+#sets .stabs button{border:var(--w-chip) solid transparent;border-image:var(--f-chip);background:#221d18;background-clip:padding-box;border-radius:0;padding:4px 12px;color:#b8ab92;font:inherit;font-size:12px;letter-spacing:1px;text-transform:uppercase}
+#sets .stabs button.on{border-image:var(--f-chipA);background:#c8902e;color:#1a1208}
 #sets .spane{display:flex;flex-direction:column;gap:12px;background:#15120f;border:1px solid #2c2620;border-radius:12px;padding:14px;max-height:56vh;overflow-y:auto}
 #sets .spane .tog{grid-column:auto}
 #sets .sopt{display:flex;flex-direction:column;gap:6px}#sets .sopt small{opacity:.65;font-size:11px;line-height:1.35}
@@ -7382,9 +7381,11 @@ let WBLD=[],SLOMO=0,SLT=0,HINT=-9999;
  const se=typeof SEAS==='function'?SEAS():0;
  if(se===2&&!LV&&!insideH){if(LEAF.length<(CFG.q===0?20:55)&&rnd()<.5)LEAF.push({x:rnd()*(W+40)-20,y:-4,v:.25+rnd()*.3,ph:rnd()*6,c:['#c8742a','#d89a3a','#a8502a','#e0b040','#8a3a20'][(rnd()*5)|0],r:rnd()*6});for(const l of LEAF){l.y+=l.v;l.x+=Math.sin(fc*.03+l.ph)*.45+.15;l.r+=.08}LEAF=LEAF.filter(l=>l.y<Hh+6)}else if(LEAF.length)LEAF.length=0;
  // Ratten in Häusern
- if(insideH!==ratH){ratH=insideH;RATS=[];if(insideH&&rnd()<.55){const h=insideH,n=1+(rnd()*2.4|0);for(let i=0;i<n;i++){const x=(h.x0+1+rnd()*(h.w-2))*16,y=(h.y0+1+rnd()*(h.h-2.5))*16;if(!bl(x,y))RATS.push({x,y,vx:0,vy:0,t:rnd()*60,f:0})}}}
- for(const r of RATS){const d=dist(r.x,r.y,P.x,P.y);if(d<46){const l=d||1;r.vx=(r.x-P.x)/l*1.6;r.vy=(r.y-P.y)/l*1.6;if(rnd()<.02)A(r.x,r.y,.25,0,(b,t2)=>tn(b,t2,.06,'sine',2800,3400,.08))}else if(--r.t<=0){r.t=40+rnd()*120;const a=rnd()*6.283,s=rnd()<.5?0:.7;r.vx=Math.cos(a)*s;r.vy=Math.sin(a)*s}
-  const nx=r.x+r.vx,ny=r.y+r.vy;if(!bl(nx,r.y))r.x=nx;else r.vx*=-1;if(!bl(r.x,ny))r.y=ny;else r.vy*=-1;r.vx*=.96;r.vy*=.96;r.f+=Math.abs(r.vx)+Math.abs(r.vy)}
+ if(insideH!==ratH){ratH=insideH;RATS=[];if(insideH&&rnd()<.55){const h=insideH,n=1+(rnd()*2.4|0);for(let i=0;i<n;i++){const x=(h.x0+1.4+rnd()*Math.max(.2,h.w-2.8))*16,y=(h.y0+1.6+rnd()*Math.max(.2,h.h-3.4))*16;if(!bl(x,y))RATS.push({x,y,vx:0,vy:0,t:rnd()*60,f:0})}}}
+ for(const r of RATS){const d=dist(r.x,r.y,P.x,P.y);if(d<46&&!r.gone){const l=d||1;r.vx=(r.x-P.x)/l*1.9;r.vy=(r.y-P.y)/l*1.9;r.gone=22;if(rnd()<.6)A(r.x,r.y,.25,0,(b,t2)=>tn(b,t2,.06,'sine',2800,3400,.08))}else if(!r.gone&&--r.t<=0){r.t=40+rnd()*120;const a=rnd()*6.283,s=rnd()<.5?0:.7;r.vx=Math.cos(a)*s;r.vy=Math.sin(a)*s}
+  const h=ratH,X0=h?(h.x0+1)*16+4:-1e9,X1=h?(h.x0+h.w-1)*16-4:1e9,Y0=h?(h.y0+1)*16+7:-1e9,Y1=h?(h.y0+h.h-1)*16-9:1e9;
+  const nx=r.x+r.vx,ny=r.y+r.vy;if(!bl(nx,r.y)&&nx>X0&&nx<X1)r.x=nx;else r.vx*=-1;if(!bl(r.x,ny)&&ny>Y0&&ny<Y1)r.y=ny;else r.vy*=-1;if(!r.gone){r.vx*=.96;r.vy*=.96}r.f+=Math.abs(r.vx)+Math.abs(r.vy);if(r.gone)r.gone--}
+ RATS=RATS.filter(r=>r.gone!==1);
  // brennende Wracks suchen
  if(t%20===0&&!LV){FIREW=[];const x0=Math.floor((P.x-W/2-40)/16),x1=Math.ceil((P.x+W/2+40)/16),y0=Math.floor((P.y-Hh/2-40)/16),y1=Math.ceil((P.y+Hh/2+40)/16);
   for(let ty=y0;ty<=y1;ty++)for(let tx=x0;tx<=x1;tx++){const tt=tile(tx,ty);if((tt===T.auto_leer||tt===T.auto)&&!own.has(tx*65536+ty)&&h2(tx,ty,SEED&1023)<.07)FIREW.push([tx*16+8,ty*16+4])}}
@@ -7393,7 +7394,7 @@ let WBLD=[],SLOMO=0,SLT=0,HINT=-9999;
 // ---------- Zeichnen ----------
 {const _lp=lightPass;lightPass=function(lights,dk){if(state===1&&P&&!LV){
   for(const w of WBLD){const X=RQ(w.x-cx),Y=RQ(w.y-cy);if(X<-10||Y<-20||X>W+10||Y>Hh+10)continue;g.globalAlpha=w.a;g.fillStyle='#6a0c0c';g.fillRect(X-w.s/2,Y-w.s/2,w.s,w.s);g.fillStyle='#8a1414';g.fillRect(X-w.s/2+1,Y-w.s/2,Math.max(1,w.s-2),Math.max(1,w.s-2));g.fillStyle='#6a0c0c';g.fillRect(X,Y,1,w.dr);g.globalAlpha=1}
-  for(const r of RATS){const s=RATSP[(r.f|0)%2],X=RQ(r.x-cx),Y=RQ(r.y-cy);g.save();if(r.vx<0){g.translate(X,Y);g.scale(-1,1);g.drawImage(s,-4,-2)}else g.drawImage(s,X-4,Y-2);g.restore()}
+  for(const r of RATS){const s=RATSP[(r.f|0)%2],X=RQ(r.x-cx),Y=RQ(r.y-cy);g.save();g.globalAlpha=r.gone?Math.min(1,r.gone/10):1;if(r.vx<0){g.translate(X,Y);g.scale(-1,1);g.drawImage(s,-4,-2)}else g.drawImage(s,X-4,Y-2);g.restore()}
   if(FIREW.length)lights=lights.concat(FIREW.map(([x,y])=>[x,y-4,46+Math.sin(fc*.35+x)*6,.95,1]))}
  return _lp(lights,dk)}}
 {const _df=drawFrame;drawFrame=function(){_df.apply(this,arguments);if(state!==1||!P)return;
@@ -7731,19 +7732,20 @@ function paperTex(w,h,seed,radio){const SC=3,cw=Math.max(40,Math.ceil(w/SC)),ch=
 
 // ---------- 2. Ruhigere Meldungen: nacheinander statt alle auf einmal ----------
 {const _t=toast,Q=[];let last=0,tm=0;
- const pump=()=>{clearTimeout(tm);if(!Q.length)return;const now=performance.now();if(now-last<700||tq.children.length>=2){tm=setTimeout(pump,260);return}
+ const pump=()=>{clearTimeout(tm);if(!Q.length)return;const now=performance.now();const eb=$('evB'),ev=eb&&!eb.classList.contains('hide');if(ev){if(!pump.w)pump.w=now}else pump.w=0;if(now-last<700||tq.children.length>=2||(ev&&now-pump.w<4500)){tm=setTimeout(pump,260);return}
   last=now;const[m,cl]=Q.shift();_t(m,cl);if(Q.length)tm=setTimeout(pump,720)};
  toast=function(m,cl){m=String(m);for(const d of tq.children)if(d.textContent===m)return;if(Q.some(q=>q[0]===m))return;Q.push([m,cl]);if(Q.length>5)Q.splice(0,Q.length-5);pump()}}
 {const _b=evBanner,Q=[];let busy=false;
  const run=()=>{const q=Q.shift();if(!q){busy=false;return}busy=true;_b(q[0],q[1]);setTimeout(()=>{if(!Q.length){busy=false;return}const e=$('evB');if(e)e.classList.add('hide');setTimeout(run,700)},3300)};
  evBanner=function(a,b){if(Q.some(q=>q[0]===a&&q[1]===b))return;Q.push([a,b]);if(Q.length>4)Q.shift();if(!busy)run()}}
+{const st=document.createElement('style');st.textContent='#evB{top:15%!important;width:max-content;max-width:94vw}#evB b{font-size:clamp(18px,4.4vw,28px)!important;letter-spacing:4px!important;white-space:nowrap}#evB small{white-space:normal}';document.head.appendChild(st)}
 // Tipps warten, bis große Einblendungen weg sind, und kommen mit mehr Abstand
 {const _p=tutPump;tutPump=function(){const e=$('evB');if(!tutCur&&tutQ.length&&((e&&!e.classList.contains('hide'))||performance.now()-tutLast<4200||(state===1&&t<240))){setTimeout(tutPump,700);return}return _p()}}
 
 // ---------- 3. Hauptmenü: „Herausforderung“ blendet genauso ein wie die anderen ----------
-{const st=document.createElement('style');st.textContent=`#menu:not(.hide) #mNew{animation:slideL .6s .62s var(--spring) backwards}
-#menu:not(.hide) #mDaily{animation:slideR .6s .72s var(--spring) backwards}
-#menu:not(.hide) #mLoad{animation:slideL .6s .82s var(--spring) backwards}
+{const md=$('mDaily'),ml=$('mLoad');if(md&&ml)ml.after(md);const st=document.createElement('style');st.textContent=`#menu:not(.hide) #mNew{animation:slideL .6s .62s var(--spring) backwards}
+#menu:not(.hide) #mLoad{animation:slideR .6s .72s var(--spring) backwards}
+#menu:not(.hide) #mDaily{animation:slideL .6s .82s var(--spring) backwards}
 #menu:not(.hide) #mSet{animation:slideR .6s .92s var(--spring) backwards}`;document.head.appendChild(st)}
 
 // ---------- 4. Mehr Blut bei Nahkampf – verschwindet mit der Zeit wieder ----------
@@ -7770,5 +7772,81 @@ const msplat=(x,y,sc,l)=>{Dc.push({k:'s',x,y,v:rnd()*6|0,l,ml:l,s:sc});if(Dc.len
  if(P.gW>0&&--P.gW===0&&P.guide===0)P.guide=1;
  // Tutorial endet mit dem Morgen des zweiten Tages
  if(P.tutOn&&t%60===0&&dayN()>=2&&hourOf(t)>=7){P.tutOn=0;if(P.guide!==2){P.guide=2;const e=$('guide');if(e)e.classList.add('hide')}}}}
+applyLang();
+// ================= v63: Item-Infos passen in den Rahmen · TV-Programme · Regen weicher · Waffe zeigt in Laufrichtung =================
+// ---------- 1. Inventar: Gegenstands-Info nie mehr vom Rand abgeschnitten ----------
+{const st=document.createElement('style');st.textContent=`#det{display:flex!important;flex-direction:column;overflow:hidden!important;min-height:0;padding-bottom:10px!important;box-sizing:border-box}
+#det>*{flex:none}#det>p{flex:0 1 auto;min-height:0;overflow-y:auto;margin:2px 0 6px!important;scrollbar-width:none}#det>p::-webkit-scrollbar{display:none}
+#det .ab{flex:none;margin-top:auto;display:flex;flex-wrap:wrap;gap:6px}#det .ab button{padding:3px 10px!important;font-size:12px!important;min-height:0!important;line-height:1.3}`;document.head.appendChild(st)}
+
+// ---------- 2. Fernseher zeigt Programme (Nachrichten, Fußball, Wetter, Notruf, Testbild) ----------
+function tvScr(g,x,y,tx,ty){const f=fc|0,ch=((((tx*7+ty*13)+Math.floor(f/720))%5)+5)%5,R=(c,a,b,w,h)=>{g.fillStyle=c;g.fillRect(x+a,y+b,w,h)};
+ if(f%720<10){for(let i=0;i<12;i++)for(let j=0;j<6;j++){const v=((i*31+j*17+f*13)%7)*30+40;R(`rgb(${v},${v},${v})`,i,j,1,1)}return}
+ if(ch===0){// Nachrichten
+  R('#1c3a7a',0,0,12,6);R('#2a4c94',0,0,12,1);R('#3a2414',3,1,2,1);R('#e0b088',3,2,2,1);R((f>>3)%3?'#c08868':'#7a4a3a',3,2,2,1);R('#e0b088',3,2,1,1);
+  R('#2a2a3a',2,3,4,2);R('#e8e8e8',4,3,1,1);R('#5a3a24',1,4,6,1);R('#c82020',8,1,3,2);R('#ffffff',9,1,1,1);
+  R('#a01818',0,5,12,1);for(let i=0;i<12;i++)if((i+(f>>2))%4===0)R('#ffe8e8',i,5,1,1)}
+ else if(ch===1){// Fußball
+  for(let i=0;i<12;i++)R(i%4<2?'#2e8a3a':'#28782f',i,1,1,5);R('#0e0e0e',0,0,12,1);R('#e83030',1,0,1,1);R('#fff',3,0,1,1);R('#3070e8',5,0,1,1);
+  R('#d8f0d8',6,1,1,5);R('#ffffff',0,2,1,2);R('#ffffff',11,2,1,2);
+  const bx=6+Math.round(Math.sin(f*.045)*4.6),by=3+Math.round(Math.sin(f*.07)*1.4);
+  R('#e83030',3+Math.round(Math.sin(f*.04+1)*2),2,1,1);R('#e83030',bx-1,by+1,1,1);R('#3070e8',8+Math.round(Math.sin(f*.05)*2),4,1,1);R('#3070e8',bx+1,by-1,1,1);R('#ffffff',bx,by,1,1)}
+ else if(ch===2){// Wetter
+  R('#3a78c8',0,0,12,6);R('#3a9a4a',1,2,5,3);R('#3a9a4a',3,1,3,1);R('#2e7a3a',2,4,3,1);
+  R((f>>4)%2?'#ffd23a':'#ffe870',8,1,2,2);const cx_=((f>>3)%16)-3;R('#f0f0f0',cx_,1,3,1);R('#f0f0f0',cx_+1,0,1,1);
+  R('#ffffff',8,4,1,1);R('#ffffff',10,4,1,1);R('#ffffff',9,5,1,1)}
+ else if(ch===3){// Notruf-Sendung
+  const on=(f>>4)%2;R(on?'#7a0c0c':'#140808',0,0,12,6);R('#ffd23a',5,1,2,1);R('#ffd23a',4,2,4,1);R('#ffd23a',3,3,6,1);R('#ffd23a',2,4,8,1);R('#140808',6,2,1,1);R('#140808',6,4,1,1);
+  R('#ffffff',0,5,12,1);for(let i=0;i<12;i++)if((i+(f>>3))%3===0)R('#7a0c0c',i,5,1,1)}
+ else{// Testbild
+  const C=['#e8e8e8','#e8e030','#30e0e0','#30d030','#e030e0','#e03030','#3030e0'];for(let i=0;i<12;i++)R(C[Math.floor(i/12*7)],i,0,1,4);R('#101010',0,4,12,2);R('#e8e8e8',2+((f>>4)%8),4,2,1)}
+ g.fillStyle='rgba(255,255,255,.12)';g.fillRect(x,y+((f>>1)%6),12,1);g.fillStyle='rgba(0,0,0,.12)';g.fillRect(x,y+5,12,1)}
+window.tvScr=tvScr;
+
+// ---------- 3. Regen: leiser, weicher, drinnen gedämpft – mit sanftem Tropfen-Prasseln ----------
+let RNDROP=0;
+setRainVol=function(){if(!RAIN||!AC)return;const r=typeof W8!=='undefined'?W8.rain:0,sh=typeof sheltered==='function'&&sheltered(),n=AC.currentTime;
+ RAIN.gn.gain.setTargetAtTime(r*(sh?.035:.065),n,.8);RAIN.b.frequency.setTargetAtTime(sh?520:2100,n,.6)};
+{const _st=step;step=function(){_st();if(!AC||!NB||!FXB||state!==1||paused||typeof W8==='undefined')return;const r=W8.rain;if(r<.12)return;
+ const sh=typeof sheltered==='function'&&sheltered();if(rnd()>r*(sh?.22:.32))return;if(++RNDROP>99999)RNDROP=0;
+ try{const n=AC.currentTime+rnd()*.015,s=AC.createBufferSource();s.buffer=NB;const bp=AC.createBiquadFilter();bp.type='bandpass';bp.frequency.value=sh?650+rnd()*500:1600+rnd()*2600;bp.Q.value=sh?3:5;
+  const gn=AC.createGain(),v=(sh?.05:.035)*(.4+rnd()*.6)*r,d=sh?.05:.025;gn.gain.setValueAtTime(0,n);gn.gain.linearRampToValueAtTime(v,n+.002);gn.gain.exponentialRampToValueAtTime(.0001,n+d);
+  s.connect(bp);bp.connect(gn);gn.connect(FXB);s.start(n,rnd()*(NB.duration-.2));s.stop(n+d+.02)}catch(e){}}}
+
+// ---------- 4. Waffe zeigt in Laufrichtung – nur beim Angreifen aufs Ziel ----------
+{const _dw=drawWeapon;drawWeapon=function(){if(!P)return _dw();const fire=(typeof firing!=='undefined'&&firing)||(typeof K!=='undefined'&&K[' ']);
+ const att=t-(P.lastAtk||-999)<30||(fire&&P.tg);if(att||P.fx==null)return _dw();const ax=P.ax,ay=P.ay;P.ax=P.fx;P.ay=P.fy;try{return _dw()}finally{P.ax=ax;P.ay=ay}}}
+applyLang();
+// ================= v64: Bildschirm-Anpassung – UI wächst auf großen Displays mit · Inventar füllt den ganzen Bildschirm =================
+// ---------- 1. Automatische UI-Größe: kleine Handys verkleinern, Tablets & große Bildschirme vergrößern ----------
+autoUI=function(){const h=innerHeight,w=innerWidth,touch=matchMedia('(pointer:coarse)').matches;let z=Math.min(h/400,w/860);if(z>.93&&z<1.08)z=1;return Math.max(.62,Math.min(touch?1.6:1.3,z))};
+
+// ---------- 2. Inventar: ganzer Bildschirm, Plätze so groß wie möglich ----------
+{const st=document.createElement('style');st.textContent=`
+@media (orientation:landscape){
+ #inv{padding:0!important;align-items:stretch!important;justify-content:stretch!important}
+ #inv .wrap{max-width:none!important;max-height:none!important;width:100%!important;height:100%!important;box-sizing:border-box!important;margin:0!important;overflow:hidden!important;
+  padding:calc(env(safe-area-inset-top,0px) + 10px) calc(env(safe-area-inset-right,0px) + 14px) calc(env(safe-area-inset-bottom,0px) + 10px) calc(env(safe-area-inset-left,0px) + 14px)!important;
+  grid-template-columns:minmax(232px,min(31%,340px)) minmax(0,1fr)!important}
+ #inv #det{max-height:none!important}
+ #inv #ig{display:grid!important;gap:6px!important;align-content:start!important;justify-content:start!important;overflow-y:auto!important;overflow-x:hidden!important;min-height:0!important;scrollbar-width:none}
+ #inv #ig::-webkit-scrollbar{display:none}
+ #inv #ig{grid-template-rows:none!important}#inv #ig>.sl{width:100%!important;height:100%!important;min-width:0!important;min-height:0!important;max-width:none!important;max-height:none!important;box-sizing:border-box}
+ #inv #ig>.sl img.px{width:56%!important;height:auto!important}
+ #inv #bg{gap:6px!important}}`;document.head.appendChild(st)}
+function fitIG(){const inv=$('inv'),ig=$('ig'),wr=inv&&inv.querySelector('.wrap');if(!ig||!wr||inv.classList.contains('hide')||!matchMedia('(orientation:landscape)').matches){if(ig){ig.style.removeProperty('grid-template-columns');ig.style.removeProperty('grid-auto-rows')}return}
+ const z=window.UIZV||1,r=ig.getBoundingClientRect(),w=wr.getBoundingClientRect(),pb=parseFloat(getComputedStyle(wr).paddingBottom)||10;
+ const W=r.width/z,H=(w.bottom-r.top)/z-pb-2,n=Math.max(1,ig.children.length),gp=6;if(W<40||H<40)return;
+ let best=0,bc=6;for(let c=3;c<=16;c++){const rows=Math.ceil(n/c),s=Math.min((W-(c-1)*gp)/c,(H-(rows-1)*gp)/rows);if(s>best){best=s;bc=c}}
+ let s=Math.floor(Math.min(96,best));if(s<42){s=42;bc=Math.max(1,Math.floor((W+gp)/(s+gp)))}
+ ig.style.setProperty('grid-template-columns',`repeat(${bc},${s}px)`,'important');ig.style.setProperty('grid-auto-rows',s+'px','important')}
+{const _r=renderInv;renderInv=function(){const x=_r.apply(this,arguments);fitIG();requestAnimationFrame(fitIG);setTimeout(fitIG,80);return x}}
+{const wr=document.querySelector('#inv .wrap');if(wr&&window.ResizeObserver){let rq=0;new ResizeObserver(()=>{cancelAnimationFrame(rq);rq=requestAnimationFrame(fitIG)}).observe(wr)}}
+{let rt=0;addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(fitIG,200)})}
+{const _u=uiScale;uiScale=function(){const x=_u.apply(this,arguments);setTimeout(fitIG,30);return x}}
+
+// ---------- 3. Neuere Stilregeln (vw/vh) ebenfalls auf die UI-Größe umrechnen ----------
+setTimeout(()=>{try{fixUnits();uiScale()}catch(e){}},0);
+try{fixUnits();uiScale()}catch(e){}
 applyLang();
 </script><script>if('serviceWorker'in navigator&&location.protocol.startsWith('http'))addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));</script></body></html>
