@@ -925,7 +925,7 @@ const TN=['leer','baum','tanne','totbaum','busch','beeren','beeren_leer','pilze'
  'unkraut','distel','brennnessel','wildblume','loewenzahn','moos','gestruepp','efeu',
  'wellblech','bretterwand','zinnen','rolltor','rolltor_o','lagerregal','feuertonne','wachturm','betonsperre',
  'gitarre','teddy','kerzenst','totempfahl','reifenstapel','palettenst','keepout','oellampe','blumenkuebel','sonnenliege','gasflaschen','pflanzregal',
- 'treppe','treppe_ob','waffenstaender','wandhalter','solarpanel','lichtschalter','deckenlampe','deckenlampe_an','wandlampe','wandlampe_an','flutlicht','flutlicht_an','geschuetz_a','geschuetz_g','stahlwand','stahltuer','stahltuer_o','etagenbett','haengematte','couchtisch','bild','wanduhr','spiegel','dartscheibe','boxsack','waschmaschine','kaffeemaschine','weinregal','werkzeugwand','barhocker','tresen','jukebox','generator','holzstapel','tonne','schaukelstuhl','arcade','automat','pinnwand','kronleuchter','kronleuchter_an','neonschild','neonschild_an','lavalampe','ampel','bushaltestelle','telefonzelle','litfass','aktenschrank','buerostuhl','kopierer','wasserspender','globus','hoftor_l','hoftor_m','hoftor_r','hoftor_lo','hoftor_mo','hoftor_ro','gartentor','gartentor_o','maschendraht','schiessscharte','fensterladen','fensterladen_o','nagelbrett','hochbeet','sprinkler','kompost','gewaechshaus','waescheleine','hundehuette','gartenlaterne','teich','hochsitz','futterkrippe','spieltisch','roulette','slotmaschine'];
+ 'treppe','treppe_ob','waffenstaender','wandhalter','solarpanel','lichtschalter','deckenlampe','deckenlampe_an','wandlampe','wandlampe_an','flutlicht','flutlicht_an','geschuetz_a','geschuetz_g','stahlwand','stahltuer','stahltuer_o','etagenbett','haengematte','couchtisch','bild','wanduhr','spiegel','dartscheibe','boxsack','waschmaschine','kaffeemaschine','weinregal','werkzeugwand','barhocker','tresen','jukebox','generator','holzstapel','tonne','schaukelstuhl','arcade','automat','pinnwand','kronleuchter','kronleuchter_an','neonschild','neonschild_an','lavalampe','ampel','bushaltestelle','telefonzelle','litfass','aktenschrank','buerostuhl','kopierer','wasserspender','globus','hoftor_l','hoftor_m','hoftor_r','hoftor_lo','hoftor_mo','hoftor_ro','gartentor','gartentor_o','maschendraht','schiessscharte','fensterladen','fensterladen_o','nagelbrett','hochbeet','sprinkler','kompost','gewaechshaus','waescheleine','hundehuette','gartenlaterne','teich','hochsitz','futterkrippe','spieltisch','roulette','slotmaschine','alarmanlage','kamera'];
 const T={};TN.forEach((n,i)=>T[n]=i);const COOK=new Uint8Array(512),XLIGHT={},XDRAW={},NOSWAY=new Uint8Array(512),CONN={};
 const flag=l=>{const a=new Uint8Array(512);l.forEach(n=>a[T[n]]=1);return a};
 const TSOL=flag(['baum','tanne','totbaum','stein','kiste','mkiste','kiste_offen','auto','auto_leer','fass','muell','muell_leer','laterne','hwand','hfassade','hfenster','htuer','schrank','schrank_leer','regal','regal_leer','kuehl','kuehl_leer','bett','tisch','sofa','herd','holzwand','steinwand','tuer','feuer','ziegelwand','metallwand','fensterwand','mtuer','zaun','stuhl','tv','tv_an','lampe','lampe_an','pflanze','regentonne','kiste_s','kiste_m','spind','auto_ausg',
@@ -6782,7 +6782,7 @@ function renderSL(){const reels=SL.r.map(i=>`<div class="reel" style="color:${SY
 function slClick(e){if(SL.spin)return;if(pickBet(e)){renderSL();return}const b=e.target.closest('[data-a]');if(!b)return;if(b.dataset.a==='back'){openCasino();return}
  if(b.dataset.a==='spin'){if(!payD(BET))return;const bet=BET,fin=[symR(),symR(),symR()];SL.spin=1;SL.msg='';SL.mc='';let k=0;
   const iv=setInterval(()=>{k++;for(let i=0;i<3;i++)if(k<8+i*5)SL.r[i]=(rnd()*SYM.length)|0;else SL.r[i]=fin[i];tickS();
-   if(k>=18){clearInterval(iv);SL.spin=0;const m=slotWin(fin);if(m>0){earn(bet*m);const net=Math.floor(bet*m)-bet;SL.msg=net>0?(m>=20?'JACKPOT! ':'')+tr(V48.win)+' +'+net+' $':net===0?tr(V48.push):'−'+(-net)+' $';SL.mc=net>0?'w':'';coinS(m>=20?8:m>1?3:1)}else{SL.msg=tr(V48.lose)+' −'+bet+' $';SL.mc='l'}}
+   if(k>=18){clearInterval(iv);SL.spin=0;const m=slotWin(fin);if(m>=20)STATS.jack=1;if(m>0){earn(bet*m);const net=Math.floor(bet*m)-bet;SL.msg=net>0?(m>=20?'JACKPOT! ':'')+tr(V48.win)+' +'+net+' $':net===0?tr(V48.push):'−'+(-net)+' $';SL.mc=net>0?'w':'';coinS(m>=20?8:m>1?3:1)}else{SL.msg=tr(V48.lose)+' −'+bet+' $';SL.mc='l'}}
    if(!$('chs').classList.contains('hide')&&$('chT').textContent===tr(V48.sl))renderSL()},70)}}
 function openSL(){SL.msg='';SL.mc='';BET=Math.min(BET,Math.max(10,cash()))||10;renderSL()}
 // ---------- Händler ----------
@@ -6805,9 +6805,11 @@ const gunSub=(id,r)=>{const d=D[id];if(d.c!=='waf'||d.mel||!d.mag)return'';retur
 function renderShop(){const o=SHOP.o;if(!o)return;const st=stockOf(o);let body='';
  if(SHOP.tab==='buy'){body=BASEBUY.map(id=>{const[p,n]=PRICE[id];return rowH(id,0,n,p,`data-bb="${id}"`,cash()<p)}).join('')+`<small style="opacity:.6;margin-top:4px">${tr(V48.stockNew)}</small>`+
   st.items.map((s,i)=>{const p=s.base?PRICE[s.id][0]:priceOf(s.id,s.r);const n=s.base?PRICE[s.id][1]:1;return s.sold?rowH(s.id,s.r,n,'—','',1,tr(V48.soldOut)):rowH(s.id,s.r,n,p,`data-rb="${i}"`,cash()<p,gunSub(s.id,s.r)||(ATT[s.id]?tr(RN[D[s.id].tier||0]):''))}).join('')}
+ else if(SHOP.tab==='q'&&typeof questBody==='function')body=questBody(o);
  else{const rows=[];inv.forEach((it,i)=>{if(!it||it.id==='dollar')return;const v=valOf(it);if(v>0)rows.push(rowH(it.id,it.r||0,it.n,'+'+v,`data-sv="${i}"`,0))});body=rows.join('')||`<div class="zm">${tr(V48.nothing)}</div>`}
- openPanel(o.nm+' · '+tr(V48.trader),`<div class="cz"><div class="czb"><div class="czr"><button class="zb${SHOP.tab==='buy'?' on':''}" data-tab="buy">${tr(V48.buy)}</button><button class="zb${SHOP.tab==='sell'?' on':''}" data-tab="sell">${tr(V48.sell)}</button></div>${cashH()}</div><div class="sh">${body}</div></div>`,shopClick)}
+ openPanel(o.nm+' · '+tr(V48.trader),`<div class="cz"><div class="czb"><div class="czr"><button class="zb${SHOP.tab==='buy'?' on':''}" data-tab="buy">${tr(V48.buy)}</button><button class="zb${SHOP.tab==='sell'?' on':''}" data-tab="sell">${tr(V48.sell)}</button>${typeof V54!=='undefined'?`<button class="zb${SHOP.tab==='q'?' on':''}" data-tab="q">${tr(V54.q)}</button>`:''}</div>${cashH()}</div><div class="sh">${body}</div></div>`,shopClick)}
 function shopClick(e){const o=SHOP.o,st=stockOf(o);const tb=e.target.closest('[data-tab]');if(tb){SHOP.tab=tb.dataset.tab;S.ui();renderShop();return}
+ if(typeof questClick==='function'&&questClick(e,o))return;
  const bb=e.target.closest('[data-bb]');if(bb){const id=bb.dataset.bb,[p,n]=PRICE[id];if(!payD(p))return;const it=mkItem(id,n);if(it.m!=null)it.m=D[id].mag;if(!addItem(it))dropIt(it,P.x,P.y,1);coinS(2);toast(tr(V48.bought)+': '+tr(D[id].n)+(n>1?' ×'+n:''),'good');renderShop();return}
  const rb=e.target.closest('[data-rb]');if(rb){const s=st.items[+rb.dataset.rb];if(!s||s.sold)return;const p=s.base?PRICE[s.id][0]:priceOf(s.id,s.r),n=s.base?PRICE[s.id][1]:1;if(!payD(p))return;
   const it=mkItem(s.id,n,s.r);if(D[s.id].mag&&!D[s.id].mel)it.m=D[s.id].mag;if(it.d!=null)it.d=100;if(!addItem(it))dropIt(it,P.x,P.y,1);if(!s.base)s.sold=1;coinS(3);toast(tr(V48.bought)+': '+tr(D[s.id].n),'good');renderShop();return}
@@ -6891,5 +6893,375 @@ window.drawHeld=(id,ex,ey,ax,ay,sw,mel,moving,f,kick)=>drawHeld8(id,ex,ey,ax,ay,
 // Handfarbe: Haut oder Handschuhe
 {const _dw=drawWeapon;drawWeapon=function(){try{const gl=eq.haende&&GV[eq.haende.id];HCOL=gl&&gl.g?gl.g:(SKINS[(P.look||defLook()).skin]||'#e2a77e')}catch(e){}return _dw.apply(this,arguments)}}
 {const _dh=drawHuman;drawHuman=function(h){try{HCOL=SKINS[h.look&&h.look.skin]||'#e2a77e'}catch(e){}return _dh(h)}}
+applyLang();
+// ================= v52: Infektion · Jahreszeiten & Temperatur · Wetter-Ereignisse (Nebel, Gewitter, Hitzewelle) =================
+const V52={
+ inf:L4('Du wurdest infiziert!','You have been infected!','¡Te has infectado!','Tu as été infecté !'),infS:L4('Antibiotika, Alkohol oder ein Antiserum helfen – warte nicht zu lange.','Antibiotics, alcohol or an antiserum help – don’t wait too long.','Antibióticos, alcohol o un antisuero ayudan; no esperes demasiado.','Antibiotiques, alcool ou antisérum aident – n’attends pas trop.'),
+ infC:T4('Infektion','Infection','Infección','Infection'),fev:T4('Fieber','Fever','Fiebre','Fièvre'),cured:L4('Die Infektion ist geheilt','The infection is cured','La infección está curada','L’infection est guérie'),better:L4('Die Infektion geht zurück','The infection is receding','La infección remite','L’infection recule'),
+ cold:T4('Kalt','Cold','Frío','Froid'),hypo:T4('Unterkühlt','Hypothermia','Hipotermia','Hypothermie'),hot:T4('Hitze','Heat','Calor','Chaleur'),warm:T4('Warm','Warm','Abrigado','Au chaud'),
+ se:[T4('Frühling','Spring','Primavera','Printemps'),T4('Sommer','Summer','Verano','Été'),T4('Herbst','Autumn','Otoño','Automne'),T4('Winter','Winter','Invierno','Hiver')],
+ seS:[L4('Die Natur erwacht. Gute Zeit zum Pflanzen.','Nature awakens. A good time to plant.','La naturaleza despierta. Buen momento para plantar.','La nature se réveille. Bon moment pour planter.'),
+  L4('Heiße Tage – du wirst schneller durstig.','Hot days – you get thirsty faster.','Días calurosos: tendrás sed antes.','Jours chauds – tu auras soif plus vite.'),
+  L4('Die Nächte werden kalt. Sorge für warme Kleidung.','Nights get cold. Find warm clothes.','Las noches enfrían. Busca ropa de abrigo.','Les nuits fraîchissent. Trouve des vêtements chauds.'),
+  L4('Schnee und Frost. Draußen wächst nichts – Feuer und warme Kleidung retten dich.','Snow and frost. Nothing grows outside – fire and warm clothes save you.','Nieve y helada. Fuera no crece nada: fuego y abrigo te salvan.','Neige et gel. Rien ne pousse dehors – feu et vêtements chauds te sauvent.')],
+ fog:T4('Dichter Nebel','Thick fog','Niebla densa','Brouillard épais'),fogS:L4('Du siehst kaum etwas – die Zombies dich aber auch nicht.','You can barely see – but neither can the dead.','Apenas ves nada, pero ellos tampoco.','Tu ne vois presque rien – eux non plus.'),
+ storm:T4('Gewitter','Thunderstorm','Tormenta','Orage'),stormS:L4('Jeder Donner macht die Toten unruhig.','Every thunderclap stirs the dead.','Cada trueno inquieta a los muertos.','Chaque coup de tonnerre agite les morts.'),
+ heat:T4('Hitzewelle','Heat wave','Ola de calor','Canicule'),heatS:L4('Trink genug – Durst steigt doppelt so schnell.','Drink enough – thirst rises twice as fast.','Bebe suficiente: la sed sube el doble.','Bois assez – la soif monte deux fois plus vite.'),
+ frost:L4('Dir ist eiskalt – such Wärme!','You are freezing – find warmth!','Te congelas: ¡busca calor!','Tu gèles – trouve de la chaleur !')};
+// ---------- Neue Gegenstände ----------
+Object.assign(D,{
+ alkohol:{n:L4('Desinfektionsalkohol','Rubbing alcohol','Alcohol desinfectante','Alcool désinfectant'),c:'ver',st:5,use:{hp:2},d:L4('Desinfiziert Bisse: −30 % Infektion, frische Infektionen verschwinden.','Disinfects bites: −30 % infection, fresh infections vanish.','Desinfecta mordiscos: −30 % infección.','Désinfecte les morsures : −30 % d’infection.')},
+ antiserum:{n:L4('Antiserum','Antiserum','Antisuero','Antisérum'),c:'ver',st:3,use:{hp:20},d:L4('Heilt jede Infektion vollständig. Sehr selten.','Fully cures any infection. Very rare.','Cura cualquier infección. Muy raro.','Guérit toute infection. Très rare.')},
+ winterjacke:{n:L4('Winterjacke','Winter coat','Abrigo de invierno','Manteau d’hiver'),c:'klei',slot:'torso',def:.07,rar:1,warm:10,d:L4('Sehr warm.','Very warm.','Muy abrigado.','Très chaud.')},
+ thermohose:{n:L4('Thermohose','Thermal trousers','Pantalón térmico','Pantalon thermique'),c:'klei',slot:'beine',def:.05,rar:1,warm:5},
+ wollmuetze:{n:L4('Wollmütze','Wool hat','Gorro de lana','Bonnet en laine'),c:'klei',slot:'kopf',def:.02,rar:1,warm:4}});
+Object.assign(GV,{winterjacke:{t:['#3a5a8a','#2a4470'],pat:'zip',sl:1},thermohose:{l:['#4a4a52','#36363e']},wollmuetze:{ht:'m',h:['#c84a3a','#e8e0d0']}});
+{const I={alkohol:P=>{P('#e8e4dc',5,3,6,11);P('#c8c4bc',5,12,6,2);P('#3a8ac0',6,1,4,2);P('#c03a2a',6,6,4,4);P('#ffffff',7,7,2,2)},
+ antiserum:P=>{P('#c8ccd2',7,0,2,3);P('#e8f4ff',5,3,6,10);P('#40d0a0',6,6,4,6);P('#2a8a6a',6,11,4,1);P('#8a8e96',5,13,6,2)},
+ winterjacke:P=>{P('#3a5a8a',3,3,10,11);P('#5a7aaa',3,3,10,1);P('#e8e0d0',4,2,8,2);P('#2a4470',1,5,2,8);P('#2a4470',13,5,2,8);P('#1a2a40',7,5,2,9)},
+ thermohose:P=>{P('#4a4a52',4,2,8,4);P('#36363e',4,6,3,9);P('#36363e',9,6,3,9);P('#5a5a62',4,2,8,1)},
+ wollmuetze:P=>{P('#c84a3a',3,6,10,6);P('#e8e0d0',3,10,10,2);P('#e8e0d0',7,3,2,3);P('#a83a2a',5,7,1,3);P('#a83a2a',9,7,1,3)}};
+ for(const k in I){ICO[k]=outline(cv(16,16,I[k]));delete ICU[k]}}
+const WARM={jacke:4,lederjacke:5,kapuzenpulli:4,regenjacke:4,mweste:2,weste:1,polizeiweste:2,kevlarweste:2,ghillie:4,winterjacke:10,jeans:2,cargo:2,mhose:2,arbeitshose:2,lederhose:3,thermohose:5,muetze:3,wollmuetze:4,mhelm:1,helm:1,motorradhelm:2,handschuhe:2,lederhandschuhe:3,stiefel:2,kstiefel:2,sneaker:1};
+for(const k in WARM)if(D[k]&&D[k].warm==null)D[k].warm=WARM[k];
+addL('schrank','winterjacke:4 thermohose:3 wollmuetze:4');addL('regal','alkohol:5');addL('kiste','alkohol:2 wollmuetze:1');addL('mkiste','antiserum:1 winterjacke:2');if(LT.drop)addL('drop','antiserum:3');
+WB.push(['alkohol','aus',1,{chemie:2,glas:1}],['winterjacke','aus',1,{stoff:8,leder:2}],['thermohose','aus',1,{stoff:6}],['wollmuetze','aus',1,{stoff:3}]);
+if(typeof PRICE!=='undefined'){Object.assign(PRICE,{alkohol:[60,1],antiserum:[600],winterjacke:[350],thermohose:[180],wollmuetze:[60]});if(typeof ROT!=='undefined')ROT.push('winterjacke','thermohose','antiserum');if(typeof BASEBUY!=='undefined')BASEBUY.push('alkohol')}
+// ---------- Jahreszeit ----------
+const SEAS=()=>Math.floor((dayN()-1)/5)%4;window.SEAS=SEAS;
+const WINTER=()=>SEAS()===3;
+// ---------- 1. Infektion ----------
+{const _u=updZ;updZ=function(z){window.__zcur=z;try{return _u(z)}finally{window.__zcur=null}}}
+const ZTK={hund:.55,sp:.8,ar:1.15,sl:1.2,boss:2};
+{const _h=hurt;hurt=function(dm,sx,sy,b){const z=window.__zcur;if(z&&ZTK[z.k])dm*=ZTK[z.k];const hp0=P.hp;const r=_h(dm,sx,sy,b);
+ if(z&&P.hp<hp0&&!P.veh){const base=z.k==='hund'?.2:z.k==='boss'?.35:z.k==='sp'?.08:.14,ch=base*(1-Math.min(.7,GE.def||0));if(rnd()<ch){const was=P.inf||0;P.inf=Math.min(100,was+14+rnd()*10);P.infT=t;if(was<=0){evBanner(tr(V52.inf),tr(V52.infS));S.hurt&&S.hurt()}hudDirty=1}}return r}}
+{const _ui=useIt;useIt=function(it,ref){const id=it.id,inf0=P.inf||0;const r=_ui(it,ref);if(inf0>0){let v=inf0;
+  if(id==='antibiotika')v=Math.max(0,v-60);else if(id==='alkohol')v=(t-(P.infT||0)<PER/8&&v<35)?0:Math.max(0,v-30);else if(id==='antiserum')v=0;else if(id==='medkit')v=Math.max(0,v-15);else if(id==='verband')v=Math.max(0,v-4);
+  if(v!==inf0){P.inf=v;toast(tr(v<=0?V52.cured:V52.better),'good');if(v<=0&&window.STATS)STATS.cure=(STATS.cure||0)+1}}return r}}
+// ---------- 2. Temperatur ----------
+const FIRET=new Set(['feuer','feuertonne','feuerschale','kamin','ofen','grill','herd','heizofen'].map(n=>T[n]).filter(v=>v!=null));
+function ambT(){const s=SEAS(),h=hourOf(t),day=Math.max(0,Math.sin((h-6)/24*Math.PI*2-Math.PI/2+Math.PI/2)),base=[[7,16],[17,29],[5,14],[-9,-1]][s];let v=base[0]+(base[1]-base[0])*Math.max(0,Math.sin((h-5)/16*Math.PI));if(h<5||h>21)v=base[0];
+ if(W8.rain>.3)v-=3;if(WEV.k==='nebel')v-=2;if(WEV.k==='hitze')v+=7;return v}
+function nearFire(){const tx=Math.floor(P.x/16),ty=Math.floor(P.y/16);for(let dx=-3;dx<=3;dx++)for(let dy=-3;dy<=3;dy++)if(FIRET.has(tile(tx+dx,ty+dy)))return true;if(window.FIREZ)for(const f of FIREZ)if(dist(f.x,f.y,P.x,P.y)<60)return true;return false}
+const warmth=()=>{let w=0;for(const s of SLOTS){const a=eq[s];if(a&&D[a.id]&&D[a.id].warm)w+=D[a.id].warm}return w};
+function feelT(){let v=ambT();if(sheltered())v+=v<12?10:3;if(P.veh)v+=6;if(nearFire())v+=16;return v+warmth()*1.3}
+// ---------- 3. Wetter-Ereignisse ----------
+let WEV={k:null,until:0,next:PER*.9};window.WEV=WEV;
+function evStart(k){const hrs=3+rnd()*4;WEV={k,until:t+PER/24*hrs,next:WEV.next};if(k==='gewitter'){W8.tg=1;W8.rain=Math.max(W8.rain,.4)}
+ const nm={nebel:[V52.fog,V52.fogS],gewitter:[V52.storm,V52.stormS],hitze:[V52.heat,V52.heatS]}[k];evBanner(tr(nm[0]),tr(nm[1]));window.WEV=WEV}
+// ---------- Ablauf ----------
+let FOGK=0,SNOW=[],lastSe=-1,coldW=0;
+{const _st=step;step=function(){_st();if(state!==1||!P||paused)return;
+ // Jahreszeitenwechsel
+ const se=SEAS();if(se!==lastSe){if(lastSe>=0){evBanner(tr(V52.se[se]),tr(V52.seS[se]))}lastSe=se;hudDirty=1}
+ if(se===3){W8.tg=0;W8.rain=Math.max(0,W8.rain-.002)}
+ // Ereignisse planen
+ if(WEV.k&&t>WEV.until){WEV.k=null;if(W8.tg>.9)W8.tg=0}
+ if(!WEV.k&&--WEV.next<=0){WEV.next=PER*(.35+rnd()*.6);const opts=se===1?['hitze','gewitter','hitze']:se===3?['nebel','nebel']:['nebel','gewitter'];if(rnd()<.55)evStart(opts[(rnd()*opts.length)|0])}
+ FOGK+=((WEV.k==='nebel'?1:0)-FOGK)*.004;
+ if(WEV.k==='gewitter'){W8.tg=1;if(rnd()<.0035){W8.flash=8;setTimeout(()=>S.thunder&&S.thunder(),300+rnd()*900);const a=rnd()*6.283,r=150+rnd()*250;noise(P.x+Math.cos(a)*r,P.y+Math.sin(a)*r,260)}}
+ if(WEV.k==='hitze'&&!sheltered())P.thi-=100/21600*.9;
+ // Infektion
+ if(P.inf>0){P.inf=Math.min(100,P.inf+100/(PER*1.1));if(P.inf>30){P.sta=Math.max(0,P.sta-.03);P.hp-=.0025}if(P.inf>60)P.hp-=.008;if(P.inf>=100)P.hp-=.03;if(t%40===0)hudDirty=1}
+ // Temperatur
+ const f=feelT();P.ft=f;if(f<4)P.cold=Math.min(100,(P.cold||0)+(4-f)*.0011);else P.cold=Math.max(0,(P.cold||0)-(f>10?.06:.02));
+ if(P.cold>50)P.sta=Math.max(0,P.sta-.04);if(P.cold>80){P.hp-=.012;if(t-coldW>1800){coldW=t;toast(tr(V52.frost),'bad')}}
+ if(f>31&&!sheltered())P.thi-=100/21600*.5;
+ if(P.hp<=0&&state===1){P.hp=0;over()}
+ // Schnee
+ if(se===3&&!LV){if(SNOW.length<140)for(let i=0;i<3;i++)SNOW.push({x:rnd()*W,y:-4,v:.25+rnd()*.35,s:rnd()<.3?2:1,ph:rnd()*6});for(const s of SNOW){s.y+=s.v;s.x+=Math.sin(fc*.02+s.ph)*.25}SNOW=SNOW.filter(s=>s.y<Hh+4)}else SNOW.length=0}}
+// Zombies sehen im Nebel schlechter
+{const _u=updZ;updZ=function(z){if(FOGK<.05)return _u(z);const d0=dark;dark=Math.max(dark,.39*FOGK);try{return _u(z)}finally{dark=d0}}}
+// Winter: Felder wachsen draußen nicht
+{const _ft=farmTick;farmTick=function(dt){if(!WINTER())return _ft(dt);const keep=[];for(const[k,f]of farm)if(!f.gh&&f.c&&!f.dead)keep.push([f,f.p]);const r=_ft(dt);for(const[f,p]of keep)f.p=p;return r}}
+// ---------- Zeichnen: Schnee, Nebel ----------
+{const _lp=lightPass;lightPass=function(lights,dk){if(WINTER()&&!LV&&!insideH){g.save();g.globalCompositeOperation='saturation';g.fillStyle='rgba(128,128,128,.6)';g.fillRect(0,0,W,Hh);g.restore();g.fillStyle='rgba(236,242,250,.34)';g.fillRect(0,0,W,Hh)}return _lp(lights,dk)}}
+{const _df=drawFrame;drawFrame=function(){_df.apply(this,arguments);if(state!==1||!P)return;
+ if(SNOW.length){g.fillStyle='rgba(245,248,255,.85)';for(const s of SNOW)g.fillRect(s.x|0,s.y|0,s.s,s.s)}
+ if(FOGK>.03){const X=P.x-cx,Y=P.y-cy-6,nt=dark>.4;const gg=g.createRadialGradient(X,Y,40,X,Y,170);const c=nt?'40,44,50':'176,182,188';gg.addColorStop(0,`rgba(${c},0)`);gg.addColorStop(.5,`rgba(${c},${.55*FOGK})`);gg.addColorStop(1,`rgba(${c},${.93*FOGK})`);g.fillStyle=gg;g.fillRect(0,0,W,Hh)}
+ if(P.inf>60){g.globalAlpha=(.15+.1*Math.sin(fc*.05))*(P.inf-60)/40;g.fillStyle='#3a6a1a';g.fillRect(0,0,W,Hh);g.globalAlpha=1}
+ if(P.cold>50){g.globalAlpha=(P.cold-50)/50*.25;g.fillStyle='#bcd8ff';g.fillRect(0,0,W,Hh);g.globalAlpha=1}}}
+// ---------- HUD: Zustände & Jahreszeit ----------
+{const _h=hud;let last='';hud=function(){_h();if(state!==1||!P)return;let el=$('fx2');if(!el){el=document.createElement('div');el.id='fx2';el.style.cssText='display:flex;flex-wrap:wrap;gap:4px;margin-top:4px';const fx=$('fx');if(fx&&fx.parentNode)fx.parentNode.insertBefore(el,fx.nextSibling);else return}
+ const c=[];if(P.inf>0)c.push(['blut',tr(V52.infC)+' '+Math.round(P.inf)+'%','bad']);if(P.inf>30)c.push(['skull',tr(V52.fev),'bad']);
+ const f=P.ft==null?15:P.ft,tmp=Math.round(ambT())+'°';if(P.cold>80)c.push(['rain',tr(V52.hypo)+' '+tmp,'bad']);else if(P.cold>30)c.push(['rain',tr(V52.cold)+' '+tmp,'bad']);else if(f>31&&!sheltered())c.push(['sun',tr(V52.hot)+' '+tmp,'bad']);else if(f<10&&nearFire())c.push(['sun',tr(V52.warm)+' '+tmp,'ok']);
+ if(WEV.k)c.push([WEV.k==='hitze'?'sun':'rain',tr(WEV.k==='nebel'?V52.fog:WEV.k==='gewitter'?V52.storm:V52.heat),'']);
+ const s=c.map(q=>`<span class="fxc ${q[2]}">${icW(q[0])}${q[1]}</span>`).join('');if(s!==last){el.innerHTML=s;last=s}
+ const it=$('iT');if(it&&!it.textContent.includes(tr(V52.se[SEAS()])))it.textContent+=' · '+tr(V52.se[SEAS()])}}
+// ---------- Speichern ----------
+{const _s=save;save=function(q){_s(q);try{const k='zw4_h'+slot,o=JSON.parse(LS.get(k)||'{}')||{};o.v52={inf:P.inf||0,infT:P.infT||0,cold:P.cold||0,ev:WEV};LS.set(k,JSON.stringify(o))}catch(e){}}}
+{const _l=load;load=function(s){const r=_l(s);try{const o=JSON.parse(LS.get('zw4_h'+s));if(o&&o.v52&&P){P.inf=o.v52.inf;P.infT=o.v52.infT;P.cold=o.v52.cold;WEV=o.v52.ev||WEV;window.WEV=WEV}}catch(e){}lastSe=-1;return r}}
+{const _n=newGame;newGame=function(s,cc){WEV={k:null,until:0,next:PER*.9};window.WEV=WEV;lastSe=-1;FOGK=0;const r=_n(s,cc);if(P){P.inf=0;P.cold=0}return r}}
+{const _o=over;over=function(){const r=_o.apply(this,arguments);if(P){P.inf=0;P.cold=0}return r}}
+applyLang();
+// ================= v53: Besondere Orte · Neue Zombie-Typen (Spucker, Gepanzert, Schleicher, Koloss) · Zombie-Hunde =================
+const V53={
+ kh:[T4('Krankenhaus','Hospital','Hospital','Hôpital'),L4('Medizin und Verbände – aber hier rennen die Toten.','Medicine and bandages – but the dead run here.','Medicinas y vendas, pero aquí los muertos corren.','Médicaments et bandages – mais ici les morts courent.'),'#e8e8e8'],
+ pol:[T4('Polizeiwache','Police station','Comisaría','Commissariat'),L4('Waffen und Munition – bewacht von gepanzerten Zombies.','Weapons and ammo – guarded by armored zombies.','Armas y munición, custodiadas por zombis blindados.','Armes et munitions – gardées par des zombies blindés.'),'#4a7ad8'],
+ mil:[T4('Militärposten','Military post','Puesto militar','Poste militaire'),L4('Beste Ausrüstung – und die Soldaten sind noch im Dienst.','The best gear – and the soldiers are still on duty.','El mejor equipo, y los soldados siguen de servicio.','Le meilleur équipement – et les soldats sont toujours en service.'),'#7a8a3a'],
+ sm:[T4('Supermarkt','Supermarket','Supermercado','Supermarché'),L4('Essen und Trinken – in den Gängen lauern Schleicher.','Food and drinks – stalkers lurk in the aisles.','Comida y bebida; acechadores en los pasillos.','Nourriture et boissons – des rôdeurs dans les rayons.'),'#e89a3a'],
+ zt:{sp:T4('Spucker','Spitter','Escupidor','Cracheur'),ar:T4('Gepanzerter','Armored','Blindado','Blindé'),sl:T4('Schleicher','Stalker','Acechador','Rôdeur'),boss:T4('Koloss','Colossus','Coloso','Colosse'),hund:T4('Zombie-Hund','Zombie dog','Perro zombi','Chien zombie')},
+ boss:L4('Ein Koloss ist erwacht!','A Colossus has awoken!','¡Ha despertado un Coloso!','Un Colosse s’est réveillé !'),bossS:L4('Riesig, zäh und tödlich nah. Halte Abstand.','Huge, tough and deadly up close. Keep your distance.','Enorme, duro y letal de cerca. Mantén la distancia.','Énorme, coriace et mortel de près. Garde tes distances.'),
+ bossK:L4('Der Koloss ist gefallen!','The Colossus has fallen!','¡El Coloso ha caído!','Le Colosse est tombé !'),acid:L4('Säure!','Acid!','¡Ácido!','Acide !'),
+ pack:L4('Ein Rudel Zombie-Hunde jagt dich!','A pack of zombie dogs is hunting you!','¡Una jauría de perros zombi te caza!','Une meute de chiens zombies te traque !')};
+// ---------- Zombie-Sprites ----------
+const tfC=(c,al,up)=>{up=up||1;const o=mk(Math.round(c.width*up),Math.round(c.height*up)),x=o.getContext('2d');x.imageSmoothingEnabled=false;x.globalAlpha=al==null?1:al;x.drawImage(c,0,0,o.width,o.height);return o};
+function mkZV(o,k,big,al,up){const q=Object.assign({},BASEC,{eye:'#ff3b2f',mouth:'#3a0a0a',shoe:'#1a1a1a',zarm:1,torn:5},o);q.skin2=q.skin2||shade(q.skin,.85);q.top2=q.top2||shade(q.top,.75);q.pants2=q.pants2||shade(q.pants,.75);q.arm=q.arm||q.top;
+ let fr=buildChar(q);if(al!=null||up)fr=fr.map(r=>r.map(c=>tfC(c,al,up)));ZV.push({k,fr,big:!!big,wh:null});return ZV.length-1}
+ZVI.sp=[mkZV({skin:'#b8c060',hair:'#3a3a1a',top:'#6a7a2a',pants:'#3a3a2a',torn:7},'sp'),mkZV({skin:'#a8b850',hair:'#1a1a1a',top:'#8a8a3a',pants:'#2a2a2a',torn:4},'sp')];
+ZVI.ar=[mkZV({skin:'#8fa37a',hair:'#1a1a1a',top:'#2a2e38',top2:'#1e2128',pants:'#22252c',ht:'mh',h1:'#1a1c22',h2:'#2a2e38',pat:'plate',arm:'#2a2e38'},'ar'),mkZV({skin:'#9a9a7a',hair:'#1a1a1a',top:'#3a3e4a',pants:'#22252c',ht:'mh',h1:'#2a2c32',h2:'#3a3e4a',pat:'plate',arm:'#3a3e4a'},'ar')];
+const ZSL={d:mkZV({skin:'#c8ccc0',hair:'#1a1a1a',top:'#1e1e24',pants:'#141418',torn:6},'sl',0,.6),n:mkZV({skin:'#c8ccc0',hair:'#1a1a1a',top:'#1e1e24',pants:'#141418',torn:6},'sl',0,.12)};ZVI.sl=[ZSL.d];
+ZVI.boss=[mkZV({skin:'#6e8a4e',hair:'#1a1a1a',top:'#4a2a2a',pants:'#2a2a2a',torn:9,arm:'#6e8a4e'},'boss',1,1,1.4)];
+{const dogF=f=>outline(cv(15,11,P=>{const l=[0,1,0,-1][f];P('#5a4a3a',3,3,9,4);P('#6e5c48',3,3,9,1);P('#4a3a2c',4,6,7,1);P('#5a4a3a',0,2,4,3);P('#4a3a2c',0,4,2,1);P('#3a2a1e',2,1,1,1);P('#ff3b2f',1,3,1,1);
+  P('#5a4a3a',12,2,2,1);P('#5a4a3a',13,1,1,1);P('#3a2a1e',3+l,7,1,3);P('#3a2a1e',5-l,7,1,3);P('#3a2a1e',9+l,7,1,3);P('#3a2a1e',11-l,7,1,3);P('#8a1a1a',6,4,2,1);P('#c8c0b0',8,4,1,2);P('#c8c0b0',10,4,1,2)}));
+ const L=[0,1,2,3].map(dogF),R=L.map(flipC);ZV.push({k:'hund',fr:[R,L,L,R],big:false,wh:null});ZVI.hund=[ZV.length-1]}
+const ZBASE={sp:5,ar:14,sl:6,hund:3,boss:150},ZSPD={sp:[.15,.3,.5],ar:[.13,.28,.45],sl:[.18,.4,.72],hund:[.3,.7,1.28],boss:[.12,.26,.5]};
+function setZK(z,k){z.k=k;const L=ZVI[k];z.vi=L[(rnd()*L.length)|0];z.hp=z.mh=ZBASE[k]*zHpK();const s=ZSPD[k];z.ws=s[0];z.is=s[1];z.cs=s[2];return z}
+{const _m=mkZ;mkZ=function(x,y,gid,reg){const z=_m(x,y,gid,reg);if(z.hp<=0||window.NOZT||z.k!=='w')return z;const d=dayN(),q=rnd();
+ if(d>=2&&q<.06)setZK(z,'sp');else if(d>=3&&q<.12)setZK(z,'ar');else if(q<(dark>.4?.19:.15))setZK(z,'sl');return z}}
+// Hunde-Rudel
+{const _sg=spawnGroup;spawnGroup=function(){if(dayN()>=2&&curReg!==R_S&&rnd()<.07){for(let tries=0;tries<10;tries++){const a=rnd()*6.283,r=280+rnd()*120,x=P.x+Math.cos(a)*r,y=P.y+Math.sin(a)*r;if(bl(x,y)||houseAt(Math.floor(x/16),Math.floor(y/16)))continue;
+  const gid=++zid;GRP.set(gid,{ax:x,ay:y});const n=3+(rnd()<.5?1:0);for(let i=0;i<n;i++){const zx=x+(rnd()-.5)*30,zy=y+(rnd()-.5)*30;if(bl(zx,zy))continue;const z=mkZ(zx,zy,gid,regionAt(Math.floor(x/16),Math.floor(y/16)));if(z.hp>0)setZK(z,'hund')}return}}return _sg()}}
+{let packW=0;const _al=alertGroup;alertGroup=function(z){if(z.k==='hund'&&t-packW>900){packW=t;toast(tr(V53.pack),'bad')}return _al(z)}}
+// ---------- Verhalten ----------
+let SPIT=[],RINGS=[];
+{const _u=updZ;updZ=function(z){const r=_u(z);if(z.hp<=0||state!==1)return r;const d=dist(z.x,z.y,P.x,P.y);
+ if(z.k==='sp'&&z.st==='chase'){const ux=(P.x-z.x)/(d||1),uy=(P.y-z.y)/(d||1);if(d<48)mv(z,-ux*.42,-uy*.42);z.spc=(z.spc==null?50:z.spc)-1;
+  if(z.spc<=0&&d<135&&d>22&&los(z.x,z.y-8,P.x,P.y-6)){z.spc=110+rnd()*50;const a=Math.atan2(P.y-6-(z.y-10),P.x-z.x)+(rnd()-.5)*.12;SPIT.push({x:z.x,y:z.y-10,vx:Math.cos(a)*2.6,vy:Math.sin(a)*2.6,l:70});A(z.x,z.y,.5,.1,(b,t2)=>{nz(b,t2,.18,'bandpass',700,2,.5,300);tn(b,t2,.12,'sawtooth',180,90,.2)})}}
+ if(z.k==='boss'&&z.st==='chase'){z.slc=(z.slc==null?90:z.slc)-1;if(d<44&&z.slc<=0){z.slc=170;RINGS.push({x:z.x,y:z.y,t:0});shk=Math.min(10,shk+6);A(z.x,z.y,1,.4,(b,t2)=>{tn(lp(b,180),t2,.5,'sine',70,30,1);nz(b,t2,.4,'lowpass',300,1,.8)});
+   debris(z.x,z.y,10,['#5a4a3a','#3a3430']);if(d<44&&!P.veh){window.__zcur=z;window.__zk=1;try{hurt(10,z.x,z.y,.3)}finally{window.__zcur=null;window.__zk=0}const l=d||1;mv(P,(P.x-z.x)/l*10,(P.y-z.y)/l*10)}}}
+ return r}}
+{let mel=0;const _m=melee;melee=function(d,r){mel=1;try{return _m(d,r)}finally{mel=0}};
+ const _d=dmgZ;dmgZ=function(z,dm,kx,ky){if(z.k==='ar'&&mel){dm*=.3;sparks(z.x,z.y-10,3,'#e8e0d0')}if(z.k==='boss'){kx*=.15;ky*=.15}if(z.k==='ar'){kx*=.4;ky*=.4}return _d(z,dm,kx,ky)}}
+{const _k=killZ;killZ=function(z,kx,ky){const r=_k(z,kx,ky);if(z.k==='boss'){for(const it of roll(LT.drop||LT.mkiste))dropIt(it,z.x,z.y,1);dropIt(mkItem('dollar',150+(rnd()*150|0)),z.x,z.y,1);evBanner(tr(V53.bossK),'');shk=10;if(window.STATS)STATS.boss=(STATS.boss||0)+1}
+ if(window.STATS){STATS.zk=(STATS.zk||0)+1;if(z.k==='hund')STATS.dog=(STATS.dog||0)+1}return r}}
+// Koloss: nachts ab Tag 4 manchmal
+{let bn=0;const _st=step;step=function(){_st();if(state!==1||!P||LV||paused)return;
+ for(const z of Zs)if(z.k==='sl'){z.vi=dark>.4?ZSL.n:ZSL.d;z.al=0;z.qa=0}
+ const h=hourOf(t),d=dayN();if(d>=4&&h>22&&h<23&&bn!==d){bn=d;if(rnd()<.4){for(let i=0;i<12;i++){const a=rnd()*6.283,x=P.x+Math.cos(a)*330,y=P.y+Math.sin(a)*330;if(bl(x,y))continue;window.NOZT=1;const z=mkZ(x,y,++zid,curReg);window.NOZT=0;if(z.hp>0){setZK(z,'boss');z.st='chase';z.gx=P.x;z.gy=P.y;z.ls=t;z.guard=1;evBanner(tr(V53.boss),tr(V53.bossS));S.groan&&S.groan(z.x,z.y,'b')}break}}}
+ // Säure
+ for(const s of SPIT){s.x+=s.vx;s.y+=s.vy;s.l--;if(t%2===0)pt({x:s.x,y:s.y,z:6,vx:0,vy:0,vz:.1,c:'#9ae040',k:'sm',l:10,ml:10,s:1});
+  if(bl(s.x,s.y+4)){s.l=0;continue}if(!P.veh&&dist(s.x,s.y,P.x,P.y-6)<7){s.l=0;window.__zcur={k:'sp'};try{hurt(7,s.x-s.vx*4,s.y-s.vy*4,.1)}finally{window.__zcur=null}if(rnd()<.12){P.inf=Math.max(P.inf||0,10);P.infT=t}ft(P.x,P.y-24,tr(V53.acid),'#9ae040')}
+  if(s.l<=0){Dc.push({k:'sc',x:s.x,y:s.y,l:900,ml:900})}}SPIT=SPIT.filter(s=>s.l>0);
+ for(const r of RINGS)r.t++;RINGS=RINGS.filter(r=>r.t<24)}}
+{const _df=drawFrame;drawFrame=function(){_df.apply(this,arguments);if(state!==1)return;
+ for(const s of SPIT){g.fillStyle='#4a8a1a';g.fillRect(RQ(s.x-cx)-2,RQ(s.y-cy)-2,4,4);g.fillStyle='#b8ff60';g.fillRect(RQ(s.x-cx)-1,RQ(s.y-cy)-1,2,2)}
+ for(const r of RINGS){g.strokeStyle=`rgba(200,170,120,${1-r.t/24})`;g.lineWidth=2;g.beginPath();g.ellipse(r.x-cx,r.y-cy+2,8+r.t*2.2,(8+r.t*2.2)*.55,0,0,6.283);g.stroke();g.lineWidth=1}}}
+{const _n=newGame;newGame=function(s,cc){SPIT=[];RINGS=[];return _n(s,cc)}}
+// ---------- Besondere Orte ----------
+const SPH=new Map();window.SPH=SPH;
+const SPLT={
+ kh:{n:[2,4],it:L_('verband:20:1:3 medkit:8 antibiotika:10 schmerzmittel:12 alkohol:10 antiserum:2 chemie:8:1:2 stoff:8:1:3 wasser:6 dollar:6:5:30 kittel:0')},
+ pol:{n:[2,4],it:L_('pistole:8 glock:6 beretta:5 schrot:4 pumpgun:3 mp5:2 a9:18:10:30 a12:10:5:12 polizeiweste:6 taschenlampe:6 batterie:6 handschuhe:4 dollar:8:10:50')},
+ mil:{n:[3,5],it:L_('m4:5 ak47:5 g36:4 scar:2 mp5:3 mosin:2 granate:6:1:2 a762:16:10:30 a9:8:10:20 rakete:2:1:2 mweste:6 mhelm:6 kstiefel:5 mrucksack:3 antiserum:2 holo:2 acog:1 kompensator:2 dollar:8:20:80')},
+ sm:{n:[2,5],it:L_('dose:14:1:3 wasser:14:1:2 chips:10 schokolade:10 kaffee:6 energydrink:6 riegel:8 batterie:6 klebeband:5 alkohol:4 dollar:10:5:40 saatgut:4')}};
+for(const k in SPLT){SPLT[k].it=SPLT[k].it.filter(e=>D[e[0]]&&e[1]>0);SPLT[k].w=(LT.mkiste&&LT.mkiste.w)||[60,25,10,4,1]}
+const SPF={kh:['bett','bett','doppelbett','erstehilfe','regal','regal','kuehlschrank','spuele','schrank'],pol:['schrank','schrank','waffenregal','kiste','kiste','computer','esstisch','stuhl','regal'],mil:['mkiste','mkiste','mkiste','etagenbett','kistenstapel','waffenregal','sandsack','kiste'],sm:['regal','regal','regal','regal','kuehl','kuehl','kuehlschrank','tresen','regal']};
+{const _mh=mkHouse;mkHouse=function(key,x0,y0,w,h,sd){const hs=_mh(key,x0,y0,w,h,sd);if(key[0]!=='t'||w<6||h<5)return hs;const r=i=>hh(sd,i*4021+97,SEED+5454);if(r(1)>.075)return hs;
+ const kind=['kh','pol','mil','sm'][Math.floor(r(2)*4)];hs.sp=kind;hs.furn.clear();const L=SPF[kind].map(n=>T[n]).filter(v=>v!=null);let i=3;
+ for(let x=x0+1;x<x0+w-1;x++)for(let y=y0+1;y<y0+h-2;y++){if(x===hs.dx||Math.abs(x-hs.dx)<=1&&y>=y0+h-3)continue;if(kind==='sm'?(y-y0)%2===1:r(i++)<.55)hs.furn.set(x*65536+y,L[Math.floor(r(i++)*L.length)])}
+ SPH.set(key,{x:x0+w/2,y:y0+h/2,k:kind});return hs}}
+let SPK=null;
+{const _r=roll;roll=function(tb){if(SPK&&SPLT[SPK]&&tb!==SPLT[SPK]){const a=_r(SPLT[SPK]);return rnd()<.3?a.concat(_r(tb).slice(0,1)):a}return _r(tb)}}
+const spOf=(tx,ty)=>{const h=houseAt(tx,ty);return h&&h.sp&&tx>=h.x0&&tx<h.x0+h.w&&ty>=h.y0&&ty<h.y0+h.h?h:null};
+{const _f=finishAct;finishAct=function(a){const h=a&&a.tx!=null?spOf(a.tx,a.ty):null;SPK=h?h.sp:null;try{return _f(a)}finally{SPK=null}}}
+{const _e=extraAct;extraAct=function(a){const h=spOf(a.tx,a.ty);if(h){const k=a.tx*65536+a.ty;if(TSTOR[a.tt]&&!own.has(k)&&!stor.has(k)){const its=Array(TSTOR[a.tt]).fill(null);roll(SPLT[h.sp]).concat(roll(SPLT[h.sp])).forEach((it,q)=>{if(q<its.length)its[q]=it});stor.set(k,{items:its})}}
+ SPK=h?h.sp:null;try{return _e(a)}finally{SPK=null}}}
+let SPZ=new Set();
+{const _st=step;step=function(){_st();if(state!==1||!P||LV||paused||t%20)return;const h=insideH;if(!h||!h.sp||SPZ.has(h.key))return;SPZ.add(h.key);const D_=V53[h.sp];evBanner(tr(D_[0]),tr(D_[1]));
+ if(window.STATS){STATS.sp=STATS.sp||[];if(!STATS.sp.includes(h.sp))STATS.sp.push(h.sp)}
+ const types={kh:['r','r','sp','w'],pol:['ar','ar','w','w'],mil:['s','s','ar','b'],sm:['sl','sl','w','w']}[h.sp];const n=3+Math.floor(rnd()*3)+Math.min(2,Math.floor(dayN()/5));
+ for(let i=0;i<n;i++){for(let q=0;q<10;q++){const x=(h.x0+1+rnd()*(h.w-2))*16,y=(h.y0+1+rnd()*(h.h-3))*16;if(bl(x,y)||dist(x,y,P.x,P.y)<40)continue;window.NOZT=1;const z=mkZ(x,y,++zid,R_S);window.NOZT=0;if(z.hp<=0)break;
+  const k=types[i%types.length];if(ZBASE[k])setZK(z,k);else if(ZVI[k]){z.k=k;const L=ZVI[k];z.vi=L[(rnd()*L.length)|0];z.hp=z.mh=(k==='b'?16:k==='r'?4:k==='s'?8:6)*zHpK();if(k==='r')z.cs=1.05}
+  z.hp*=1.5;z.mh=z.hp;z.st="idle";break}}}}
+// Karte: besondere Orte markieren, sobald gesehen
+{const _dm=drawMap;drawMap=function(c,R){const r=_dm(c,R);if(!P||LV||!SPH.size)return r;const mini=c&&c.id==='mm',x=c.getContext('2d'),ptx=Math.floor(P.x/16),pty=Math.floor(P.y/16);
+ for(const s of SPH.values()){if(!isExp(Math.floor(s.x),Math.floor(s.y)))continue;const col=V53[s.k][2];let i,j,z;if(mini){if(typeof MMR==='undefined')continue;i=(s.x-ptx+MMR)*MMS;j=(s.y-pty+MMR)*MMS;z=4}else{i=s.x-ptx+R;j=s.y-pty+R;z=2}
+  const n=mini?c.width:R*2+1;if(i<0||j<0||i>n||j>n)continue;x.fillStyle='#0b0907';x.fillRect(Math.round(i-z-1),Math.round(j-z-1),z*2+3,z*2+3);x.fillStyle=col;x.fillRect(Math.round(i-z),Math.round(j-z),z*2+1,z*2+1);if(s.k==='kh'){x.fillStyle='#d02a2a';x.fillRect(Math.round(i)-z+1,Math.round(j),z*2-1,1);x.fillRect(Math.round(i),Math.round(j)-z+1,1,z*2-1)}}return r}}
+{const lg=document.querySelector('#map .lg');if(lg){const sm=lg.querySelector('small');for(const k of['kh','pol','mil','sm']){const sp=document.createElement('span');sp.innerHTML=`<i style="background:${V53[k][2]}"></i><span>${tr(V53[k][0])}</span>`;lg.insertBefore(sp,sm||null)}}}
+// Speichern
+{const _s=save;save=function(q){_s(q);try{const k='zw4_h'+slot,o=JSON.parse(LS.get(k)||'{}')||{};o.v53={spz:[...SPZ]};LS.set(k,JSON.stringify(o))}catch(e){}}}
+{const _l=load;load=function(s){SPZ=new Set();SPH.clear();const r=_l(s);try{const o=JSON.parse(LS.get('zw4_h'+s));if(o&&o.v53)SPZ=new Set(o.v53.spz||[])}catch(e){}return r}}
+{const _n=newGame;newGame=function(s,cc){SPZ=new Set();SPH.clear();return _n(s,cc)}}
+applyLang();
+// ================= v54: Fähigkeiten · Aufträge im Außenposten · Erfolge & Statistik · Fortschritts-Fenster =================
+const V54={
+ prog:T4('Fortschritt','Progress','Progreso','Progrès'),sk:T4('Fähigkeiten','Skills','Habilidades','Compétences'),ach:T4('Erfolge','Achievements','Logros','Succès'),st:T4('Statistik','Statistics','Estadísticas','Statistiques'),
+ lv:T4('Stufe','Level','Nivel','Niveau'),up:T4('Stufe erreicht','Level reached','Nivel alcanzado','Niveau atteint'),
+ skN:{mel:T4('Nahkampf','Melee','Cuerpo a cuerpo','Mêlée'),gun:T4('Schießen','Shooting','Disparo','Tir'),bau:T4('Bauen','Building','Construcción','Construction'),koch:T4('Kochen','Cooking','Cocina','Cuisine')},
+ skD:{mel:L4('+4 % Nahkampfschaden pro Stufe','+4 % melee damage per level','+4 % daño cuerpo a cuerpo por nivel','+4 % de dégâts de mêlée par niveau'),gun:L4('−3 % Streuung und schneller nachladen pro Stufe','−3 % spread and faster reload per level','−3 % dispersión y recarga más rápida por nivel','−3 % de dispersion et recharge plus rapide par niveau'),
+  bau:L4('+5 % Chance pro Stufe, Material zurückzubekommen','+5 % chance per level to get material back','+5 % por nivel de recuperar material','+5 % par niveau de récupérer du matériel'),koch:L4('Essen macht satter, öfter eine Extra-Portion','Food fills you more, more extra portions','La comida sacia más y hay raciones extra','La nourriture cale plus, portions bonus')},
+ q:T4('Aufträge','Jobs','Encargos','Missions'),acc:T4('Annehmen','Accept','Aceptar','Accepter'),give:T4('Abgeben','Hand in','Entregar','Rendre'),act:T4('Aktiv','Active','Activos','Actifs'),offer:T4('Angebote','Offers','Ofertas','Offres'),
+ full:L4('Du hast schon 3 Aufträge','You already have 3 jobs','Ya tienes 3 encargos','Tu as déjà 3 missions'),done:T4('Auftrag erledigt','Job done','Encargo completado','Mission accomplie'),none:L4('Heute keine weiteren Aufträge','No more jobs today','No hay más encargos hoy','Plus de missions aujourd’hui'),
+ qt:{gib:L4('Bring {n}× {i}','Bring {n}× {i}','Trae {n}× {i}','Apporte {n}× {i}'),kill:L4('Töte {n} Zombies','Kill {n} zombies','Mata {n} zombis','Tue {n} zombies'),dog:L4('Töte {n} Zombie-Hunde','Kill {n} zombie dogs','Mata {n} perros zombi','Tue {n} chiens zombies'),
+  camp:L4('Räume ein Banditenlager','Clear a bandit camp','Limpia un campamento de bandidos','Nettoie un camp de bandits'),boss:L4('Besiege einen Koloss','Defeat a Colossus','Derrota a un Coloso','Vaincs un Colosse'),ort:L4('Durchsuche {n} Möbel in: {i}','Search {n} containers in: {i}','Registra {n} muebles en: {i}','Fouille {n} meubles dans : {i}'),
+  band:L4('Töte {n} Banditen','Kill {n} bandits','Mata {n} bandidos','Tue {n} bandits')},
+ unl:L4('Erfolg freigeschaltet','Achievement unlocked','Logro desbloqueado','Succès débloqué'),close:T4('Schließen','Close','Cerrar','Fermer'),
+ sN:{zk:T4('Zombies getötet','Zombies killed','Zombis matados','Zombies tués'),bk:T4('Banditen getötet','Bandits killed','Bandidos matados','Bandits tués'),boss:T4('Kolosse besiegt','Colossi defeated','Colosos derrotados','Colosses vaincus'),dog:T4('Zombie-Hunde','Zombie dogs','Perros zombi','Chiens zombies'),
+  day:T4('Bester Tag','Best day','Mejor día','Meilleur jour'),walk:T4('Zu Fuß (km)','On foot (km)','A pie (km)','À pied (km)'),drive:T4('Gefahren (km)','Driven (km)','Conducido (km)','Conduit (km)'),built:T4('Gebaut','Built','Construido','Construit'),
+  crafted:T4('Hergestellt','Crafted','Fabricado','Fabriqué'),earned:T4('Dollar verdient','Dollars earned','Dólares ganados','Dollars gagnés'),quests:T4('Aufträge erledigt','Jobs done','Encargos hechos','Missions faites'),cure:T4('Infektionen geheilt','Infections cured','Infecciones curadas','Infections guéries')}};
+// ---------- Statistik ----------
+let STATS={};window.STATS=STATS;let SK={mel:0,gun:0,bau:0,koch:0},QST=[];
+const XPN=[0,20,50,95,155,230,320,430,560,710];const skLv=k=>{let l=1;for(let i=1;i<XPN.length;i++)if(SK[k]>=XPN[i])l=i+1;return l};
+function skXP(k,v){const a=skLv(k);SK[k]+=v;const b=skLv(k);if(b>a){toast(tr(V54.skN[k])+' · '+tr(V54.lv)+' '+b,'good');S.build&&S.build();STATS.maxLv=Math.max(STATS.maxLv||1,b)}}
+// Nahkampf
+{let mel=0,lastMel=0;const _m=melee;melee=function(d,r){mel=1;lastMel=t;const b=.04*(skLv('mel')-1);GE.mel+=b;try{return _m(d,r)}finally{GE.mel-=b;mel=0}};
+ const _d=dmgZ;dmgZ=function(z,dm,kx,ky){const hp0=z.hp;const r=_d(z,dm,kx,ky);if(hp0>0){const gun=!mel&&qs[P.sel]&&D[qs[P.sel].id].mag&&!D[qs[P.sel].id].mel&&t-(P.lastAtk||0)<120;
+  if(mel)skXP('mel',z.hp<=0?4:1);else if(gun)skXP('gun',z.hp<=0?3:.5)}return r}}
+// Schießen
+{const _as=attStats;attStats=function(it){const e=_as(it);e.sd*=1-.03*(skLv('gun')-1);return e}}
+{const _sh=shoot;shoot=function(it,d){if(it.att&&Object.keys(it.att).length)return _sh(it,d);return _sh(it,Object.assign({},d,{sd:d.sd*(1-.03*(skLv('gun')-1))}))}}
+{const _sr=startReload;startReload=function(it){const r=_sr(it);if(r){P.rl=P.rlm=Math.max(10,Math.round(P.rl*(1-.03*(skLv('gun')-1))))}return r}}
+// Bauen
+{const _b=doBuild;doBuild=function(a){const n0=own.size,b=BP[BM];const r=_b(a);if(own.size>n0||(b&&b.k==='g')){STATS.built=(STATS.built||0)+1;skXP('bau',3);
+  if(b&&b.cost&&rnd()<.05*(skLv('bau')-1)){const ks=Object.keys(b.cost);if(ks.length){const m=ks[(rnd()*ks.length)|0];give(m,1);}}}return r}}
+// Kochen
+{const _f=finishAct;finishAct=function(a){const r0=countA('fleisch_r')+countA('fisch_r');const r=_f(a);const n=r0-(countA('fleisch_r')+countA('fisch_r'));const tt=a&&a.tt;
+ if(n>0&&(tt===T.feuer||tt===T.herd||tt===T.kamin||COOK[tt])){skXP('koch',3*n);let ex=0;for(let i=0;i<n;i++)if(rnd()<.04*(skLv('koch')-1))ex++;if(ex)give('fleisch',ex)}
+ if(a&&a.tx!=null&&typeof spOf!=='undefined'){const h=spOf(a.tx,a.ty);if(h){STATS.sps=STATS.sps||{};STATS.sps[h.sp]=(STATS.sps[h.sp]||0)+1}}return r}}
+{const _c=craftIt;craftIt=function(id){const n0=inv.filter(Boolean).length;const r=_c(id);const b=BP[id];STATS.crafted=(STATS.crafted||0)+1;if(b&&b.cat==='koch')skXP('koch',3);return r}}
+{const _c=craftWB;craftWB=function(id){const r=_c(id);STATS.crafted=(STATS.crafted||0)+1;return r}}
+{const _u=useIt;useIt=function(it,ref){const u=D[it.id]&&D[it.id].use;const r=_u(it,ref);if(u&&u.hun>0&&u.hp>=0)P.hun=Math.min(100,P.hun+u.hun*.03*(skLv('koch')-1));return r}}
+// Banditen & Lager
+{const _k=killH;killH=function(h){const b=h.team==='b';const c0=[...CAMPS.values()].filter(c=>c.done).length;const r=_k(h);if(b){STATS.bk=(STATS.bk||0)+1;const gun=qs[P.sel]&&D[qs[P.sel].id].mag&&!D[qs[P.sel].id].mel;skXP(gun?'gun':'mel',6)}
+ const c1=[...CAMPS.values()].filter(c=>c.done).length;if(c1>c0)STATS.camps=(STATS.camps||0)+(c1-c0);return r}}
+{const _e=earn;earn=function(n){STATS.earned=(STATS.earned||0)+Math.floor(n);return _e(n)}}
+// Weg-Statistik
+{let lx=null,ly=null;const _st=step;step=function(){_st();if(state!==1||!P||paused)return;if(lx!=null){const d=Math.hypot(P.x-lx,P.y-ly);if(d<40){if(P.veh)STATS.drive=(STATS.drive||0)+d/16;else STATS.walk=(STATS.walk||0)+d/16}}lx=P.x;ly=P.y;
+ if(t%120===0){STATS.day=Math.max(STATS.day||0,dayN());STATS.rec=Math.max(STATS.rec||0,HU.filter(h=>h.rec).length);achCheck();questTick()}}}
+// ---------- Aufträge ----------
+const QI=[['schrott',8,16,6],['holz',15,30,3],['stein',15,30,3],['stoff',8,14,6],['fleisch_r',3,6,16],['leder',3,6,14],['nagel',20,40,2],['kabel',4,8,10],['glas',4,8,8],['chemie',3,6,12]].filter(q=>D[q[0]]);
+const qProg=q=>{if(q.t==='gib')return Math.min(q.n,countA(q.i));if(q.t==='kill')return Math.min(q.n,(STATS.zk||0)-q.s);if(q.t==='dog')return Math.min(q.n,(STATS.dog||0)-q.s);if(q.t==='band')return Math.min(q.n,(STATS.bk||0)-q.s);
+ if(q.t==='camp')return Math.min(1,(STATS.camps||0)-q.s);if(q.t==='boss')return Math.min(1,(STATS.boss||0)-q.s);if(q.t==='ort')return Math.min(q.n,((STATS.sps||{})[q.i]||0)-q.s);return 0};
+const qNeed=q=>q.t==='camp'||q.t==='boss'?1:q.n;
+const qText=q=>{const tpl=tr(V54.qt[q.t]);const iname=q.t==='gib'?tr(D[q.i].n):q.t==='ort'&&typeof V53!=='undefined'?tr(V53[q.i][0]):'';return tpl.replace('{n}',q.n).replace('{i}',iname)};
+function qOffers(o){const day=dayN();if(o.qo&&o.qo.day===day)return o.qo.list;let s=(hh(day*17+o.id*3,day+11,SEED+7373)*1e6|0)+1;const rr=()=>{s=(s*16807)%2147483647;return s/2147483647};const L=[];
+ for(let i=0;i<3;i++){const p=rr();let q;
+  if(p<.38){const it=QI[(rr()*QI.length)|0],n=it[1]+Math.floor(rr()*(it[2]-it[1]+1));q={t:'gib',i:it[0],n,rw:Math.round(n*it[3]+40)}}
+  else if(p<.58){const n=15+Math.floor(rr()*21);q={t:'kill',n,rw:n*8+50}}
+  else if(p<.68){const n=4+Math.floor(rr()*4);q={t:'dog',n,rw:n*40+80}}
+  else if(p<.78){const n=3+Math.floor(rr()*4);q={t:'band',n,rw:n*70+60}}
+  else if(p<.86){q={t:'camp',n:1,rw:450,it:1}}
+  else if(p<.92){q={t:'boss',n:1,rw:900,it:1}}
+  else{const k=['kh','pol','mil','sm'][(rr()*4)|0],n=3+Math.floor(rr()*3);q={t:'ort',i:k,n,rw:n*60+100}}
+  q.id=day+'-'+o.id+'-'+i;L.push(q)}o.qo={day,list:L};return L}
+function questBody(o){const act=QST.map((q,i)=>{const p=qProg(q),need=qNeed(q),ok=p>=need;return`<div class="si"><span class="nm"><b>${qText(q)}</b><small>${p}/${need} · +${q.rw} $${q.it?' + '+tr(RN[2]):''}</small></span><button class="zb pr${ok?' go':' no'}" data-qg="${i}">${tr(V54.give)}</button></div>`}).join('');
+ const offs=qOffers(o).filter(q=>!q.taken).map((q,i)=>`<div class="si"><span class="nm"><b>${qText(q)}</b><small>+${q.rw} $${q.it?' + '+tr(RN[2]):''}</small></span><button class="zb pr${QST.length>=3?' no':''}" data-qa="${q.id}">${tr(V54.acc)}</button></div>`).join('');
+ return `<small style="opacity:.7">${tr(V54.act)} (${QST.length}/3)</small>${act||'<div class="zm" style="font-size:13px;opacity:.6">–</div>'}<small style="opacity:.7;margin-top:6px">${tr(V54.offer)}</small>${offs||`<div class="zm" style="font-size:13px;opacity:.6">${tr(V54.none)}</div>`}`}
+function questClick(e,o){const a=e.target.closest('[data-qa]');if(a){if(QST.length>=3){toast(tr(V54.full),'bad');return true}const q=qOffers(o).find(q=>q.id===a.dataset.qa);if(!q||q.taken)return true;q.taken=1;
+  const s=q.t==='kill'?STATS.zk||0:q.t==='dog'?STATS.dog||0:q.t==='band'?STATS.bk||0:q.t==='camp'?STATS.camps||0:q.t==='boss'?STATS.boss||0:q.t==='ort'?((STATS.sps||{})[q.i]||0):0;QST.push(Object.assign({},q,{s}));S.ui();renderShop();return true}
+ const g_=e.target.closest('[data-qg]');if(g_){const i=+g_.dataset.qg,q=QST[i];if(!q)return true;if(qProg(q)<qNeed(q)){S.dry&&S.dry();return true}if(q.t==='gib')takeA(q.i,q.n);earn(q.rw);
+  if(q.it){const pool=ROT.filter(id=>D[id]&&D[id].c==='waf');const id=pool[(rnd()*pool.length)|0];if(id){const it=mkItem(id,1,2+(rnd()<.3?1:0));if(D[id].mag)it.m=D[id].mag;if(!addItem(it))dropIt(it,P.x,P.y,1)}}
+  QST.splice(i,1);STATS.quests=(STATS.quests||0)+1;coinS(5);evBanner(tr(V54.done),'+'+q.rw+' $');renderShop();return true}return false}
+function questTick(){for(const q of QST){const ok=qProg(q)>=qNeed(q);if(ok&&!q.nt){q.nt=1;toast(tr(V54.done)+': '+qText(q),'good')}}}
+// ---------- Erfolge ----------
+const ACH=[['z1',T4('Erstes Blut','First blood','Primera sangre','Premier sang'),L4('Töte deinen ersten Zombie','Kill your first zombie','Mata tu primer zombi','Tue ton premier zombie'),()=>STATS.zk>=1],
+ ['z100',T4('Zombiejäger','Zombie hunter','Cazazombis','Chasseur de zombies'),L4('Töte 100 Zombies','Kill 100 zombies','Mata 100 zombis','Tue 100 zombies'),()=>STATS.zk>=100],
+ ['z500',T4('Schlächter','Slaughterer','Carnicero','Boucher'),L4('Töte 500 Zombies','Kill 500 zombies','Mata 500 zombis','Tue 500 zombies'),()=>STATS.zk>=500],
+ ['z1000',T4('Legende der Ödnis','Legend of the wasteland','Leyenda del páramo','Légende des terres désolées'),L4('Töte 1000 Zombies','Kill 1000 zombies','Mata 1000 zombis','Tue 1000 zombies'),()=>STATS.zk>=1000],
+ ['b10',T4('Banditenschreck','Bandit terror','Terror de bandidos','Terreur des bandits'),L4('Töte 10 Banditen','Kill 10 bandits','Mata 10 bandidos','Tue 10 bandits'),()=>STATS.bk>=10],
+ ['boss',T4('Kolosstöter','Colossus slayer','Matacolosos','Tueur de colosses'),L4('Besiege einen Koloss','Defeat a Colossus','Derrota a un Coloso','Vaincs un Colosse'),()=>STATS.boss>=1],
+ ['dog',T4('Hundefänger','Dog catcher','Perrero','Chasseur de chiens'),L4('Töte 10 Zombie-Hunde','Kill 10 zombie dogs','Mata 10 perros zombi','Tue 10 chiens zombies'),()=>STATS.dog>=10],
+ ['d3',T4('Überlebender','Survivor','Superviviente','Survivant'),L4('Erreiche Tag 3','Reach day 3','Llega al día 3','Atteins le jour 3'),()=>dayN()>=3],
+ ['d7',T4('Eine Woche','One week','Una semana','Une semaine'),L4('Erreiche Tag 7','Reach day 7','Llega al día 7','Atteins le jour 7'),()=>dayN()>=7],
+ ['d14',T4('Zäh','Tough','Duro','Coriace'),L4('Erreiche Tag 14','Reach day 14','Llega al día 14','Atteins le jour 14'),()=>dayN()>=14],
+ ['d30',T4('Ein Monat in der Hölle','A month in hell','Un mes en el infierno','Un mois en enfer'),L4('Erreiche Tag 30','Reach day 30','Llega al día 30','Atteins le jour 30'),()=>dayN()>=30],
+ ['win',T4('Durch den Winter','Through the winter','A través del invierno','À travers l’hiver'),L4('Überlebe deinen ersten Winter','Survive your first winter','Sobrevive a tu primer invierno','Survis à ton premier hiver'),()=>dayN()>=21],
+ ['b25',T4('Handwerker','Handyman','Manitas','Bricoleur'),L4('Baue 25 Teile','Build 25 parts','Construye 25 piezas','Construis 25 éléments'),()=>STATS.built>=25],
+ ['b150',T4('Baumeister','Master builder','Maestro constructor','Maître bâtisseur'),L4('Baue 150 Teile','Build 150 parts','Construye 150 piezas','Construis 150 éléments'),()=>STATS.built>=150],
+ ['c20',T4('Tüftler','Tinkerer','Inventor','Bricoleur de génie'),L4('Stelle 20 Gegenstände her','Craft 20 items','Fabrica 20 objetos','Fabrique 20 objets'),()=>STATS.crafted>=20],
+ ['m1k',T4('Erstes Vermögen','First fortune','Primera fortuna','Première fortune'),L4('Verdiene 1.000 $','Earn $1,000','Gana 1.000 $','Gagne 1 000 $'),()=>STATS.earned>=1000],
+ ['m10k',T4('Kapitalist','Capitalist','Capitalista','Capitaliste'),L4('Verdiene 10.000 $','Earn $10,000','Gana 10.000 $','Gagne 10 000 $'),()=>STATS.earned>=10000],
+ ['jack',T4('Jackpot','Jackpot','Jackpot','Jackpot'),L4('Gewinne 20-fach oder mehr am Automaten','Win 20× or more on the slots','Gana 20× o más en la tragaperras','Gagne 20× ou plus à la machine'),()=>STATS.jack>=1],
+ ['q5',T4('Zuverlässig','Reliable','Fiable','Fiable'),L4('Erledige 5 Aufträge','Complete 5 jobs','Completa 5 encargos','Termine 5 missions'),()=>STATS.quests>=5],
+ ['sp4',T4('Entdecker','Explorer','Explorador','Explorateur'),L4('Betritt alle 4 besonderen Orte','Enter all 4 special places','Entra en los 4 lugares especiales','Entre dans les 4 lieux spéciaux'),()=>(STATS.sp||[]).length>=4],
+ ['l5',T4('Geübt','Practised','Experto','Expérimenté'),L4('Bringe eine Fähigkeit auf Stufe 5','Get a skill to level 5','Sube una habilidad a nivel 5','Monte une compétence au niveau 5'),()=>(STATS.maxLv||1)>=5],
+ ['l10',T4('Meister','Master','Maestro','Maître'),L4('Bringe eine Fähigkeit auf Stufe 10','Get a skill to level 10','Sube una habilidad a nivel 10','Monte une compétence au niveau 10'),()=>(STATS.maxLv||1)>=10],
+ ['cure',T4('Geheilt','Cured','Curado','Guéri'),L4('Besiege eine Infektion','Beat an infection','Vence una infección','Vaincs une infection'),()=>STATS.cure>=1],
+ ['rec3',T4('Anführer','Leader','Líder','Chef'),L4('Habe 3 Verbündete gleichzeitig','Have 3 allies at once','Ten 3 aliados a la vez','Aie 3 alliés en même temps'),()=>STATS.rec>=3],
+ ['walk',T4('Wanderer','Wanderer','Caminante','Vagabond'),L4('Lege 10 km zu Fuß zurück','Walk 10 km','Camina 10 km','Marche 10 km'),()=>(STATS.walk||0)>=10000]];
+let ACHG=new Set();try{ACHG=new Set(JSON.parse(LS.get('zw4_ach')||'[]'))}catch(e){}
+function achCheck(){for(const[id,n,,f]of ACH){if(ACHG.has(id))continue;let ok=false;try{ok=!!f()}catch(e){}if(ok){ACHG.add(id);try{LS.set('zw4_ach',JSON.stringify([...ACHG]))}catch(e){}evBanner(tr(V54.unl),tr(n));coinS(4)}}}
+// ---------- Fortschritts-Fenster ----------
+{const d=document.createElement('div');d.id='prog';d.className='pn hide';d.innerHTML='<div class="pgw"><div class="pgh"><b data-t>Fortschritt</b><button class="ib" id="pgX" data-ic="x"></button></div><div class="pgt" id="pgT"></div><div class="pgb" id="pgB"></div></div>';document.body.appendChild(d);
+ const st=document.createElement('style');st.textContent=`#prog{z-index:40;align-items:center;justify-content:center}#prog .pgw{width:min(720px,100%);max-height:100%;display:flex;flex-direction:column;gap:10px;background:#15120f;border:2px solid #3a332b;padding:14px;box-shadow:0 10px 40px rgba(0,0,0,.6)}
+#prog .pgh{display:flex;justify-content:space-between;align-items:center;font-size:18px;letter-spacing:1px;text-transform:uppercase}#prog .pgt{display:flex;gap:6px;flex-wrap:wrap}
+#prog .pgt button{background:#221d19;border:2px solid #3a332b;color:#cfc3a8;padding:6px 12px;font:inherit;font-weight:700}#prog .pgt button.on{border-color:#ffd23a;color:#ffd23a}
+#prog .pgb{overflow-y:auto;display:flex;flex-direction:column;gap:8px;min-height:0}#prog .row{background:#1c1814;border:1px solid #332c25;padding:8px 10px;display:flex;flex-direction:column;gap:5px}
+#prog .row b{font-size:14px}#prog .row small{opacity:.7}#prog .bar{height:8px;background:#0c0a08;border:1px solid #2a241e}#prog .bar i{display:block;height:100%;background:linear-gradient(90deg,#c8901e,#ffd23a)}
+#prog .ach{flex-direction:row;align-items:center;gap:10px}#prog .ach.lock{opacity:.4}#prog .ach .md{width:28px;height:28px;flex:none;border:2px solid #ffd23a;background:radial-gradient(circle,#ffe08a,#c8901e);box-shadow:inset 0 0 0 2px #3a2a10}#prog .ach.lock .md{border-color:#555;background:#2a2622}
+#prog .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:6px}#prog .grid div{background:#1c1814;border:1px solid #332c25;padding:8px 10px;display:flex;justify-content:space-between;gap:8px}#prog .grid span{opacity:.75}#prog .grid b{color:#ffd23a}`;document.head.appendChild(st)}
+let PGT='sk';
+function renderProg(){$('pgT').innerHTML=[['sk',V54.sk],['ach',V54.ach],['st',V54.st]].map(([k,n])=>`<button data-pt="${k}" class="${PGT===k?'on':''}">${tr(n)}${k==='ach'?' '+ACH.filter(a=>ACHG.has(a[0])).length+'/'+ACH.length:''}</button>`).join('');let h='';
+ if(PGT==='sk')h=Object.keys(SK).map(k=>{const l=skLv(k),a=XPN[l-1],b=XPN[l]||XPN[XPN.length-1],p=l>=10?100:Math.round((SK[k]-a)/(b-a)*100);return`<div class="row"><b>${tr(V54.skN[k])} · ${tr(V54.lv)} ${l}/10</b><div class="bar"><i style="width:${p}%"></i></div><small>${tr(V54.skD[k])}</small></div>`}).join('');
+ else if(PGT==='ach')h=ACH.map(([id,n,d])=>`<div class="row ach${ACHG.has(id)?'':' lock'}"><div class="md"></div><div><b>${tr(n)}</b><br><small>${tr(d)}</small></div></div>`).join('');
+ else{const f=(k,v)=>`<div><span>${tr(V54.sN[k])}</span><b>${v}</b></div>`;h='<div class="grid">'+f('zk',STATS.zk||0)+f('bk',STATS.bk||0)+f('boss',STATS.boss||0)+f('dog',STATS.dog||0)+f('day',Math.max(STATS.day||0,dayN()))+f('walk',((STATS.walk||0)/1000).toFixed(1))+f('drive',((STATS.drive||0)/1000).toFixed(1))+f('built',STATS.built||0)+f('crafted',STATS.crafted||0)+f('earned',(STATS.earned||0).toLocaleString())+f('quests',STATS.quests||0)+f('cure',STATS.cure||0)+'</div>'}
+ $('pgB').innerHTML=h}
+function openProg(){renderProg();$('prog').classList.remove('hide');S.ui()}
+$('pgX').innerHTML=icoImg('x');$('pgX').onclick=()=>{$('prog').classList.add('hide');S.ui()};$('pgT').onclick=e=>{const b=e.target.closest('[data-pt]');if(!b)return;PGT=b.dataset.pt;S.ui();renderProg()};
+{const pl=$('pLex');if(pl){const b=document.createElement('button');b.className='btn';b.id='pProg';b.innerHTML='<i class="ic">'+icoImg('star')+'</i><span data-t>Fortschritt</span>';pl.parentNode.insertBefore(b,pl.nextSibling);b.onclick=openProg}}
+T4('Fortschritt','Progress','Progreso','Progrès');
+if(!ICO.star){ICO.star=outline(cv(16,16,P=>{P('#ffd23a',7,1,2,3);P('#ffd23a',5,4,6,2);P('#ffd23a',1,6,14,2);P('#ffd23a',3,8,10,2);P('#ffd23a',4,10,3,3);P('#ffd23a',9,10,3,3);P('#c8901e',6,8,4,2);P('#fff0a0',7,2,1,2)}));delete ICU.star}
+// ---------- Speichern ----------
+{const _s=save;save=function(q){_s(q);try{const k='zw4_h'+slot,o=JSON.parse(LS.get(k)||'{}')||{};o.v54={st:STATS,sk:SK,q:QST};LS.set(k,JSON.stringify(o))}catch(e){}}}
+{const _l=load;load=function(s){const r=_l(s);try{const o=JSON.parse(LS.get('zw4_h'+s));if(o&&o.v54){STATS=o.v54.st||{};SK=Object.assign({mel:0,gun:0,bau:0,koch:0},o.v54.sk||{});QST=o.v54.q||[]}else{STATS={};SK={mel:0,gun:0,bau:0,koch:0};QST=[]}window.STATS=STATS}catch(e){}return r}}
+{const _n=newGame;newGame=function(s,cc){STATS={};window.STATS=STATS;SK={mel:0,gun:0,bau:0,koch:0};QST=[];return _n(s,cc)}}
+applyLang();
+// ================= v55: Stromnetz (Generator versorgt das ganze Haus) · Alarmanlage · Überwachungskamera · Klares Baumenü =================
+const V55={
+ genD:L4('Generator: versorgt alle Lampen, Alarmanlagen und Kameras in 16 Feldern · braucht Benzin','Generator: powers all lamps, alarms and cameras within 16 tiles · needs fuel','Generador: alimenta todas las lámparas, alarmas y cámaras a 16 casillas · necesita gasolina','Générateur : alimente lampes, alarmes et caméras à 16 cases · carburant'),
+ al:T4('Alarmanlage','Alarm system','Sistema de alarma','Système d’alarme'),alD:L4('An eine Wand – meldet Zombies und Banditen in 10 Feldern. Braucht Strom.','On a wall – reports zombies and bandits within 10 tiles. Needs power.','En una pared: avisa de zombis y bandidos a 10 casillas. Necesita corriente.','Sur un mur – signale zombies et bandits à 10 cases. Courant requis.'),
+ cam:T4('Überwachungskamera','Security camera','Cámara de vigilancia','Caméra de surveillance'),camD:L4('An eine Wand – zeigt Gegner in 9 Feldern auf der Karte, auch nachts. Braucht Strom.','On a wall – shows enemies within 9 tiles on the map, even at night. Needs power.','En una pared: muestra enemigos a 9 casillas en el mapa, incluso de noche. Necesita corriente.','Sur un mur – montre les ennemis à 9 cases sur la carte, même la nuit. Courant requis.'),
+ alarm:L4('ALARM an deiner Basis!','ALARM at your base!','¡ALARMA en tu base!','ALARME à ta base !'),camS:L4('Kamera: {n} Gegner an deiner Basis','Camera: {n} enemies at your base','Cámara: {n} enemigos en tu base','Caméra : {n} ennemis à ta base'),
+ off:L4('Kein Strom – Generator oder Solarpanel in der Nähe nötig','No power – needs a generator or solar panel nearby','Sin corriente: hace falta un generador o panel solar cerca','Pas de courant – il faut un générateur ou un panneau solaire'),on:T4('Strom an','Powered','Con corriente','Alimenté')};
+// ---------- Geräte ----------
+S2('alarmanlage',[mkSp(9,9,P=>{P('#d8d8d4',0,0,9,9);P('#f0f0ec',0,0,9,1);P('#3a3c42',1,2,7,4);P('#c03a2a',3,3,3,2);P('#8a8e96',2,7,5,1)})],-18);
+S2('kamera',[mkSp(12,8,P=>{P('#5a5e66',0,0,3,3);P('#e8e4dc',2,2,8,5);P('#c8c4bc',2,6,8,1);P('#1a1a1a',9,3,3,3);P('#4a7ab8',10,4,1,1);P('#8a8e96',0,0,2,1)})],-18);
+WALLM.add('alarmanlage');WALLM.add('kamera');
+for(const[id,cost,n,ds]of[['alarmanlage',{elektronik:2,kabel:3,schrott:2},V55.al,V55.alD],['kamera',{elektronik:2,glas:1,kabel:2,schrott:1},V55.cam,V55.camD]]){for(const m in cost)if(!D[m])delete cost[m];BP[id]={id,cat:'strom',k:'t',tg:T[id],cost,n};BDESC[id]=ds;makeKitAny(BP[id])}
+if(BDESC.generator!=null)BDESC.generator=V55.genD;
+// ---------- Strom ----------
+const fueled=()=>{const L=[];for(const k of own)if(mods.get(k)===T.generator&&(GENF.get(LV+':'+k)||0)>0)L.push(kxy(k));return L};
+const solars=()=>{const L=[];for(const k of own)if(mods.get(k)===T.solarpanel)L.push(kxy(k));return L};
+function powered(x,y){for(const[gx,gy]of fueled())if(Math.max(Math.abs(gx-x),Math.abs(gy-y))<=16)return true;for(const[sx,sy]of solars())if(Math.max(Math.abs(sx-x),Math.abs(sy-y))<=8)return true;return false}
+{const _pt=powerTick;powerTick=function(){_pt();if(!P)return;const G_=fueled();if(!G_.length)return;for(const k of own){const tt=mods.get(k);if(ELAMP[tt]==null)continue;const[x,y]=kxy(k);if(G_.some(([gx,gy])=>Math.max(Math.abs(gx-x),Math.abs(gy-y))<=16))mods.set(k,ELAMP[tt])}}}
+XDRAW[T.alarmanlage]=(dx,dy,tx,ty)=>{if(!powered(tx,ty))return;const k=tx*65536+ty,hot=ALT.get(k)&&t-ALT.get(k)<300;g.fillStyle=hot?(fc%10<5?'#ff3020':'#600'):(fc%60<6?'#ff5040':'#7a2018');g.fillRect(RQ(dx+7),RQ(dy-14),2,2)};
+XDRAW[T.kamera]=(dx,dy,tx,ty)=>{if(!powered(tx,ty))return;g.fillStyle=fc%50<25?'#40ff60':'#1a6a2a';g.fillRect(RQ(dx+4),RQ(dy-16),1,1)};
+// ---------- Alarm & Kamera ----------
+const ALT=new Map();let CAMW=0,CAMD=[];
+const enemiesNear=(x,y,r)=>{const L=[];for(const z of Zs)if(z.hp>0&&dist(z.x,z.y,x,y)<r)L.push(z);for(const h of(window.HU||[]))if(h.team==='b'&&h.hp>0&&dist(h.x,h.y,x,y)<r)L.push(h);return L};
+const alSiren=()=>{if(!AC)return;A(P.x,P.y,.7,0,(b,t2)=>{for(let i=0;i<6;i++){tn(b,t2+i*.28,.14,'square',1180,1180,.12);tn(b,t2+i*.28+.14,.14,'square',880,880,.12)}})};
+{const _st=step;step=function(){_st();if(state!==1||!P||LV||t%30)return;CAMD=[];let camN=0,far=0;
+ for(const k of own){const tt=mods.get(k);if(tt!==T.alarmanlage&&tt!==T.kamera)continue;const[x,y]=kxy(k);if(!powered(x,y))continue;const X=x*16+8,Y=y*16+8;
+  if(tt===T.alarmanlage){const E=enemiesNear(X,Y,160);if(E.length&&t-(ALT.get(k)||-1e9)>900){ALT.set(k,t);alSiren();toast(tr(V55.alarm),'bad');if(dist(X,Y,P.x,P.y)>400&&typeof evBanner==='function')evBanner(tr(V55.alarm),E.length+'')}}
+  else{const E=enemiesNear(X,Y,144);for(const e of E)CAMD.push(e);camN+=E.length;if(dist(X,Y,P.x,P.y)>400)far=1}}
+ if(camN&&far&&t-CAMW>2400){CAMW=t;toast(tr(V55.camS).replace('{n}',camN),'bad')}}}
+// Karte: Kamera-Bilder
+{const _dm=drawMap;drawMap=function(c,R){const r=_dm(c,R);if(!P||LV||!CAMD.length)return r;const x=c.getContext('2d'),ptx=P.x/16,pty=P.y/16,mini=c&&c.id==='mm';
+ for(const e of CAMD){if(e.hp<=0)continue;let i,j,s;if(mini){if(typeof MMR==='undefined')continue;i=(e.x/16-ptx+MMR)*MMS;j=(e.y/16-pty+MMR)*MMS;s=3}else{i=e.x/16-ptx+R;j=e.y/16-pty+R;s=2}x.fillStyle=e.team==='b'?'#ff8a2a':'#ff3020';x.fillRect(Math.round(i-s/2),Math.round(j-s/2),s,s)}return r}}
+// Hinweis, wenn ohne Strom platziert
+{const _b=doBuild;doBuild=function(a){const id=BM;const r=_b(a);if((id==='alarmanlage'||id==='kamera')&&a&&!powered(a.tx,a.ty))toast(tr(V55.off),'bad');return r}}
+// ---------- Baumenü: schlicht & klar ----------
+{const st=document.createElement('style');st.textContent=`
+#bld{background:#110f0d!important;border-image:none!important;border:0!important;border-top:1px solid #2e2822!important;padding:12px 14px calc(env(safe-area-inset-bottom,0px) + 12px)!important;box-shadow:0 -10px 30px rgba(0,0,0,.5)!important}
+#bld::before{display:none!important}
+#bld .hdr{margin-bottom:4px}#bld .ttl2{font-size:15px!important;letter-spacing:2px}
+#btabs{display:flex!important;flex-wrap:nowrap!important;gap:6px!important;overflow-x:auto;padding:2px 0 6px;scrollbar-width:none}#btabs::-webkit-scrollbar{display:none}
+#bld .btab{background:#1b1815!important;border:1px solid #2f2923!important;border-radius:999px!important;clip-path:none!important;box-shadow:none!important;padding:6px 12px!important;font-size:11px!important;letter-spacing:.6px;color:#b8ab92!important;flex:none}
+#bld .btab .ic{width:14px;height:14px;opacity:.85}
+#bld .btab.on{background:#ffd23a!important;border-color:#ffd23a!important;color:#1a1408!important}#bld .btab.on .ic{filter:brightness(.2)}
+#bl{grid-template-columns:repeat(auto-fill,minmax(104px,1fr))!important;gap:8px!important;padding-top:4px}
+#bl .bc{background:#1a1714!important;border:1px solid #2c2620!important;border-radius:10px!important;clip-path:none!important;box-shadow:none!important;padding:10px 6px 8px!important;gap:5px!important;transition:border-color .15s,transform .1s}
+#bl .bc:active{transform:scale(.97);border-color:#ffd23a!important}
+#bl .bc>img{width:38px!important;height:44px!important;object-fit:contain;image-rendering:pixelated}
+#bl .bc b{font-size:11.5px!important;font-weight:700;color:#efe6d4;text-align:center;line-height:1.15}
+#bl .bc .cost{gap:4px!important;flex-wrap:wrap;justify-content:center}#bl .bc .cost span{background:#0e0c0a;border-radius:6px;padding:1px 5px 1px 3px;font-size:10.5px}
+#bl .bc small{font-size:9px!important;opacity:.6;text-align:center}
+#bl .bc.no{opacity:.42}#bl .bc.no.kitn{opacity:.75;background:transparent!important;border-style:dashed!important}
+#bl .bc .wbn{border-radius:6px}
+#bl .bc b{overflow-wrap:anywhere;hyphens:auto;max-width:100%}
+#bld #bldD{background:#2a1512!important;border:1px solid #6a2a22!important;border-image:none!important;border-radius:999px!important;box-shadow:none!important;clip-path:none!important;padding:6px 14px!important;min-width:0!important;font-size:12px!important;color:#ffb0a0!important}
+#bld #bldD .ic{width:16px;height:16px}
+#bld #bldX{border-radius:999px!important;background:#1b1815!important;border:1px solid #2f2923!important;border-image:none!important;box-shadow:none!important}`;document.head.appendChild(st)}
 applyLang();
 </script><script>if('serviceWorker'in navigator&&location.protocol.startsWith('http'))addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));</script></body></html>
