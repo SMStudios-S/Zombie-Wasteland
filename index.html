@@ -6393,9 +6393,11 @@ window.drawHeld=(id,ex,ey,ax,ay,sw,mel,moving,f,kick)=>drawHeld8(id,ex,ey,ax,ay,
 drawHeld=window.drawHeld;
 drawWeapon=function(){const it=qs[P.sel],d=it?D[it.id]:null;if(!d||d.thr)return;const sw=P.sw>0&&d.mel?(P.sw-6)*.22:0,kick=!d.mel&&P.cd>0&&d.cd&&P.cd/d.cd>.7?2:0;drawHeld8(it.id,P.x-cx,P.y-cy,P.ax,P.ay,sw,d.mel,P.mv,P.f||0,kick)};
 // ---------- 2. Seltenheit: Gegenstand farbig umrandet ----------
-const rarF=r=>{const c=RC[r];return`filter:drop-shadow(2px 0 0 ${c}) drop-shadow(-2px 0 0 ${c}) drop-shadow(0 2px 0 ${c}) drop-shadow(0 -2px 0 ${c})`};
-{const _s=slotH;slotH=function(it,src,i,cls){let h=_s(it,src,i,cls);if(it&&it.r>0)h=h.replace('<img class="px"','<img class="px" style="'+rarF(it.r)+'"');return h}}
-{const _h=hud;hud=function(){_h();if(state!==1)return;const els=document.querySelectorAll('#qs .q[data-i]');els.forEach(el=>{const it=qs[+el.dataset.i],img=el.querySelector('img');if(!img)return;const want=it&&it.r>0?rarF(it.r):'';if(img.dataset.rf!==want){img.dataset.rf=want;img.style.filter=want?want.slice(7):''}})}}
+const rarB=c=>`<b class="rbd" style="border-color:${c};box-shadow:inset 0 0 8px ${c}66"></b>`;
+{const st=document.createElement('style');st.textContent='.sl,.q{position:relative}.rbd{position:absolute;inset:2px;border:2px solid;pointer-events:none;z-index:1}';document.head.appendChild(st)}
+{const _s=slotH;slotH=function(it,src,i,cls){let h=_s(it,src,i,cls);if(it&&it.r>0){const k=h.indexOf('>');h=h.slice(0,k+1)+rarB(RC[it.r])+h.slice(k+1)}return h}}
+{const _h=hud;hud=function(){_h();if(state!==1)return;const els=document.querySelectorAll('#qs .q[data-i]');els.forEach(el=>{const it=qs[+el.dataset.i];const want=it&&it.r>0?RC[it.r]:'';let bd=el.querySelector(':scope>.rbd');
+ if(want){if(!bd){bd=document.createElement('b');bd.className='rbd';el.appendChild(bd)}if(bd.dataset.c!==want){bd.dataset.c=want;bd.style.borderColor=want;bd.style.boxShadow='inset 0 0 8px '+want+'66'}}else if(bd)bd.remove();const img=el.querySelector('img');if(img&&img.style.filter)img.style.filter=''})}}
 // Werkbank- & Kisten-Karten: Waffen mit fester Seltenheit ebenfalls
 {const st=document.createElement('style');st.textContent=`.sl img.px{transition:filter .2s}`;document.head.appendChild(st)}
 // ---------- 3. Karte: Regionen als Übersicht, Erkundetes im Detail ----------
@@ -6811,5 +6813,39 @@ function shopClick(e){const o=SHOP.o,st=stockOf(o);const tb=e.target.closest('[d
   const it=mkItem(s.id,n,s.r);if(D[s.id].mag&&!D[s.id].mel)it.m=D[s.id].mag;if(it.d!=null)it.d=100;if(!addItem(it))dropIt(it,P.x,P.y,1);if(!s.base)s.sold=1;coinS(3);toast(tr(V48.bought)+': '+tr(D[s.id].n),'good');renderShop();return}
  const sv=e.target.closest('[data-sv]');if(sv){const i=+sv.dataset.sv,it=inv[i];if(!it)return;const v=valOf(it);inv[i]=null;earn(v);coinS(2);toast(tr(V48.soldT)+': '+tr(D[it.id].n)+' +'+v+' $','good');renderShop()}}
 function openShop(h){const o=OUTP[h.opid]||OUTP[0];SHOP={o,tab:'buy'};renderShop()}
+applyLang();
+// ================= v49: Banditen überfahren & mit Explosionen/Geschützen treffen · Neue, klare Aktionsknöpfe =================
+// ---------- 1. Fahrzeuge überfahren Banditen ----------
+{const _st=step;step=function(){_st();if(state!==1||!P||LV||!P.veh||!window.HU)return;const v=P.veh,d=VT[v.k];if(!d||Math.abs(v.spd)<=.8)return;const c=Math.cos(v.a),s=Math.sin(v.a);
+ for(const h of HU.slice()){if(h.team!=='b'||h.hp<=0)continue;if(h.vhit&&h.vhit>t)continue;const dd=dist(h.x,h.y,v.x,v.y);if(dd>=d.w*.45+5)continue;
+  h.vhit=t+18;dmgH(h,Math.abs(v.spd)*4,c*v.spd*2,s*v.spd*2,'p');if(h.hp>0){const nx=h.x+c*v.spd*8,ny=h.y+s*v.spd*8;if(!bl(nx,ny)){h.x=nx;h.y=ny}}
+  v.spd*=.86;v.hp-=1.2;splat(h.x,h.y,1);S.thud&&S.thud(h.x,h.y);shk=Math.min(6,shk+2)}}}
+// ---------- 2. Explosionen treffen Banditen ----------
+{const _b=boom;boom=function(x,y){const r=_b(x,y);if(window.HU)for(const h of HU.slice()){if(h.team!=='b'||h.hp<=0)continue;const d=dist(h.x,h.y,x,y);if(d<48)dmgH(h,16*(1-d/48)+3,(h.x-x)/(d||1)*3,(h.y-y)/(d||1)*3,'p')}return r}}
+// ---------- 3. Geschütze schießen auch auf Banditen (wenn kein Zombie in Reichweite ist) ----------
+{const _st=step;step=function(){_st();if(state!==1||!P||LV||t%24!==12||!window.HU)return;const B=HU.filter(h=>h.team==='b'&&h.hp>0);if(!B.length)return;
+ for(const k of own){const[tx,ty]=kxy(k);const tt=tile(tx,ty),C=TURC[tt];if(!C)continue;const cx_=tx*16+8,cy_=ty*16+8;if(Math.abs(cx_-P.x)>520||Math.abs(cy_-P.y)>400)continue;
+  const st=stor.get(k);if(!st||!st.items)continue;const ai=st.items.findIndex(it=>it&&C.am.includes(it.id)&&it.n>0);if(ai<0)continue;
+  if(Zs.some(z=>z.hp>0&&dist(z.x,z.y,cx_,cy_)<C.rg))continue;let best=null,bd=C.rg;for(const h of B){const d=dist(h.x,h.y,cx_,cy_);if(d<bd&&los(cx_,cy_-6,h.x,h.y-6)){bd=d;best=h}}if(!best)continue;
+  const a=Math.atan2(best.y-6-(cy_-6),best.x-cx_);TURA.set(k,a);TURF.set(k,C.bolt?0:3);const it=st.items[ai];it.n--;if(it.n<=0)st.items[ai]=null;
+  Bs.push({x:cx_+Math.cos(a)*9,y:cy_-6+Math.sin(a)*9,px:cx_,py:cy_-6,vx:Math.cos(a)*C.sp,vy:Math.sin(a)*C.sp,l:C.l,dm:C.dm,pi:C.pi||0,h:[],bolt:!!C.bolt});
+  if(C.bolt){S.bow&&S.bow()}else S.shot(C.snd);noise(cx_,cy_,C.nz)}}}
+// ---------- 4. Aktionsknöpfe: schlicht, halbtransparent, klare Ringe ----------
+{const st=document.createElement('style');st.textContent=`
+#game .cb{background:rgba(14,16,18,.58)!important;background-image:none!important;border:2px solid rgba(235,228,214,.32)!important;border-radius:50%!important;
+ box-shadow:0 2px 10px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.08)!important;filter:none!important;-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);image-rendering:auto}
+#game .cb img{filter:drop-shadow(0 1px 1px rgba(0,0,0,.7))}
+#game .cb small{font-size:8px!important;letter-spacing:.6px;font-weight:700;color:rgba(240,234,222,.85)!important;text-shadow:0 1px 2px #000!important;margin-top:2px}
+#game .cb:active{background:rgba(40,42,44,.7)!important;transform:scale(.93)}
+#game #fire{background:radial-gradient(circle at 50% 40%,rgba(120,30,24,.62),rgba(40,10,8,.7))!important;border:2px solid rgba(240,96,80,.8)!important;box-shadow:0 2px 12px rgba(0,0,0,.5),0 0 0 4px rgba(240,96,80,.12)!important}
+#game #fire::before{display:none!important}
+#game #fire small{font-size:10px!important;font-family:ui-monospace,Menlo,monospace;color:#fff!important}
+#game #fire:active{background:radial-gradient(circle at 50% 40%,rgba(170,46,36,.7),rgba(60,14,10,.75))!important}
+#game #act{border-color:rgba(170,210,120,.7)!important;--ac:#b8e07a}
+#game #act::before{inset:-5px!important}
+#game #act.off{opacity:.35}
+#game #rel,#game #crouch{border-color:rgba(235,228,214,.28)!important}
+#game #crouch.on{border-color:#ffd76a!important;box-shadow:0 0 0 3px rgba(255,215,106,.2),0 2px 10px rgba(0,0,0,.45)!important}
+#game #crouch.on small{color:#ffd76a!important}`;document.head.appendChild(st)}
 applyLang();
 </script><script>if('serviceWorker'in navigator&&location.protocol.startsWith('http'))addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));</script></body></html>
