@@ -925,7 +925,7 @@ const TN=['leer','baum','tanne','totbaum','busch','beeren','beeren_leer','pilze'
  'unkraut','distel','brennnessel','wildblume','loewenzahn','moos','gestruepp','efeu',
  'wellblech','bretterwand','zinnen','rolltor','rolltor_o','lagerregal','feuertonne','wachturm','betonsperre',
  'gitarre','teddy','kerzenst','totempfahl','reifenstapel','palettenst','keepout','oellampe','blumenkuebel','sonnenliege','gasflaschen','pflanzregal',
- 'treppe','treppe_ob','waffenstaender','wandhalter','solarpanel','lichtschalter','deckenlampe','deckenlampe_an','wandlampe','wandlampe_an','flutlicht','flutlicht_an','geschuetz_a','geschuetz_g','stahlwand','stahltuer','stahltuer_o','etagenbett','haengematte','couchtisch','bild','wanduhr','spiegel','dartscheibe','boxsack','waschmaschine','kaffeemaschine','weinregal','werkzeugwand','barhocker','tresen','jukebox','generator','holzstapel','tonne','schaukelstuhl','arcade','automat','pinnwand','kronleuchter','kronleuchter_an','neonschild','neonschild_an','lavalampe','ampel','bushaltestelle','telefonzelle','litfass','aktenschrank','buerostuhl','kopierer','wasserspender','globus','hoftor_l','hoftor_m','hoftor_r','hoftor_lo','hoftor_mo','hoftor_ro','gartentor','gartentor_o','maschendraht','schiessscharte','fensterladen','fensterladen_o','nagelbrett','hochbeet','sprinkler','kompost','gewaechshaus','waescheleine','hundehuette','gartenlaterne','teich','hochsitz','futterkrippe','spieltisch','roulette','slotmaschine','alarmanlage','kamera','funkturm','betonwand','munipresse','heizofen','koeder','landmine','ezaun'];
+ 'treppe','treppe_ob','waffenstaender','wandhalter','solarpanel','lichtschalter','deckenlampe','deckenlampe_an','wandlampe','wandlampe_an','flutlicht','flutlicht_an','geschuetz_a','geschuetz_g','stahlwand','stahltuer','stahltuer_o','etagenbett','haengematte','couchtisch','bild','wanduhr','spiegel','dartscheibe','boxsack','waschmaschine','kaffeemaschine','weinregal','werkzeugwand','barhocker','tresen','jukebox','generator','holzstapel','tonne','schaukelstuhl','arcade','automat','pinnwand','kronleuchter','kronleuchter_an','neonschild','neonschild_an','lavalampe','ampel','bushaltestelle','telefonzelle','litfass','aktenschrank','buerostuhl','kopierer','wasserspender','globus','hoftor_l','hoftor_m','hoftor_r','hoftor_lo','hoftor_mo','hoftor_ro','gartentor','gartentor_o','maschendraht','schiessscharte','fensterladen','fensterladen_o','nagelbrett','hochbeet','sprinkler','kompost','gewaechshaus','waescheleine','hundehuette','gartenlaterne','teich','hochsitz','futterkrippe','spieltisch','roulette','slotmaschine','alarmanlage','kamera','funkturm','betonwand','munipresse','heizofen','koeder','landmine','ezaun','repbank'];
 const T={};TN.forEach((n,i)=>T[n]=i);const COOK=new Uint8Array(512),XLIGHT={},XDRAW={},NOSWAY=new Uint8Array(512),CONN={};
 const flag=l=>{const a=new Uint8Array(512);l.forEach(n=>a[T[n]]=1);return a};
 const TSOL=flag(['baum','tanne','totbaum','stein','kiste','mkiste','kiste_offen','auto','auto_leer','fass','muell','muell_leer','laterne','hwand','hfassade','hfenster','htuer','schrank','schrank_leer','regal','regal_leer','kuehl','kuehl_leer','bett','tisch','sofa','herd','holzwand','steinwand','tuer','feuer','ziegelwand','metallwand','fensterwand','mtuer','zaun','stuhl','tv','tv_an','lampe','lampe_an','pflanze','regentonne','kiste_s','kiste_m','spind','auto_ausg',
@@ -2153,7 +2153,7 @@ function findAct(){
  const fx=P.x+P.fx*12,fy=P.y+P.fy*12,ptx=Math.floor(P.x/16),pty=Math.floor(P.y/16);let best=null,bs=1e9;
  for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){const tx=ptx+dx,ty=pty+dy,tt=tile(tx,ty),a=ACT[tt],ccx=tx*16+8,ccy=ty*16+8;
   if(dist(ccx,ccy,P.x,P.y)>24)continue;const s=dist(ccx,ccy,fx,fy);
-  if(a){if((tt===T.feuer||tt===T.herd||tt===T.kamin||COOK[tt])&&!countA('fleisch_r')&&!countA('fisch_r'))continue;if(tt===T.lampe&&0)continue;if(DOORS[tt]&&TSOL[DOORS[tt]]&&occupied(tx,ty))continue;if(s<bs){bs=s;best=Object.assign({k:'tile',tx,ty,tt},a)}}
+  if(a){if(tt===T.lampe&&0)continue;if(DOORS[tt]&&TSOL[DOORS[tt]]&&occupied(tx,ty))continue;if(s<bs){bs=s;best=Object.assign({k:'tile',tx,ty,tt},a)}}
   else if(isW(gnd(tx,ty))&&s+6<bs){bs=s+6;best={k:'water',tx,ty,tt,ic:'drop',l:'Trinken',dur:30,sw:gnd(tx,ty)===G.sumpfwasser}}}
  for(const v of VS){const dv=dist(v.x,v.y,P.x,P.y),R=Math.max(VT[v.k].w,VT[v.k].h)/2;if(dv<R+10&&(!best||dv<R+3))return{k:'veh',v,ic:'car',l:tr(VT[v.k].n)}}
  return best}
@@ -5253,7 +5253,7 @@ lightPass=function(lights,dk){
  g.imageSmoothingEnabled=true;g.drawImage(lc,0,0,W,Hh);g.imageSmoothingEnabled=false;
  g.globalCompositeOperation='lighter';for(const[x,y,r,i,w,rm]of L){if(!w)continue;one(g,x,y,r*.8,i,rm,i=>`rgba(255,160,70,${.22*dk*i})`,()=>'rgba(255,140,55,'+(rm?.06*dk*i:0)+')',rm?.7:.99)}g.globalCompositeOperation='source-over'};
 // ================= 3. Fahrzeuge: ruhigere Lenkung, große Pfeiltasten =================
-{const _dr=drive;drive=function(v){window.STEERK=vUse()?.42:.62;try{return _dr(v)}finally{window.STEERK=1}}}
+{const _dr=drive;drive=function(v){window.STEERK=vUse()?.7:.95;try{return _dr(v)}finally{window.STEERK=1}}}
 {const st=document.createElement('style');st.textContent=`
 #vctl{zoom:1!important}
 #vctl .vg{bottom:calc(env(safe-area-inset-bottom,0px) + 12px)!important;gap:calc(var(--vh1,1vh)*4)!important}
@@ -5895,7 +5895,7 @@ function screamAt(z){z.scrd=1;const x=z.x,y=z.y;A(x,y,1,.6,(b,t2)=>{const o=AC.c
  for(const z of Zs){if(z.scr&&!z.scrd&&z.st==='chase'&&z.hp>0)screamAt(z);if(z.horde&&t%60===(z.id%60)&&z.st!=='chase'){z.st='inv';z.gx=P.x+(rnd()-.5)*30;z.gy=P.y+(rnd()-.5)*30;z.qa=40}
   if(z.scr&&t%16===z.id%16)pt({x:z.x+(rnd()-.5)*6,y:z.y-18,z:4,vx:0,vy:0,vz:.3,c:'#e8e8f0',k:'sm',l:18,ml:18,s:1});if(z.blo&&t%20===z.id%20)pt({x:z.x+(rnd()-.5)*8,y:z.y-10,z:3,vx:0,vy:0,vz:.2,c:'#8ab84a',k:'sm',l:26,ml:26,s:1})}
  // Hordennacht: jede 3. Nacht ab Tag 3
- if(d>=3&&d%3===0&&hr>=21&&EV.hd!==d){EV.hd=d;const n=12+Math.round(8*DIFF());EV.h={wave:0,waves:3,n,next:t+60,dir:rnd()*Math.PI*2,end:0};siren();evBanner(tr(V38.horde),tr(V38.hordeS));musicOn&&musicOn(true)}
+ if(d>=5&&d%5===0&&hr>=21&&EV.hd!==d){EV.hd=d;const n=12+Math.round(8*DIFF());EV.h={wave:0,waves:3,n,next:t+60,dir:rnd()*Math.PI*2,end:0};siren();evBanner(tr(V38.horde),tr(V38.hordeS));musicOn&&musicOn(true)}
  if(EV.h){const H=EV.h;if(H.wave<H.waves&&t>=H.next){H.wave++;spawnRing(H.n,H.dir+(H.wave-1)*.9,1.1,330);H.next=t+1800;toast(tr(V38.wave)+' '+H.wave+'/'+H.waves,'bad');A(null,null,.5,.2,(b,t2)=>{tn(lp(b,300),t2,1.2,'sawtooth',55,45,.4);nz(b,t2,1.2,'lowpass',300,.6,.3)});if(H.wave===H.waves)H.end=t+2400}
   if(H.end&&t>H.end&&!Zs.some(z=>z.horde&&z.hp>0)){EV.h=null;toast(tr(V38.over),'good')}else if(H.end&&t>H.end+5400)EV.h=null}
  // Banditen-Überfall: ab Tag 4, höchstens einmal am Tag
@@ -5907,7 +5907,7 @@ function screamAt(z){z.scrd=1;const x=z.x,y=z.y;A(x,y,1,.6,(b,t2)=>{const o=AC.c
 {const _df=drawFrame;drawFrame=function(){_df.apply(this,arguments);if(state===0||!EV.h)return;g.fillStyle=`rgba(140,0,0,${.1+Math.sin(fc*.03)*.03})`;g.fillRect(0,0,W,Hh)}}
 // Hinweis auf die nächste Horde in der Info-Box
 {const e=document.createElement('div');e.id='hzT';e.style.cssText='font-size:10px;color:#ff8a7a;white-space:nowrap;display:none';const box=$('info');if(box)box.appendChild(e);
- const _h=hud;hud=function(){_h();if(state!==1||!P||t%30)return;const d=dayN(),nx=d<3?3:Math.ceil(d/3)*3+(d%3===0&&hourOf(t)>=21?3:0),k=nx-d;e.style.display=k<=1||EV.h?'block':'none';e.textContent=EV.h?'☠ '+tr(V38.horde):'☠ '+tr(V38.next)+': '+(k===0?tr(V38.tonight):k===1?tr(V38.tom):tr(V38.inDays)+' '+k+' '+tr(V38.days))}}
+ const _h=hud;hud=function(){_h();if(state!==1||!P||t%30)return;const d=dayN(),nx=d<5?5:Math.ceil(d/5)*5+(d%5===0&&hourOf(t)>=21?5:0),k=nx-d;e.style.display=k<=1||EV.h?'block':'none';e.textContent=EV.h?'☠ '+tr(V38.horde):'☠ '+tr(V38.next)+': '+(k===0?tr(V38.tonight):k===1?tr(V38.tom):tr(V38.inDays)+' '+k+' '+tr(V38.days))}}
 // Speichern
 {const _s=save;save=function(q){_s(q);try{LS.set('zw4_e'+slot,JSON.stringify({hd:EV.hd,rd:EV.rd}))}catch(e){}}}
 {const _l=load;load=function(s){EV={hd:-1,rd:-1,h:null,rh:-1};const r=_l(s);try{const o=JSON.parse(LS.get('zw4_e'+s));if(o){EV.hd=o.hd;EV.rd=o.rd}}catch(e){}return r}}
@@ -6789,7 +6789,7 @@ const priceOf=(id,r)=>{const p=PRICE[id]?PRICE[id][0]:ATT[id]?attP(id):0;return 
 function stockOf(o){const day=dayN();if(!o.stk||o.stk.day!==day){let s=hh(day*31+o.id*7,day+3,SEED+9191)*1e6|0;const rr=()=>{s=(s*16807)%2147483647;return s/2147483647};
  const pool=ROT.slice(),items=[];for(let i=0;i<9&&pool.length;i++){const id=pool.splice((rr()*pool.length)|0,1)[0];let r=0;if(D[id].rar){const q=rr();r=q<.5?0:q<.78?1:q<.92?2:q<.985?3:4}items.push({id,r,sold:0})}
  const extra=['rakete','antibiotika','bolzen'].filter(k=>D[k]&&rr()<.5);for(const id of extra)items.push({id,r:0,sold:0,base:1});o.stk={day,items}}return o.stk}
-const valOf=it=>{const d=D[it.id];if(!d||it.id==='dollar')return 0;const r=it.r||0;if(PRICE[it.id]){const[p,n]=PRICE[it.id];return Math.max(1,Math.round(p/(n||1)*it.n*.45*(1+.3*r)))}
+const valOf=it=>{const d=D[it.id];if(!d||it.id==='dollar')return 0;const r=it.r||0;if(window.MATV&&MATV[it.id])return Math.max(1,Math.round(MATV[it.id]*it.n*.5));if(PRICE[it.id]){const[p,n]=PRICE[it.id];return Math.max(1,Math.round(p/(n||1)*it.n*.45*(1+.3*r)))}
  if(ATT[it.id])return Math.round(attP(it.id)*.3);if(d.c==='waf')return Math.round((d.mel?18:60)*(1+.6*r));if(d.c==='klei')return Math.round(12*(1+.6*r));if(d.c==='ver')return 4*it.n;if(d.c==='mun')return Math.max(1,it.n);if(d.c==='teil')return 6*it.n;if(d.c==='auf')return 60;return Math.max(1,Math.round(it.n*(d.tier!=null?1+d.tier*2:1)))};
 let SHOP={o:null,tab:'buy'};
 const rowH=(id,r,n,price,attr,dis,sub)=>`<div class="si">${icoImg(id)}<span class="nm"><b style="color:${r?RC[r]:'inherit'}">${tr(D[id].n)}${n>1?' ×'+n:''}</b><small>${sub||(r?tr(RN[r]):'')}</small></span><button class="zb pr${dis?' no':''}" ${attr}>${price} $</button></div>`;
@@ -8389,5 +8389,714 @@ for(const[de,en,es,fr]of[
  ['…jemand hat Vorräte vergraben… beim alten Felsen… ich kann nicht mehr hin…','…someone buried supplies… by the old rock… I can’t get there anymore…','…alguien enterró provisiones… junto a la vieja roca… ya no puedo ir…','…quelqu’un a enterré des provisions… près du vieux rocher… je ne peux plus y aller…'],
  ['Rauschen. Dann eine Kinderstimme: „Ist da jemand?“','Static. Then a child’s voice: “Is anyone there?”','Interferencias. Luego, la voz de un niño: «¿Hay alguien?».','Grésillements. Puis une voix d’enfant : « Il y a quelqu’un ? »']
 ])T4(de,en,es,fr);
+applyLang();
+// ================= v70: Sichtweite einstellbar · Menü passt immer · durchdachte Wirtschaft · leichteres Fahren · Eingabe-Erkennung & freie Tastenbelegung =================
+const V70={
+ pov:L4('Sichtweite','View distance','Distancia de visión','Distance de vue'),povD:L4('Kleiner = näher dran, größer = mehr Vogelperspektive. 80 ist normal.','Lower = closer, higher = more bird’s-eye view. 80 is normal.','Menos = más cerca, más = más vista de pájaro. 80 es lo normal.','Plus petit = plus près, plus grand = plus de vue d’en haut. 80 est normal.'),
+ dev:L4('Erkannt','Detected','Detectado','Détecté'),dT:L4('Touchscreen','Touchscreen','Pantalla táctil','Écran tactile'),dK:L4('Tastatur & Maus','Keyboard & mouse','Teclado y ratón','Clavier et souris'),dP:L4('Controller','Controller','Mando','Manette'),
+ keys:L4('Tastenbelegung','Key bindings','Asignación de teclas','Touches'),pad:L4('Controller-Belegung','Controller buttons','Botones del mando','Boutons de la manette'),
+ press:L4('Taste drücken …','Press a key …','Pulsa una tecla…','Appuie sur une touche…'),pressP:L4('Knopf am Controller drücken …','Press a controller button …','Pulsa un botón del mando…','Appuie sur un bouton de la manette…'),
+ reset:L4('Standard','Default','Predeterminado','Par défaut'),noPad:L4('Kein Controller verbunden – einfach einschalten und einen Knopf drücken.','No controller connected – turn it on and press any button.','No hay mando conectado: enciéndelo y pulsa un botón.','Aucune manette connectée – allume-la et appuie sur un bouton.'),
+ a:{up:L4('Hoch','Up','Arriba','Haut'),down:L4('Runter','Down','Abajo','Bas'),left:L4('Links','Left','Izquierda','Gauche'),right:L4('Rechts','Right','Derecha','Droite'),sneak:L4('Schleichen','Sneak','Sigilo','Furtif'),
+  fire:L4('Angreifen','Attack','Atacar','Attaquer'),use:L4('Benutzen','Use','Usar','Utiliser'),reload:L4('Nachladen','Reload','Recargar','Recharger'),crouch:L4('Ducken','Crouch','Agacharse','S’accroupir'),
+  s1:L4('Platz 1','Slot 1','Ranura 1','Emplacement 1'),s2:L4('Platz 2','Slot 2','Ranura 2','Emplacement 2'),s3:L4('Platz 3','Slot 3','Ranura 3','Emplacement 3'),drink:L4('Trinken','Drink','Beber','Boire'),eat:L4('Essen','Eat','Comer','Manger'),
+  inv:L4('Rucksack','Backpack','Mochila','Sac'),build:L4('Bauen','Build','Construir','Construire'),map:L4('Karte','Map','Mapa','Carte'),pause:L4('Pause','Pause','Pausa','Pause'),horn:L4('Hupe','Horn','Claxon','Klaxon'),fs:L4('Vollbild','Fullscreen','Pantalla completa','Plein écran'),
+  prev:L4('Platz zurück','Previous slot','Ranura anterior','Emplacement précédent'),next:L4('Platz vor','Next slot','Ranura siguiente','Emplacement suivant')},
+ val:L4('Wert','Value','Valor','Valeur')};
+
+// ---------- 1. Sichtweite (40–120, 80 = normal), pixelgenau ----------
+if(CFG.pov==null)CFG.pov=80;
+rs=function(){const ih=innerHeight,iw=innerWidth,base=Math.max(2,Math.round(Math.min(iw,ih)/185)),dpr=Math.max(1,Math.round(window.devicePixelRatio||1));
+ const pov=Math.max(40,Math.min(120,CFG.pov||80));let Zw=base*80/pov;const st_=dpr>=2?dpr:2;Z=Math.max(1,Math.round(Zw*st_)/st_);
+ {const cap=[1,2,3][CFG.q==null?2:CFG.q]||3,want=Math.max(1,Math.min(cap,Math.round(Z*Math.min(dpr,KQMAX,2))));SC=want;for(let s_=want;s_>=1;s_--){const r_=Z*dpr/s_;if(Math.abs(r_-Math.round(r_))<.02){SC=s_;break}}}W=Math.ceil(iw/Z);Hh=Math.ceil(ih/Z);
+ cv0.width=W*SC;cv0.height=Hh*SC;cv0.style.width=(W*Z)+'px';cv0.style.height=(Hh*Z)+'px';cv0.style.imageRendering='pixelated';
+ lc.width=W;lc.height=Hh;LS_=1;g.imageSmoothingEnabled=false;
+ const vg=(c1)=>{const c=mk(W,Hh),x=c.getContext('2d'),gr_=x.createRadialGradient(W/2,Hh/2,Math.min(W,Hh)*.32,W/2,Hh/2,Math.max(W,Hh)*.72);gr_.addColorStop(0,'rgba(0,0,0,0)');gr_.addColorStop(1,c1);x.fillStyle=gr_;x.fillRect(0,0,W,Hh);return c};
+ VIG=vg('rgba(0,0,0,.5)');RVIG=vg('rgba(150,0,0,.85)');try{SNOW.length=0}catch(e){}};
+{const pane=document.querySelector('#sets .spane[data-p="gfx"]');if(pane){const d=document.createElement('div');d.className='sopt';
+ d.innerHTML=`<h3>${tr(V70.pov)} <b id="sPovV" style="color:#ffd23a;margin-left:6px">${CFG.pov}</b></h3><input type="range" id="sPov" min="40" max="120" step="5" value="${CFG.pov}" style="width:100%;touch-action:auto"><small>${tr(V70.povD)}</small>`;pane.prepend(d);
+ let rt=0;$('sPov').oninput=e=>{CFG.pov=+e.target.value;$('sPovV').textContent=CFG.pov;clearTimeout(rt);rt=setTimeout(()=>{rs();saveCfg()},60)}}}
+rs();
+
+// ---------- 2. Hauptmenü: Titel nie abgeschnitten ----------
+{const st=document.createElement('style');st.textContent=`#menu{justify-content:safe center!important;overflow-y:auto!important;overflow-x:hidden}
+#menu.mt1{gap:4px!important}#menu.mt1 .btn.big{padding-top:5px!important;padding-bottom:5px!important}#menu.mt1 .ttl{font-size:30px!important}#menu.mt1 .ttl span{font-size:19px!important}
+#menu.mt2 .sub,#menu.mt2 .help{display:none!important}#menu.mt2 .ttl{font-size:24px!important}#menu.mt2 .ttl span{font-size:15px!important}#menu.mt2 .btn.big{padding-top:3px!important;padding-bottom:3px!important;font-size:13px!important}`;document.head.appendChild(st)}
+function fitMenu(){const m=$('menu');if(!m||m.classList.contains('hide'))return;m.classList.remove('mt1','mt2');if(m.scrollHeight>m.clientHeight+2){m.classList.add('mt1');if(m.scrollHeight>m.clientHeight+2)m.classList.add('mt2')}}
+{let rt=0;addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(fitMenu,150)});new MutationObserver(()=>setTimeout(fitMenu,30)).observe($('menu'),{attributes:true,attributeFilter:['class']});setTimeout(fitMenu,200)}
+
+// ---------- 3. Wirtschaft: jeder Rohstoff hat einen festen Wert ----------
+const MATV={holz:2,stein:2,schrott:3,stoff:3,nagel:1,glas:4,kabel:8,pulver:6,feder:2,klebeband:6,mechanik:15,batterie:12,benzin:10,seil:6,chemie:12,lauf:25,griff:18,elektronik:25,kevlar:35,duenger:6,stahl:20,leder:8,titan:45,optik:40,chip:55,funkgeraet:40,fleisch_r:4,giesskanne:10,taschenlampe:25,ziegel:3,lehm:2,sand:1,kohle:3,eisen:6,draht:4,plastik:2,gummi:4,knochen:2,fell:6,wolle:4,honig:8,wachs:5};
+{// übrige Rohstoffe: Wert aus der Seltenheit in den Fundtabellen (gedeckelt)
+ const CW={kiste:1,mkiste:.5,schrank:1.5,regal:1.5,kuehl:1,muell:1.5,auto:1,zom:3,zsol:.3,schrott:1.2,zelt:.4,mcont:.3,drop:.05},A={};
+ try{for(const t in LT){const T_=LT[t],sw=T_.it.reduce((a,b)=>a+b[1],0),nr=(T_.n[0]+T_.n[1])/2;for(const[id,w,a,b]of T_.it){const q=(a||b)?(a+b)/2:1;A[id]=(A[id]||0)+(CW[t]||.5)*nr*w/sw*q}}}catch(e){}
+ const C=3*Math.pow(A.schrott||1,.45);for(const k in D){const c=D[k].c;if(c!=='mat'&&c!=='teil')continue;for(const key of Object.keys(MATV))if(!D[key])delete MATV[key];if(MATV[k]!=null)continue;
+  MATV[k]=k.startsWith('s_')?3:A[k]?Math.max(1,Math.min(30,Math.round(C/Math.pow(A[k],.45)))):5}}
+window.MATV=MATV;
+// Händler verkaufen seltene Rohstoffe zum fairen Preis (1,6 × Wert)
+for(const[k,n]of[['elektronik',1],['kabel',5],['chemie',2],['mechanik',1],['lauf',1],['griff',1],['stahl',2],['optik',1],['chip',1],['nagel',20],['benzin',2],['klebeband',2],['seil',2],['glas',5]])if(D[k]&&MATV[k]!=null){PRICE[k]=[Math.max(5,Math.round(MATV[k]*1.6*n/5)*5),n];if(!ROT.includes(k))ROT.push(k)}
+if(PRICE.batterie)PRICE.batterie=[20,1];
+// Aufträge „Bring …“ zahlen 1,8 × Wert + Grundlohn
+for(const q of QI)if(MATV[q[0]]!=null)q[3]=Math.max(2,Math.round(MATV[q[0]]*1.8));
+// Wert in der Gegenstands-Info anzeigen
+{const _rd=renderDet;renderDet=function(){_rd();try{const it=isel&&getS(isel);if(!it||it.id==='dollar')return;const v=valOf(it);if(!v)return;const p=$('det').querySelector('p');if(p&&!p.querySelector('.vl'))p.insertAdjacentHTML('beforeend',` <span class="vl" style="color:#9ad06a;white-space:nowrap">· ${tr(V70.val)} ~${v} $</span>`)}catch(e){}}}
+
+// ---------- 4. Autofahren: langsamer und gutmütiger ----------
+for(const k in VT){VT[k].max*=.74;VT[k].acc*=.85;VT[k].turn*=1.12}
+
+// ---------- 5. Eingabe-Erkennung & freie Belegung ----------
+const KACT=[['up','w'],['down','s'],['left','a'],['right','d'],['sneak','shift'],['fire',' '],['use','e'],['reload','r'],['crouch','c'],['s1','1'],['s2','2'],['s3','3'],['drink','4'],['eat','5'],['inv','i'],['build','b'],['map','m'],['pause','escape'],['horn','h'],['fs','f']];
+const PACT=[['fire',0],['use',1],['reload',2],['crouch',3],['prev',4],['next',5],['inv',8],['pause',9],['map',12]];
+if(!CFG.keys)CFG.keys={};if(!CFG.pad)CFG.pad={};
+const keyName=k=>({' ':'␣ Space','shift':'Shift','control':'Ctrl','escape':'Esc','tab':'Tab','arrowup':'↑','arrowdown':'↓','arrowleft':'←','arrowright':'→','enter':'Enter','alt':'Alt','capslock':'Caps'}[k]||k.toUpperCase());
+let KMAP=new Map(),KBLK=new Set();
+function kRebuild(){KMAP=new Map();KBLK=new Set();for(const[id,def]of KACT){const u=CFG.keys[id];if(u&&u!==def){KMAP.set(u,def);KBLK.add(def)}}for(const k of KMAP.keys())KBLK.delete(k)}
+kRebuild();
+let KLISTEN=null,KSYN=false;const KCAN={shift:'Shift',escape:'Escape',tab:'Tab',control:'Control',arrowup:'ArrowUp',arrowdown:'ArrowDown',arrowleft:'ArrowLeft',arrowright:'ArrowRight',enter:'Enter'};
+for(const type of['keydown','keyup'])addEventListener(type,e=>{if(KSYN)return;const k=(e.key||'').toLowerCase();
+ if(KLISTEN&&type==='keydown'){e.preventDefault();e.stopImmediatePropagation();KLISTEN(k);return}
+ if(document.activeElement&&/INPUT|TEXTAREA/.test(document.activeElement.tagName))return;
+ if(KMAP.has(k)){const nk=KMAP.get(k);e.preventDefault();e.stopImmediatePropagation();KSYN=true;try{window.dispatchEvent(new KeyboardEvent(type,{key:KCAN[nk]||nk,repeat:e.repeat,bubbles:true}))}finally{KSYN=false}return}
+ if(KBLK.has(k)){e.preventDefault();e.stopImmediatePropagation();if(type==='keyup')K[k]=0}},true);
+// Controller-Knöpfe umbelegen
+const _gg=navigator.getGamepads?navigator.getGamepads.bind(navigator):null;let PLISTEN=null,PRAWB=[];
+if(_gg)navigator.getGamepads=function(){const L=_gg();return Array.from(L,p=>{if(!p)return p;if(PLISTEN){const b=p.buttons.map(x=>x&&(x.pressed||x.value>.5));const i=b.findIndex((v,j)=>v&&!PRAWB[j]);PRAWB=b;if(i>=0){const f=PLISTEN;PLISTEN=null;f(i)}return{connected:p.connected,axes:p.axes,buttons:[],id:p.id}}
+ const btn=[...p.buttons];for(const[id,def]of PACT){const u=CFG.pad[id];if(u!=null&&u!==def)btn[def]=p.buttons[u]||{pressed:false,value:0}}for(const[id,def]of PACT){const u=CFG.pad[id];if(u!=null&&u!==def&&!PACT.some(([i2,d2])=>(CFG.pad[i2]??d2)===def))btn[def]={pressed:false,value:0}}
+ return{connected:p.connected,axes:p.axes,buttons:btn,id:p.id,mapping:p.mapping}})};
+// Gerät erkennen: Touch / Tastatur / Controller – Touch-Knöpfe nur bei Touch
+let DEV='t';
+function setDev(d){if(DEV===d)return;DEV=d;document.body.classList.toggle('padOn',d==='p');if(d==='k'&&typeof setKBM==='function')setKBM(true);if(d==='t'&&typeof setKBM==='function')setKBM(false);const e=$('sDev');if(e)e.textContent=tr(d==='p'?V70.dP:d==='k'?V70.dK:V70.dT)}
+addEventListener('keydown',()=>setDev('k'),true);addEventListener('touchstart',()=>setDev('t'),{capture:true,passive:true});addEventListener('mousemove',e=>{if(e.movementX||e.movementY)if(DEV==='p')setDev('k')},true);
+{const _pp=padPoll;padPoll=function(){const r=_pp.apply(this,arguments);if(_gg){for(const p of _gg())if(p&&p.connected){if(p.buttons.some(b=>b&&b.pressed)||p.axes.some(a=>Math.abs(a)>.4))setDev('p');break}}return r}}
+{const st=document.createElement('style');st.textContent=`body.padOn #fire,body.padOn #act,body.padOn #rel,body.padOn #crouch{display:none!important}
+#sets .kbl{display:grid;grid-template-columns:1fr auto 1fr auto;gap:2px 10px;align-items:center;margin:6px 0}#sets .kbl span{font-size:12px;opacity:.85}#sets .kbl button{min-width:70px;padding:1px 8px;min-height:0!important;border:var(--w-chip) solid transparent;border-image:var(--f-chip);background:#221d18;background-clip:padding-box;color:#e8dcc4;font:inherit;font-size:12px}
+#sets .kbl button.lis{border-image:var(--f-chipA);background:#c8902e;color:#1a1208}#sets .kbl button.chg{color:#ffd23a}`;document.head.appendChild(st)}
+const padName=i=>['A / ✕','B / ○','X / □','Y / △','LB / L1','RB / R1','LT / L2','RT / R2','Select','Start','L3','R3','↑','↓','←','→','Home'][i]||('#'+i);
+{const pane=document.querySelector('#sets .spane[data-p="ctl"]');if(pane){const d=document.createElement('div');d.className='sopt';
+ d.innerHTML=`<h3>${tr(V70.dev)}: <b id="sDev" style="color:#ffd23a">${tr(V70.dT)}</b></h3>
+ <h3 style="margin-top:10px">${tr(V70.keys)}</h3><div class="kbl" id="kbL"></div><button class="btn sm" id="kbR">${tr(V70.reset)}</button>
+ <h3 style="margin-top:12px">${tr(V70.pad)}</h3><small id="pdN"></small><div class="kbl" id="pdL"></div><button class="btn sm" id="pdR">${tr(V70.reset)}</button>`;pane.appendChild(d);
+ const draw=()=>{$('kbL').innerHTML=KACT.map(([id,def])=>{const u=CFG.keys[id]||def;return`<span>${tr(V70.a[id])}</span><button data-k="${id}" class="${u!==def?'chg':''}">${keyName(u)}</button>`}).join('');
+  $('pdL').innerHTML=PACT.map(([id,def])=>{const u=CFG.pad[id]??def;return`<span>${tr(V70.a[id])}</span><button data-p="${id}" class="${u!==def?'chg':''}">${padName(u)}</button>`}).join('');
+  let has=false;try{has=!!(_gg&&[..._gg()].some(p=>p&&p.connected))}catch(e){}$('pdN').textContent=has?'':tr(V70.noPad)};draw();
+ $('kbL').onclick=e=>{const b=e.target.closest('[data-k]');if(!b)return;S.ui&&S.ui();b.classList.add('lis');b.textContent=tr(V70.press);
+  KLISTEN=k=>{KLISTEN=null;const id=b.dataset.k;if(k==='escape'&&id!=='pause'){draw();return}const dk=x=>KACT.find(q=>q[0]===x)[1],cur=x=>CFG.keys[x]||dk(x),old=cur(id);for(const[o]of KACT)if(o!==id&&cur(o)===k)CFG.keys[o]=old;CFG.keys[id]=k;for(const[o,d0]of KACT)if(CFG.keys[o]===d0)delete CFG.keys[o];kRebuild();saveCfg();draw()}};
+ $('pdL').onclick=e=>{const b=e.target.closest('[data-p]');if(!b)return;S.ui&&S.ui();b.classList.add('lis');b.textContent=tr(V70.pressP);try{PRAWB=_gg?[..._gg()].find(p=>p)?.buttons.map(x=>x&&x.pressed)||[]:[]}catch(e2){PRAWB=[]}
+  PLISTEN=i=>{const id=b.dataset.p,dp=x=>PACT.find(q=>q[0]===x)[1],cur=x=>CFG.pad[x]??dp(x),old=cur(id);for(const[o]of PACT)if(o!==id&&cur(o)===i)CFG.pad[o]=old;CFG.pad[id]=i;for(const[o,d0]of PACT)if(CFG.pad[o]===d0)delete CFG.pad[o];saveCfg();draw()};
+  const poll=()=>{if(!PLISTEN)return;try{navigator.getGamepads()}catch(e2){}requestAnimationFrame(poll)};poll()};
+ $('kbR').onclick=()=>{S.ui&&S.ui();CFG.keys={};kRebuild();saveCfg();draw()};$('pdR').onclick=()=>{S.ui&&S.ui();CFG.pad={};saveCfg();draw()};
+ const _st=window.setTab;if(_st)window.setTab=function(k){const r=_st(k);if(k==='ctl')draw();return r};
+ document.querySelector('#sets .stabs')&&document.querySelector('#sets .stabs').addEventListener('click',()=>setTimeout(draw,0))}}
+// Tastenhinweise im PC-Modus an die Belegung anpassen
+{const _h=hud;let last='';hud=function(){const r=_h.apply(this,arguments);try{const sig=JSON.stringify(CFG.keys);if(sig!==last){last=sig;const p=$('kbP');if(p)for(const el of p.querySelectorAll('kbd,b')){const o=el.dataset.k0||(el.dataset.k0=el.textContent.trim().toLowerCase());const map={e:'use',r:'reload',c:'crouch',' ':'fire','space':'fire','leertaste':'fire'};const id=map[o];if(id&&CFG.keys[id])el.textContent=keyName(CFG.keys[id])}}}catch(e){}return r}}
+applyLang();
+// ================= v72: Neue Orte · Hordenwellen alle 5 Tage · Hardcore mit Permadeath · Profil & Bestenliste · Waffen-Haltbarkeit & Reparaturwerkbank · neue Kochrezepte =================
+const V72={
+ hc:L4('Spielmodus','Game mode','Modo de juego','Mode de jeu'),norm:L4('Normal','Normal','Normal','Normal'),hard:L4('Hardcore','Hardcore','Hardcore','Hardcore'),
+ normD:L4('Nach dem Tod wachst du am Bett oder Startpunkt wieder auf.','After death you wake up at your bed or the start.','Al morir despiertas en tu cama o en el inicio.','Après la mort, tu te réveilles à ton lit ou au départ.'),
+ hardD:L4('Nur ein Leben. Stirbst du, ist der Spielstand weg – für immer.','One life only. If you die, the save is gone – forever.','Una sola vida. Si mueres, la partida se borra para siempre.','Une seule vie. Si tu meurs, la sauvegarde disparaît – pour toujours.'),
+ hcDead:L4('HARDCORE – dein Überlebender ist für immer tot.','HARDCORE – your survivor is dead for good.','HARDCORE – tu superviviente ha muerto para siempre.','HARDCORE – ton survivant est mort pour de bon.'),
+ lb:L4('Bestenliste','Leaderboard','Clasificación','Classement'),kills:L4('Zombies getötet','Zombies killed','Zombis eliminados','Zombies tués'),days:L4('Tage überlebt','Days survived','Días sobrevividos','Jours survécus'),
+ prof:L4('Dein Profil','Your profile','Tu perfil','Ton profil'),name:L4('Spielername','Player name','Nombre de jugador','Nom du joueur'),save:L4('Speichern','Save','Guardar','Enregistrer'),edit:L4('Ändern','Change','Cambiar','Modifier'),
+ needProf:L4('Erstelle ein Profil, um in der Bestenliste zu erscheinen.','Create a profile to appear on the leaderboard.','Crea un perfil para aparecer en la clasificación.','Crée un profil pour apparaître au classement.'),
+ badLen:L4('3–16 Zeichen, nur Buchstaben, Zahlen, Leerzeichen und _','3–16 characters, only letters, numbers, spaces and _','3–16 caracteres: letras, números, espacios y _','3–16 caractères : lettres, chiffres, espaces et _'),
+ badWord:L4('Dieser Name ist nicht erlaubt.','This name is not allowed.','Este nombre no está permitido.','Ce nom n’est pas autorisé.'),saved:L4('Profil gespeichert','Profile saved','Perfil guardado','Profil enregistré'),
+ load:L4('Lade …','Loading …','Cargando…','Chargement…'),none:L4('Noch keine Einträge – sei der Erste!','No entries yet – be the first!','Aún no hay entradas, ¡sé el primero!','Aucune entrée – sois le premier !'),
+ off:L4('Keine Verbindung zur Bestenliste.','No connection to the leaderboard.','Sin conexión a la clasificación.','Pas de connexion au classement.'),you:L4('Du','You','Tú','Toi'),
+ dur:L4('Zustand','Condition','Estado','État'),broken:L4('Waffe defekt – an der Reparaturwerkbank reparieren!','Weapon broken – repair it at the repair bench!','Arma rota: repárala en el banco de reparación.','Arme cassée – répare-la à l’établi de réparation !'),
+ jam:L4('Ladehemmung!','Jammed!','¡Encasquillada!','Enrayée !'),rep:L4('Reparaturwerkbank','Repair bench','Banco de reparación','Établi de réparation'),
+ repD:L4('Repariert Waffen. Jede Reparatur senkt den Höchstzustand etwas.','Repairs weapons. Each repair lowers the maximum condition a little.','Repara armas. Cada reparación reduce un poco el estado máximo.','Répare les armes. Chaque réparation baisse un peu l’état maximum.'),
+ repAct:L4('Reparieren','Repair','Reparar','Réparer'),repNone:L4('Keine beschädigte Waffe dabei.','No damaged weapon with you.','No llevas armas dañadas.','Aucune arme abîmée sur toi.'),repDone:L4('Repariert','Repaired','Reparada','Réparée'),
+ cook:L4('Kochen','Cook','Cocinar','Cuisiner'),fire:L4('Lagerfeuer','Campfire','Hoguera','Feu de camp'),stove:L4('Herd','Stove','Cocina','Cuisinière'),
+ allMeat:L4('Alles Rohe braten','Cook all raw food','Cocinar todo lo crudo','Cuire tout le cru'),
+ bWarm:L4('Warm','Warm','Calor','Au chaud'),bRegen:L4('Heilung','Healing','Curación','Soin'),bEnergy:L4('Energie','Energy','Energía','Énergie'),
+ places:{ts:[T4('Tankstelle','Gas station','Gasolinera','Station-service'),L4('Benzin, Snacks und Batterien – Vorsicht, Spucker.','Fuel, snacks and batteries – beware of spitters.','Gasolina, aperitivos y pilas; cuidado con los escupidores.','Essence, en-cas et piles – attention aux cracheurs.'),'#e8a030'],
+  apo:[T4('Apotheke','Pharmacy','Farmacia','Pharmacie'),L4('Medizin, Vitamine, manchmal Antiserum.','Medicine, vitamins, sometimes antiserum.','Medicinas, vitaminas y a veces antisuero.','Médicaments, vitamines, parfois de l’antisérum.'),'#4ad8a0'],
+  bm:[T4('Baumarkt','Hardware store','Ferretería','Quincaillerie'),L4('Werkzeug, Nägel, Kabel und Stahl für deine Basis.','Tools, nails, cables and steel for your base.','Herramientas, clavos, cables y acero para tu base.','Outils, clous, câbles et acier pour ta base.'),'#c87a3a'],
+  wl:[T4('Waffenladen','Gun shop','Armería','Armurerie'),L4('Waffen und Aufsätze – schwer bewacht.','Guns and attachments – heavily guarded.','Armas y accesorios, muy vigilados.','Armes et accessoires – lourdement gardés.'),'#d84a3a'],
+  lab:[T4('Forschungslabor','Research lab','Laboratorio','Laboratoire'),L4('Chips, Optik, Antiserum – hier begann alles.','Chips, optics, antiserum – this is where it all began.','Chips, óptica, antisuero: aquí empezó todo.','Puces, optique, antisérum – c’est ici que tout a commencé.'),'#a07aff']}};
+
+// ---------- 1. Herausforderung aus dem Hauptmenü ----------
+{const st=document.createElement('style');st.textContent='#mDaily{display:none!important}#menu:not(.hide) #mSet{animation:slideL .6s .82s var(--spring) backwards!important}';document.head.appendChild(st)}
+
+// ---------- 2. Hardcore-Modus ----------
+{const cr=document.querySelector('#cc .ccrw');if(cr){const d=document.createElement('div');d.innerHTML=`<div class="lbl" style="margin:10px 0 6px">${tr(V72.hc)}</div><div class="dfr" id="ccHc"><button data-v="0">${tr(V72.norm)}</button><button data-v="1">☠ ${tr(V72.hard)}</button></div><small id="ccHcd" style="opacity:.65;font-size:11px"></small>`;cr.appendChild(d);
+ const st=document.createElement('style');st.textContent='#ccHc{display:flex;gap:6px}#ccHc button{flex:1;border:var(--w-btn) solid transparent!important;border-image:var(--f-btn)!important;background:var(--noise) #2e2822!important;background-clip:padding-box!important;padding:6px 4px;color:#cfc3a8;font:inherit;font-weight:700;font-size:12px}#ccHc button.on{border-image:var(--f-slotS)!important;background-color:#3a2a10!important;color:#ffd23a}#ccHc button[data-v="1"].on{color:#ff6a4a}';document.head.appendChild(st);
+ const sync=()=>{const v=CCR&&CCR.hc?1:0;for(const b of $('ccHc').children)b.classList.toggle('on',+b.dataset.v===v);$('ccHcd').textContent=tr(v?V72.hardD:V72.normD)};
+ $('ccHc').onclick=e=>{const b=e.target.closest('[data-v]');if(!b||!CCR)return;CCR.hc=+b.dataset.v;S.ui&&S.ui();sync()};const _o=openCC;openCC=function(s){_o(s);if(CCR)CCR.hc=0;sync()}}}
+{const _n=newGame;newGame=function(s,cc){const r=_n(s,cc);if(P)P.hcm=cc&&cc.hc?1:0;return r}}
+{const st=document.createElement('style');st.textContent='#hcB{position:fixed;left:50%;transform:translateX(-50%);top:calc(env(safe-area-inset-top,0px) + 2px);z-index:7;font-size:9px;letter-spacing:2px;color:#ff6a4a;background:rgba(0,0,0,.5);padding:0 6px;pointer-events:none}#hcB.hide{display:none}';document.head.appendChild(st);
+ const b=document.createElement('div');b.id='hcB';b.className='hide';b.textContent='☠ HARDCORE';$('game').appendChild(b)}
+{const _h=hud;hud=function(){const r=_h.apply(this,arguments);const b=$('hcB');if(b)b.classList.toggle('hide',!(state===1&&P&&P.hcm));return r}}
+{const _o=over;over=function(){if(state!==1||!P||!P.hcm)return _o.apply(this,arguments);const days=dayN(),zk=STATS.zk||kills||0,s=slot;const r=_o.apply(this,arguments);
+ try{lbReport(1,zk,days,true)}catch(e){}try{const ks=[];for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i),m=/^zw4_([a-z]+)(\d+)$/.exec(k||'');if(m&&+m[2]===s)ks.push(k)}for(const k of ks)LS.del(k);if(LS.get('zw4_last')===String(s))LS.del('zw4_last')}catch(e){}
+ state=2;try{$('dLive').classList.add('hide');$('dLoad').classList.add('hide');$('dS').innerHTML=`<b style="color:#ff6a4a">${tr(V72.hcDead)}</b><br>${tr(V72.days)}: ${days} · ${tr(V72.kills)}: ${zk}`}catch(e){}return r}}
+
+// ---------- 3. Profil & öffentliche Bestenliste ----------
+const LBBAD=['fick','fuck','hure','nutte','nazi','hitler','arsch','wichs','fotze','schlampe','bitch','nigg','neger','spast','behindert','missgeburt','hurensohn','penis','porn','cunt','pussy','whore','slut','retard','fag','schwuchtel','kanake','vergas','sieg heil','siegheil','heil','fotz','wixx','wixer','kacke','scheiss','shit','dick','cock','rape','vergewalt','isis','terror','kkk','hamas'];
+const lbNorm=s=>s.toLowerCase().replace(/[0]/g,'o').replace(/[1!|]/g,'i').replace(/3/g,'e').replace(/4|@/g,'a').replace(/5|\$/g,'s').replace(/7/g,'t').replace(/ä/g,'ae').replace(/ö/g,'oe').replace(/ü/g,'ue').replace(/ß/g,'ss').replace(/[\s_]+/g,'');
+function lbCheck(n){n=String(n||'').trim().replace(/\s+/g,' ');if(n.length<3||n.length>16||!/^[A-Za-z0-9ÄÖÜäöüß_ ]+$/.test(n))return[null,V72.badLen];const z=lbNorm(n);for(const w of LBBAD)if(z.includes(lbNorm(w)))return[null,V72.badWord];return[n,null]}
+const LBP={get uid(){let u=LS.get('zwp_uid');if(!u||u.length<16){u='';const r=new Uint32Array(20);crypto.getRandomValues(r);for(const v of r)u+=OCA[v%OCA.length];LS.set('zwp_uid',u)}return u},get name(){return LS.get('zwp_name')||''},set name(v){LS.set('zwp_name',v)},
+ get best(){try{return JSON.parse(LS.get('zwp_best'))||{nk:0,nd:0,hk:0,hd:0}}catch(e){return{nk:0,nd:0,hk:0,hd:0}}},set best(v){LS.set('zwp_best',JSON.stringify(v))}};
+const lbURL=p=>`https://firestore.googleapis.com/v1/projects/${SAVECFG.projectId}/databases/(default)/documents${p}?key=${SAVECFG.apiKey}`;
+async function lbPush(){if(!OC_ON||!LBP.name)return;const b=LBP.best,f={n:{stringValue:LBP.name},t:{integerValue:String(Date.now())}};for(const k of['nk','nd','hk','hd'])f[k]={integerValue:String(Math.max(0,Math.min(99999,b[k]|0)))};
+ const r=await fetch(lbURL('/lb/'+LBP.uid),{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({fields:f})});if(!r.ok)throw new Error(r.status===403?'perm':'net')}
+let LBQ=0;
+function lbReport(hc,zk,days,force){const b=LBP.best,kk=hc?'hk':'nk',dk=hc?'hd':'nd';let ch=false;if(zk>(b[kk]|0)){b[kk]=zk;ch=true}if(days>(b[dk]|0)){b[dk]=days;ch=true}if(ch)LBP.best=b;if((ch||force)&&LBP.name){clearTimeout(LBQ);LBQ=setTimeout(()=>lbPush().catch(()=>{}),force?0:1500)}}
+async function lbTop(field){const body={structuredQuery:{from:[{collectionId:'lb'}],orderBy:[{field:{fieldPath:field},direction:'DESCENDING'}],limit:25}};
+ const r=await fetch(lbURL(':runQuery'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});if(!r.ok)throw new Error('net');const j=await r.json();
+ return j.filter(x=>x.document).map(x=>({id:x.document.name.split('/').pop(),n:(x.document.fields.n||{}).stringValue||'?',v:+((x.document.fields[field]||{}).integerValue||0)})).filter(e=>e.v>0)}
+{let lastD=-1;const _st=step;step=function(){_st();if(state!==1||!P||t%120)return;const d=dayN();if(d!==lastD){lastD=d;lbReport(P.hcm?1:0,STATS.zk||kills||0,d,false)}}}
+{const _o=over;over=function(){if(state===1&&P&&!P.hcm)try{lbReport(0,STATS.zk||kills||0,dayN(),true)}catch(e){}return _o.apply(this,arguments)}}
+// Pokal-Symbol
+ICO.pokal=outline(cv(16,16,P=>{P('#b8862a',3,2,10,1);P('#e8b840',3,3,10,5);P('#ffe070',4,3,3,4);P('#b8862a',11,3,2,5);P('#e8b840',1,3,2,1);P('#e8b840',0,4,1,3);P('#e8b840',1,7,2,1);P('#e8b840',13,3,2,1);P('#e8b840',15,4,1,3);P('#e8b840',13,7,2,1);
+ P('#c89430',4,8,8,1);P('#a87420',5,9,6,1);P('#e8b840',7,10,2,2);P('#c89430',5,12,6,1);P('#6a4a2a',4,13,8,2);P('#8a6038',4,13,8,1);P('#ffe070',7,14,2,1)}));delete ICU.pokal;
+{const m=$('menu');const b=document.createElement('button');b.className='ib';b.id='mLb';b.innerHTML=icoImg('pokal');b.title=tr(V72.lb);m.appendChild(b);
+ const p=document.createElement('div');p.id='lbP';p.className='pn hide';p.innerHTML=`<div class="lbw"><div class="lbh"><b><i class="ic">${icoImg('pokal')}</i> ${tr(V72.lb)}</b><button class="ib" id="lbX">${icoImg('x')}</button></div>
+ <div class="lbt" id="lbM"><button data-m="n" class="on">${tr(V72.norm)}</button><button data-m="h">☠ ${tr(V72.hard)}</button></div>
+ <div class="lbt" id="lbF"><button data-f="k" class="on">🧟 ${tr(V72.kills)}</button><button data-f="d">📅 ${tr(V72.days)}</button></div>
+ <ol id="lbL"></ol><div class="lbp" id="lbPr"></div></div>`;document.body.appendChild(p);
+ const st=document.createElement('style');st.textContent=`#mLb{position:fixed!important;right:calc(env(safe-area-inset-right,0px) + 14px)!important;top:calc(env(safe-area-inset-top,0px) + 10px)!important;left:auto!important;margin:0!important;width:50px!important;height:50px!important;padding:6px!important;animation:none!important;z-index:5}#mLb img{width:100%;height:100%;image-rendering:pixelated}
+#lbP{align-items:center;justify-content:center;z-index:40}#lbP .lbw{width:min(560px,96%);max-height:100%;display:flex;flex-direction:column;gap:6px;padding:10px 14px;background:var(--noise) #1e1914;border:var(--w-pnl) solid transparent;border-image:var(--f-pnl);box-sizing:border-box}
+#lbP .lbh{display:flex;justify-content:space-between;align-items:center}#lbP .lbh b{font-size:17px;letter-spacing:2px;color:#ffd23a;display:flex;align-items:center;gap:8px}#lbP .lbh .ic img{width:22px;height:22px;image-rendering:pixelated}
+#lbP .lbt{display:flex;gap:6px}#lbP .lbt button{flex:1;border:var(--w-chip) solid transparent;border-image:var(--f-chip);background:#221d18;background-clip:padding-box;color:#cfc3a8;font:inherit;font-size:12px;padding:4px}#lbP .lbt button.on{border-image:var(--f-chipA);background:#c8902e;color:#1a1208}
+#lbP ol{list-style:none;margin:0;padding:0;overflow-y:auto;flex:1;min-height:80px}#lbP li{display:grid;grid-template-columns:34px 1fr auto;gap:8px;padding:3px 6px;font-size:13px;border-bottom:1px solid rgba(255,255,255,.05)}#lbP li i{font-style:normal;opacity:.6}#lbP li b{color:#ffd23a}
+#lbP li.me{background:rgba(255,210,58,.12)}#lbP li.r1 i{color:#ffd23a;opacity:1}#lbP li.r2 i{color:#d0d4d8;opacity:1}#lbP li.r3 i{color:#d08a4a;opacity:1}#lbP .msg{opacity:.6;font-size:12px;padding:10px;text-align:center}
+#lbP .lbp{display:flex;gap:6px;align-items:center;flex-wrap:wrap;font-size:12px;border-top:1px solid rgba(255,255,255,.08);padding-top:6px}#lbP .lbp input{flex:1;min-width:120px;background:#0e0c0a;color:#ffd23a;border:var(--w-chip) solid transparent;border-image:var(--f-chip);font:inherit;font-size:14px;padding:4px 6px;touch-action:auto;-webkit-user-select:text;user-select:text}
+#lbP .lbp .btn{padding:3px 10px!important;min-height:0!important;font-size:12px!important;width:auto!important;margin:0!important}#lbP .lbp small{width:100%;min-height:14px}`;document.head.appendChild(st);
+ let M='n',F='k';const field=()=>(M==='h'?'h':'n')+F;
+ const drawProf=(msg,bad)=>{const n=LBP.name;$('lbPr').innerHTML=n&&!drawProf.edit?`<span>${tr(V72.prof)}: <b style="color:#ffd23a">${n}</b></span><button class="btn sm" id="lbE">${tr(V72.edit)}</button><small style="color:${bad?'#e87a5a':'#9ad06a'}">${msg||''}</small>`
+  :`<span>${tr(V72.name)}:</span><input id="lbN" maxlength="16" value="${n}" autocomplete="off" spellcheck="false"><button class="btn sm pr" id="lbS">${tr(V72.save)}</button><small style="color:${bad?'#e87a5a':'#cfc3a8'}">${msg||(n?'':tr(V72.needProf))}</small>`;
+  if($('lbE'))$('lbE').onclick=()=>{drawProf.edit=1;drawProf()};
+  if($('lbS'))$('lbS').onclick=async()=>{S.ui&&S.ui();const[v,err]=lbCheck($('lbN').value);if(!v){drawProf(tr(err),1);return}LBP.name=v;drawProf.edit=0;drawProf(tr(V72.saved));try{await lbPush()}catch(e){}list()}};
+ const list=async()=>{const L=$('lbL');L.innerHTML=`<div class="msg">${tr(V72.load)}</div>`;if(!OC_ON){L.innerHTML=`<div class="msg">${tr(V72.off)}</div>`;return}
+  try{const f=field(),rows=await lbTop(f);if(field()!==f)return;const me=LBP.uid;L.innerHTML=rows.length?rows.map((e,i)=>`<li class="${e.id===me?'me ':''}r${i+1}"><i>#${i+1}</i><span>${e.n.replace(/[<>&]/g,'')}${e.id===me?' ('+tr(V72.you)+')':''}</span><b>${e.v}</b></li>`).join(''):`<div class="msg">${tr(V72.none)}</div>`}
+  catch(e){L.innerHTML=`<div class="msg">${tr(V72.off)}</div>`}};
+ b.onclick=()=>{initAudio&&initAudio();S.ui&&S.ui();p.classList.remove('hide');drawProf.edit=!LBP.name;drawProf();list()};$('lbX').onclick=()=>{S.ui&&S.ui();p.classList.add('hide')};
+ $('lbM').onclick=e=>{const x=e.target.closest('[data-m]');if(!x)return;M=x.dataset.m;for(const c of $('lbM').children)c.classList.toggle('on',c===x);S.ui&&S.ui();list()};
+ $('lbF').onclick=e=>{const x=e.target.closest('[data-f]');if(!x)return;F=x.dataset.f;for(const c of $('lbF').children)c.classList.toggle('on',c===x);S.ui&&S.ui();list()}}
+
+// ---------- 4. Neue Orte: Tankstelle, Apotheke, Baumarkt, Waffenladen, Forschungslabor ----------
+for(const k in V72.places)V53[k]=V72.places[k];
+Object.assign(SPLT,{
+ ts:{n:[2,4],it:L_('benzin:16:1:2 dose:10:1:2 chips:10 schokolade:8 cola:10 energydrink:6 batterie:10:1:2 klebeband:6 seil:4 taschenlampe:3 dollar:8:5:30 riegel:8')},
+ apo:{n:[2,4],it:L_('verband:16:1:3 medkit:6 schmerzmittel:14 antibiotika:12 vitamine:12 antiserum:3 chemie:6:1:2 alkohol:6 kraeutersalbe:4 dollar:6:5:25')},
+ bm:{n:[2,5],it:L_('nagel:18:10:30 schrott:12:2:6 kabel:12:2:4 klebeband:10 seil:8 mechanik:6 stahl:5:1:2 axt:3 vorschlag:2 brechstange:3 rohrzange:3 schaufel:3 duenger:5 giesskanne:3 s_tomate:3 s_kartoffel:3 dollar:6:5:25')},
+ wl:{n:[2,4],it:L_('pistole:6 glock:6 beretta:5 revolver:4 jagd:4 winchester:3 pumpgun:3 mp5:2 a9:16:12:30 a12:10:6:14 a762:10:10:24 schalldaempfer:3 rotpunkt:4 laser:3 holo:2 vgriff:3 ext_mag:3 dollar:8:20:60')},
+ lab:{n:[2,4],it:L_('chip:8 elektronik:12:1:3 optik:6 chemie:14:1:3 antiserum:6 titan:3 kevlar:4 glas:8:2:4 medkit:4 funkgeraet:3 notiz:6 dollar:6:10:40')}});
+for(const k of['ts','apo','bm','wl','lab']){SPLT[k].it=SPLT[k].it.filter(e=>D[e[0]]&&e[1]>0);SPLT[k].w=(LT.mkiste&&LT.mkiste.w)||[60,25,10,4,1]}
+Object.assign(SPF,{ts:['regal','regal','kuehl','kuehl','tresen','regal','kiste'],apo:['regal','regal','schrank','tresen','kuehlschrank','regal','aktenschrank'],bm:['regal','lagerregal','lagerregal','kiste','kiste_m','werkzeugwand','regal','kistenstapel'],
+ wl:['waffenregal','waffenstaender','tresen','mkiste','waffenregal','metallkiste','regal'],lab:['computer','schreibtisch','regal','kuehlschrank','aktenschrank','computer','metallkiste']});
+const NEWSP=['ts','apo','bm','wl','lab'],NEWZ={ts:['w','sp','w','r'],apo:['sl','w','w','r'],bm:['ar','w','b','w'],wl:['ar','ar','s','sp'],lab:['sp','sp','sl','b','ar']};
+{const _mh=mkHouse;mkHouse=function(key,x0,y0,w,h,sd){const hs=_mh(key,x0,y0,w,h,sd);if(key[0]!=='t'||w<6||h<5)return hs;const r=i=>hh(sd,i*6131+59,SEED+7272);
+ if(!(hs.sp?r(1)<.55:r(1)<.05))return hs;const kind=NEWSP[Math.floor(r(2)*NEWSP.length)];hs.sp=kind;hs.furn.clear();const L=SPF[kind].map(n=>T[n]).filter(v=>v!=null);let i=3;
+ for(let x=x0+1;x<x0+w-1;x++)for(let y=y0+1;y<y0+h-2;y++){if(x===hs.dx||Math.abs(x-hs.dx)<=1&&y>=y0+h-3)continue;if(r(i++)<.5)hs.furn.set(x*65536+y,L[Math.floor(r(i++)*L.length)])}
+ try{houseFix(hs)}catch(e){}SPH.set(key,{x:x0+w/2,y:y0+h/2,k:kind});return hs}}
+{const _st=step;step=function(){if(state===1&&P&&!LV&&!paused&&t%20===0){const h=insideH;if(h&&h.sp&&NEWSP.includes(h.sp)&&!SPZ.has(h.key)){SPZ.add(h.key);const D_=V53[h.sp];evBanner(tr(D_[0]),tr(D_[1]));
+  if(window.STATS){STATS.sp=STATS.sp||[];if(!STATS.sp.includes(h.sp))STATS.sp.push(h.sp);STATS.sps=STATS.sps||{};STATS.sps[h.sp]=(STATS.sps[h.sp]||0)+1}
+  const types=NEWZ[h.sp],n=3+Math.floor(rnd()*3)+Math.min(2,Math.floor(dayN()/5))+(h.sp==='lab'?2:0);
+  for(let i=0;i<n;i++){for(let q=0;q<10;q++){const x=(h.x0+1+rnd()*(h.w-2))*16,y=(h.y0+1+rnd()*(h.h-3))*16;if(bl(x,y)||dist(x,y,P.x,P.y)<40)continue;window.NOZT=1;const z=mkZ(x,y,++zid,R_S);window.NOZT=0;if(z.hp<=0)break;
+   const k=types[i%types.length];if(ZBASE[k])setZK(z,k);else if(ZVI[k]){z.k=k;const L=ZVI[k];z.vi=L[(rnd()*L.length)|0];z.hp=z.mh=(k==='b'?16:k==='r'?4:k==='s'?8:6)*zHpK();if(k==='r')z.cs=1.05}z.hp*=1.5;z.mh=z.hp;z.st='idle';break}}}}return _st()}}
+{const lg=document.querySelector('#map .lg');if(lg){const sm=lg.querySelector('small');for(const k of NEWSP){const sp=document.createElement('span');sp.innerHTML=`<i style="background:${V53[k][2]}"></i><span>${tr(V53[k][0])}</span>`;lg.insertBefore(sp,sm||null)}}}
+try{HSC.clear();CC.clear()}catch(e){}
+
+// ---------- 5. Haltbarkeit von Waffen + Reparaturwerkbank ----------
+const DURW=id=>{const d=D[id];if(!d||d.c!=='waf'||d.thr)return 0;if(d.mel){return 100/({messer:180,kampfmesser:240,kukri:220,katana:320,titankatana:420,schwert:300,axt:260,feuerwehraxt:300,tomahawk:240,vorschlag:220,streitkolben:280,keule:140,schlaeger:150,nagelkeule:130,stachelkeule:170,golfschlaeger:120,pfanne:160,brechstange:400,rohrzange:300,machete:240,stahlmachete:300,schaufel:200,hacke:220,eispickel:240,speer:160,sense:180,schockstab:260,kettensaege:350}[id]||200)}
+ if(d.s==='bow'||/bogen|armbrust/.test(id))return 100/450;if(['mg','m249'].includes(id))return 100/1600;if(['schrot','pumpgun','saiga','abgesaegt','doppelflinte'].includes(id))return 100/500;return 100/(d.mag&&d.mag<=8?700:900)};
+const durOf=it=>it&&it.du!=null?it.du:100;
+{const _r=roll;roll=function(tb){const out=_r(tb);for(const it of out)if(it&&D[it.id]&&D[it.id].c==='waf'&&!D[it.id].thr&&it.du==null){it.du=Math.round(35+rnd()*55);it.dm=100}return out}}
+{const _m=melee;melee=function(d,r){const it=qs[P.sel];if(!it||!D[it.id]||!D[it.id].mel)return _m(d,r);const du=durOf(it);if(du<=0){if(t-(melee.w||-999)>240){melee.w=t;toast(tr(V72.broken),'bad')}return _m(Object.assign({},d,{dmg:d.dmg*.4}),r)}
+ it.du=Math.max(0,du-DURW(it.id));return _m(d,r)}}
+{const _s=shoot;shoot=function(it,d){if(!it||!D[it.id]||D[it.id].thr)return _s(it,d);const du=durOf(it);if(du<=0){if(t-(shoot.w||-999)>120){shoot.w=t;toast(tr(V72.broken),'bad');S.dry&&S.dry()}P.cd=30;return}
+ if(du<25&&rnd()<.06){P.cd=45;S.dry&&S.dry();if(t-(shoot.j||-999)>200){shoot.j=t;toast(tr(V72.jam),'bad')}return}it.du=Math.max(0,du-DURW(it.id));return _s(it,d)}}
+// Anzeige: Balken im Platz und Zustand in der Info
+{const st=document.createElement('style');st.textContent='.dub{position:absolute;left:12%;right:12%;bottom:3px;height:3px;background:rgba(0,0,0,.6);pointer-events:none}.dub i{display:block;height:100%}';document.head.appendChild(st)}
+const durCol=v=>v>60?'#7ac74f':v>30?'#e8c040':'#e85a3a';
+function durBars(){const put=(el,it)=>{let b=el.querySelector(':scope>.dub');const show=it&&D[it.id]&&D[it.id].c==='waf'&&!D[it.id].thr&&durOf(it)<100;if(!show){if(b)b.remove();return}if(!b){b=document.createElement('div');b.className='dub';b.innerHTML='<i></i>';if(getComputedStyle(el).position==='static')el.style.position='relative';el.appendChild(b)}const v=durOf(it);b.firstChild.style.width=Math.max(3,v)+'%';b.firstChild.style.background=durCol(v)};
+ document.querySelectorAll('#ig .sl[data-i]').forEach(el=>put(el,inv[+el.dataset.i]));document.querySelectorAll('#qs .q').forEach((el,i)=>put(el,qs[i]));document.querySelectorAll('#iqs .sl').forEach((el,i)=>put(el,qs[i]))}
+{const _r=renderInv;renderInv=function(){const x=_r.apply(this,arguments);try{durBars()}catch(e){}return x}}
+{const _h=hud;let n=0;hud=function(){const r=_h.apply(this,arguments);if(++n%20===0)try{durBars()}catch(e){}return r}}
+{const _rd=renderDet;renderDet=function(){_rd();try{const it=isel&&getS(isel);if(!it||!D[it.id]||D[it.id].c!=='waf'||D[it.id].thr)return;const p=$('det').querySelector('p');const v=Math.round(durOf(it));if(p&&!p.querySelector('.du'))p.insertAdjacentHTML('afterbegin',`<span class="du" style="color:${durCol(v)}">${tr(V72.dur)} ${v}%${it.dm&&it.dm<100?' / '+it.dm+'%':''}</span> · `)}catch(e){}}}
+// Reparaturwerkbank
+S2('repbank',[mkSp(16,15,P=>{P('#6a4a2a',0,5,16,3);P('#8a6038',0,5,16,1);P('#4a3218',1,8,2,7);P('#4a3218',13,8,2,7);P('#3a2810',3,11,10,1);P('#5a5e66',2,1,5,4);P('#8a8e96',2,1,5,1);P('#3a3c42',4,3,1,2);P('#7a7e86',9,2,5,2);P('#a8aeb6',9,2,5,1);P('#c03a2a',12,4,2,1);P('#d8a840',6,4,2,1)})]);
+TSOL[T.repbank]=1;ACTX('repbank','wrench',V72.repAct,0);
+{const cost={holz:6,schrott:8,nagel:6,mechanik:1};for(const m in cost)if(!D[m])delete cost[m];BP.repbank={id:'repbank',cat:'werk',k:'t',tg:T.repbank,cost,n:V72.rep};BDESC.repbank=V72.repD;try{makeKitAny(BP.repbank)}catch(e){}}
+const repCost=it=>{const d=D[it.id],c=d.mel?{schrott:2}:{schrott:3};if(d.mel&&/keule|schlaeger|speer|sense|schaufel|hacke/.test(it.id))c.holz=2;if(!d.mel&&D.mechanik)c.mechanik=1;if(!d.mel&&durOf(it)<30&&D.lauf)c.lauf=1;if(it.r>=3&&D.stahl)c.stahl=1;return c};
+const costTxt=c=>Object.entries(c).map(([k,n])=>`${n}× ${tr(D[k].n)}${countA(k)<n?' ✗':''}`).join(' · ');
+function repMenu(){const L=[];qs.forEach((it,i)=>{if(it&&D[it.id]&&D[it.id].c==='waf'&&!D[it.id].thr&&durOf(it)<(it.dm||100))L.push(it)});inv.forEach(it=>{if(it&&D[it.id]&&D[it.id].c==='waf'&&!D[it.id].thr&&durOf(it)<(it.dm||100))L.push(it)});
+ if(!L.length){toast(tr(V72.repNone));return}
+ openChooser(tr(V72.rep),L.map(it=>{const c=repCost(it);return{ic:it.id,l:`${tr(D[it.id].n)} · ${Math.round(durOf(it))}% → ${it.dm||100}%`,sub:costTxt(c),dis:!canPay(c),fn:()=>{for(const m in c)takeA(m,c[m]);window.gsInc&&gsInc('rep',1);it.du=it.dm||100;it.dm=Math.max(40,(it.dm||100)-8);S.metal&&S.metal();toast(tr(V72.repDone)+': '+tr(D[it.id].n),'good');hudDirty=1;return()=>repMenu()}}}))}
+{const _ea=extraAct;extraAct=function(a){if(a.tt===T.repbank){repMenu();return true}return _ea(a)}}
+
+// ---------- 6. Kochen: neue Rezepte an Lagerfeuer und Herd ----------
+for(const k of Object.keys(BP))if(BP[k]&&BP[k].cat==='koch')delete BP[k];{const i=BCAT.findIndex(c=>c[0]==='koch');if(i>=0)BCAT.splice(i,1)}
+MEAL('spiess','Fleischspieß','Meat skewer','Brocheta de carne','Brochette de viande',{hun:58,hp:6},'#8a4a2a');
+MEAL('pilzpfanne','Pilzpfanne','Mushroom pan','Sartén de setas','Poêlée de champignons',{hun:32},'#a8845a');
+MEAL('lagereintopf','Lagerfeuer-Eintopf','Campfire stew','Guiso de hoguera','Ragoût de feu de camp',{hun:75,thi:10},'#7a4a2a');
+MEAL('stockbrot','Stockbrot','Twist bread','Pan de palo','Pain sur bâton',{hun:30},'#d8b070');
+MEAL('grillmais','Gegrillter Mais','Grilled corn','Maíz asado','Maïs grillé',{hun:24},'#e8c040');
+MEAL('pfannkuchen','Pfannkuchen','Pancakes','Tortitas','Crêpes',{hun:40,sta:20},'#e8c880');
+MEAL('apfelkuchen','Apfelkuchen','Apple pie','Tarta de manzana','Tarte aux pommes',{hun:60,sta:25},'#c8803a',3);
+MEAL('chili','Chili','Chili','Chile con carne','Chili',{hun:62,thi:-4},'#b8301a');
+MEAL('energieriegel','Energieriegel','Energy bar','Barrita energética','Barre énergétique',{hun:20,sta:60},'#8a5a2a',8);
+const BUF={lagereintopf:['warm',18000],eintopf:['warm',12000],fleischeintopf:['warm',14000],chili:['warm',24000],kuerbissuppe:['warm',10000],tomatensuppe:['warm',8000],kraeutertee:['regen',7200],apfelkuchen:['energy',10800],energieriegel:['energy',14400],pfannkuchen:['energy',7200]};
+for(const k in BUF)if(D[k]){const b=BUF[k],nm={warm:V72.bWarm,regen:V72.bRegen,energy:V72.bEnergy}[b[0]];D[k].d=L4(`+ ${tr(nm)} (${Math.round(b[1]/3600)} Min)`,`+ ${I18N[nm]?I18N[nm][0]:nm} (${Math.round(b[1]/3600)} min)`,`+ ${I18N[nm]?I18N[nm][1]:nm} (${Math.round(b[1]/3600)} min)`,`+ ${I18N[nm]?I18N[nm][2]:nm} (${Math.round(b[1]/3600)} min)`)}
+const FIRES=['feuer','feuerschale','feuertonne','grill','kamin'].map(n=>T[n]).filter(v=>v!=null),STOVES=['herd','ofen'].map(n=>T[n]).filter(v=>v!=null);
+const REC=[['fleisch','FH',{fleisch_r:1}],['fisch','FH',{fisch_r:1}],['spiess','F',{fleisch_r:1,zwiebel:1,paprika:1}],['pilzpfanne','FH',{pilze:3}],['lagereintopf','F',{bohnen:1,fleisch:1,wasser:1}],['stockbrot','F',{weizen:2,wasser:1}],['grillmais','F',{mais:1}],['kraeutertee','FH',{heilkraut:1,wasser:1}],
+ ['eintopf','H',{kartoffel:1,karotte:1,zwiebel:1,wasser:1}],['fleischeintopf','H',{fleisch:1,kartoffel:1,zwiebel:1,wasser:1}],['kuerbissuppe','H',{kuerbis:1,wasser:1}],['tomatensuppe','H',{tomate:2,wasser:1}],['bratkartoffeln','H',{kartoffel:2,zwiebel:1}],['ruehrei','FH',{ei:2}],
+ ['bohneneintopf','H',{bohne:3,zwiebel:1,wasser:1}],['chili','H',{bohne:2,tomate:1,paprika:1}],['pfannkuchen','H',{ei:1,milch:1,weizen:1}],['apfelkuchen','H',{apfel:2,ei:1,weizen:2}],['maisbrot','H',{mais:2,ei:1}],['energieriegel','H',{honig:1,weizen:1,beeren:2}]].filter(([o,s,c])=>D[o]&&Object.keys(c).every(k=>D[k]));
+function cookMenu(st){const L=REC.filter(r=>r[1].includes(st));const raw=countA('fleisch_r')+countA('fisch_r');
+ const opts=[];if(raw>1)opts.push({ic:'fleisch',l:tr(V72.allMeat),sub:raw+'×',fn:()=>{const a=countA('fleisch_r'),b=countA('fisch_r');if(a){takeA('fleisch_r',a);give('fleisch',a)}if(b){takeA('fisch_r',b);give('fisch',b)}S.cook&&S.cook(P.x,P.y);try{skXP('koch',3*(a+b))}catch(e){}return()=>cookMenu(st)}});
+ for(const[o,,c]of L){const ok=canPay(c);opts.push({ic:o,l:tr(D[o].n)+(D[o].d?` <small style="color:#9ad06a">${tr(D[o].d)}</small>`:''),sub:costTxt(c),dis:!ok,fn:()=>{for(const m in c)takeA(m,c[m]);if(c.wasser)give('flasche',c.wasser);give(o,1);window.gsInc&&gsInc('cook',1,o);S.cook&&S.cook(P.x,P.y);try{skXP('koch',4)}catch(e){}toast(tr('Gekocht')+': '+tr(D[o].n),'good');return()=>cookMenu(st)}})}
+ opts.sort((a,b)=>(a.dis?1:0)-(b.dis?1:0));openChooser(tr(V72.cook)+' – '+tr(st==='F'?V72.fire:V72.stove),opts)}
+for(const t_ of FIRES.concat(STOVES))ACT[t_]={ic:'fire',l:V72.cook,dur:0};
+{const _f=finishAct;finishAct=function(a){if(a&&a.k==='tile'&&(FIRES.includes(a.tt)||STOVES.includes(a.tt))){cookMenu(STOVES.includes(a.tt)?'H':'F');return}return _f(a)}}
+// Buffs: Wärme, Heilung, Energie
+{const _u=useIt;useIt=function(it,ref){const id=it&&it.id,r=_u.apply(this,arguments);const b=BUF[id];if(b&&P){P.bf=P.bf||{};P.bf[b[0]]=t+b[1];const nm={warm:V72.bWarm,regen:V72.bRegen,energy:V72.bEnergy}[b[0]];toast('+ '+tr(nm),'good')}return r}}
+{const _f=feelT;feelT=function(){return _f()+(P&&P.bf&&P.bf.warm>t?12:0)}}
+{const _st=step;step=function(){_st();if(state!==1||!P||paused||!P.bf)return;if(P.bf.regen>t&&t%180===0&&P.hp<100)P.hp=Math.min(100,P.hp+1);if(P.bf.energy>t&&P.sta<100)P.sta=Math.min(100,P.sta+.18)}}
+{const st=document.createElement('style');st.textContent='#bfx{display:flex;gap:4px;margin-top:3px;flex-wrap:wrap}#bfx span{font-size:9px;padding:0 5px;background:rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.12);color:#ffd28a}';document.head.appendChild(st)}
+{const _h=hud;let last='';hud=function(){const r=_h.apply(this,arguments);if(state!==1||!P||t%30)return r;let el=$('bfx');if(!el){const f=$('fx2')||$('fx');if(!f||!f.parentNode)return r;el=document.createElement('div');el.id='bfx';f.parentNode.insertBefore(el,f.nextSibling)}
+ const L=[];const bf=P.bf||{};for(const[k,ic]of[['warm','🔥'],['regen','✚'],['energy','⚡']])if(bf[k]>t){const s=Math.ceil((bf[k]-t)/60);L.push(`<span>${ic} ${tr({warm:V72.bWarm,regen:V72.bRegen,energy:V72.bEnergy}[k])} ${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}</span>`)}const h=L.join('');if(h!==last){el.innerHTML=h;last=h}return r}}
+applyLang();
+// ---------- 7. Performance: am PC standardmäßig ohne Bildraten-Grenze ----------
+if(!CFG.v72fps){CFG.v72fps=1;try{if(isPC())CFG.fps=0}catch(e){}try{saveCfg()}catch(e){}}
+// ================= v73: Konto & Profil · Spielstände im Profil · Gesamtstatistiken · Herausforderungen mit Avataren, Rahmen & Titeln =================
+const V73={
+ guest:L4('Gast','Guest','Invitado','Invité'),
+ guestS:L4('Nicht angemeldet – Spielstände nur auf diesem Gerät','Not signed in – saves only on this device','Sin sesión: partidas solo en este dispositivo','Non connecté – sauvegardes sur cet appareil uniquement'),
+ synced:L4('Spielstände im Profil gesichert','Saves backed up to your profile','Partidas guardadas en tu perfil','Sauvegardes dans ton profil'),
+ syncing:L4('Synchronisiere …','Syncing …','Sincronizando…','Synchronisation…'),
+ offline:L4('Offline – wird später synchronisiert','Offline – will sync later','Sin conexión: se sincronizará luego','Hors ligne – synchro plus tard'),
+ login:L4('Anmelden','Sign in','Iniciar sesión','Se connecter'),reg:L4('Registrieren','Create account','Registrarse','Créer un compte'),
+ logout:L4('Abmelden','Sign out','Cerrar sesión','Se déconnecter'),email:L4('E-Mail','Email','Correo','E-mail'),pw:L4('Passwort','Password','Contraseña','Mot de passe'),
+ uname:L4('Benutzername','Username','Nombre de usuario','Pseudo'),forgot:L4('Passwort vergessen?','Forgot password?','¿Olvidaste la contraseña?','Mot de passe oublié ?'),
+ resetSent:L4('E-Mail zum Zurücksetzen wurde gesendet – schau auch im Spam-Ordner nach.','Reset email sent – check your spam folder too.','Correo enviado: revisa también la carpeta de spam.','E-mail envoyé – vérifie aussi tes spams.'),
+ needMail:L4('Gib zuerst deine E-Mail ein.','Enter your email first.','Introduce primero tu correo.','Saisis d’abord ton e-mail.'),
+ pwShort:L4('Passwort: mindestens 6 Zeichen','Password: at least 6 characters','Contraseña: mínimo 6 caracteres','Mot de passe : 6 caractères minimum'),
+ taken:L4('Dieser Benutzername ist schon vergeben','This username is already taken','Ese nombre ya está en uso','Ce pseudo est déjà pris'),
+ exists:L4('Für diese E-Mail gibt es schon ein Konto','An account with this email already exists','Ya existe una cuenta con este correo','Un compte existe déjà avec cet e-mail'),
+ wrong:L4('E-Mail oder Passwort falsch','Wrong email or password','Correo o contraseña incorrectos','E-mail ou mot de passe incorrect'),
+ badMail:L4('Ungültige E-Mail-Adresse','Invalid email address','Correo no válido','Adresse e-mail invalide'),
+ many:L4('Zu viele Versuche – bitte kurz warten','Too many attempts – please wait a moment','Demasiados intentos: espera un poco','Trop de tentatives – patiente un peu'),
+ net:L4('Keine Verbindung – bitte später nochmal','No connection – please try again later','Sin conexión: inténtalo más tarde','Pas de connexion – réessaie plus tard'),
+ cfg:L4('Konten sind noch nicht freigeschaltet (Firebase: E-Mail/Passwort aktivieren)','Accounts are not enabled yet (Firebase: enable Email/Password)','Las cuentas aún no están activadas (Firebase: activar correo/contraseña)','Les comptes ne sont pas encore activés (Firebase : activer e-mail/mot de passe)'),
+ perm:L4('Zugriff verweigert – Firestore-Regeln prüfen','Access denied – check the Firestore rules','Acceso denegado: revisa las reglas de Firestore','Accès refusé – vérifie les règles Firestore'),
+ busy:L4('Bitte warten …','Please wait …','Espera…','Patiente…'),
+ welcome:L4('Willkommen, {n}!','Welcome, {n}!','¡Bienvenido, {n}!','Bienvenue, {n} !'),bye:L4('Abgemeldet','Signed out','Sesión cerrada','Déconnecté'),
+ expired:L4('Sitzung abgelaufen – bitte neu anmelden','Session expired – please sign in again','Sesión caducada: vuelve a iniciar sesión','Session expirée – reconnecte-toi'),
+ outQ:L4('Wirklich abmelden? Deine Spielstände bleiben im Profil und werden von diesem Gerät entfernt. Nochmal tippen.','Really sign out? Your saves stay in your profile and are removed from this device. Tap again.','¿Cerrar sesión? Tus partidas siguen en tu perfil y se quitan de este dispositivo. Toca otra vez.','Te déconnecter ? Tes sauvegardes restent dans ton profil et sont retirées de cet appareil. Touche encore.'),
+ outFail:L4('Spielstände konnten nicht hochgeladen werden. Nochmal tippen, um trotzdem abzumelden.','Saves could not be uploaded. Tap again to sign out anyway.','No se pudieron subir las partidas. Toca otra vez para salir igualmente.','Impossible d’envoyer les sauvegardes. Touche encore pour te déconnecter quand même.'),
+ prof:L4('Profil','Profile','Perfil','Profil'),
+ autD:L4('Mit einem Profil werden deine Spielstände, Statistiken, Herausforderungen und Bestenlisten-Einträge sicher gespeichert – auf jedem Gerät.','With a profile your saves, stats, challenges and leaderboard entries are stored safely – on every device.','Con un perfil tus partidas, estadísticas, desafíos y récords se guardan de forma segura, en cualquier dispositivo.','Avec un profil, tes sauvegardes, stats, défis et classements sont conservés en sécurité – sur tous tes appareils.'),
+ nameH:L4('3–16 Zeichen: Buchstaben, Zahlen, Leerzeichen und _','3–16 characters: letters, numbers, spaces and _','3–16 caracteres: letras, números, espacios y _','3–16 caractères : lettres, chiffres, espaces et _'),
+ pickName:L4('Wähle noch einen Benutzernamen für dein Profil.','Choose a username for your profile.','Elige un nombre de usuario para tu perfil.','Choisis un pseudo pour ton profil.'),
+ tabs:{ov:L4('Statistiken','Stats','Estadísticas','Statistiques'),ch:L4('Herausforderungen','Challenges','Desafíos','Défis'),cu:L4('Anpassen','Customize','Personalizar','Personnaliser'),ac:L4('Konto','Account','Cuenta','Compte')},
+ lv:L4('Stufe','Level','Nivel','Niveau'),avatar:L4('Avatar','Avatar','Avatar','Avatar'),frame:L4('Rahmen','Frame','Marco','Cadre'),title:L4('Titel','Title','Título','Titre'),
+ locked:L4('Gesperrt – Herausforderung: {c}','Locked – challenge: {c}','Bloqueado – desafío: {c}','Verrouillé – défi : {c}'),
+ open:L4('Offen','Open','Abiertos','En cours'),done:L4('Erledigt','Done','Hechos','Terminés'),all:L4('Alle','All','Todos','Tous'),
+ chDone:L4('Herausforderung geschafft!','Challenge complete!','¡Desafío completado!','Défi réussi !'),
+ chMany:L4('{n} Herausforderungen geschafft!','{n} challenges complete!','¡{n} desafíos completados!','{n} défis réussis !'),
+ rwNew:L4('Neu freigeschaltet: {r}','New unlock: {r}','Desbloqueado: {r}','Débloqué : {r}'),rw:L4('Belohnung','Reward','Recompensa','Récompense'),
+ sync:L4('Jetzt synchronisieren','Sync now','Sincronizar ahora','Synchroniser'),syncOk:L4('Synchronisiert','Synced','Sincronizado','Synchronisé'),
+ slotsH:L4('Spielstände im Profil','Saves in your profile','Partidas en tu perfil','Sauvegardes du profil'),
+ sOk:L4('gesichert','backed up','guardada','sauvegardée'),sWait:L4('wird hochgeladen','uploading','subiendo','envoi'),sErr:L4('noch nicht gesichert','not backed up yet','aún sin guardar','pas encore sauvegardée'),sNone:L4('leer','empty','vacía','vide'),
+ slot:L4('Platz','Slot','Ranura','Emplacement'),day:L4('Tag','Day','Día','Jour'),
+ rename:L4('Namen ändern','Change name','Cambiar nombre','Changer de pseudo'),save:L4('Speichern','Save','Guardar','Enregistrer'),cancel:L4('Abbrechen','Cancel','Cancelar','Annuler'),
+ resetPw:L4('Passwort zurücksetzen','Reset password','Restablecer contraseña','Réinitialiser le mot de passe'),
+ saveG:L4('Du bist nicht angemeldet. Deine Spielstände liegen nur auf diesem Gerät. Melde dich an, damit sie automatisch in deinem Profil gespeichert werden.','You are not signed in. Your saves are only on this device. Sign in so they are stored in your profile automatically.','No has iniciado sesión. Tus partidas solo están en este dispositivo. Inicia sesión para guardarlas en tu perfil automáticamente.','Tu n’es pas connecté. Tes sauvegardes sont uniquement sur cet appareil. Connecte-toi pour qu’elles soient enregistrées dans ton profil.'),
+ saveA:L4('Angemeldet als {n}. Jeder Spielstand wird automatisch in deinem Profil gespeichert und auf allen Geräten geladen, auf denen du angemeldet bist.','Signed in as {n}. Every save is stored in your profile automatically and loaded on every device you sign in on.','Sesión iniciada como {n}. Cada partida se guarda en tu perfil y se carga en todos tus dispositivos.','Connecté en tant que {n}. Chaque sauvegarde est enregistrée dans ton profil et chargée sur tous tes appareils.'),
+ lbNeed:L4('Melde dich an, um in der Bestenliste zu erscheinen.','Sign in to appear on the leaderboard.','Inicia sesión para aparecer en la clasificación.','Connecte-toi pour apparaître au classement.'),
+ lbYou:L4('Du erscheinst als','You appear as','Apareces como','Tu apparais comme'),
+ guestP:L4('Fortschritt als Gast wird beim Anmelden in dein Profil übernommen.','Guest progress is added to your profile when you sign in.','El progreso como invitado se añade a tu perfil al iniciar sesión.','La progression invité est ajoutée à ton profil à la connexion.'),
+ nameOk:L4('Name gespeichert','Name saved','Nombre guardado','Pseudo enregistré'),of:L4('von','of','de','sur'),
+ slNoteG:L4('Nicht angemeldet – nur auf diesem Gerät gespeichert','Not signed in – stored on this device only','Sin sesión: solo en este dispositivo','Non connecté – uniquement sur cet appareil'),
+ slNoteA:L4('Im Profil {n} gesichert','Backed up to profile {n}','Guardado en el perfil {n}','Sauvegardé dans le profil {n}')};
+
+// ---------- Hilfen ----------
+const escH=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const nfm=n=>Math.floor(n||0).toLocaleString(CFG.lang==='de'?'de-DE':CFG.lang||'de-DE');
+const AKEY=SAVECFG.apiKey,FSB=`https://firestore.googleapis.com/v1/projects/${SAVECFG.projectId}/databases/(default)/documents`;
+const fsv=v=>typeof v==='number'?{integerValue:String(Math.round(v))}:{stringValue:String(v)};
+const fsp=f=>!f?undefined:f.integerValue!=null?+f.integerValue:f.doubleValue!=null?+f.doubleValue:f.stringValue!=null?f.stringValue:f.booleanValue;
+const fsDoc=o=>{const f={};for(const k in o)if(o[k]!=null)f[k]=fsv(o[k]);return{fields:f}};
+const unDoc=d=>{const o={};if(d&&d.fields)for(const k in d.fields)o[k]=fsp(d.fields[k]);return o};
+const fsMask=o=>Object.keys(o).map(k=>'updateMask.fieldPaths='+k).join('&');
+const nkey=n=>String(n).trim().toLowerCase().replace(/\s+/g,'_');
+
+// ---------- Konto (Firebase Auth über REST) ----------
+let ACC=null;try{ACC=JSON.parse(LS.get('zwa_auth')||'null');if(ACC&&!ACC.uid)ACC=null}catch(e){ACC=null}
+const accStore=()=>{if(ACC)LS.set('zwa_auth',JSON.stringify(ACC));else LS.del('zwa_auth')};
+async function idp(ep,body){let r;try{r=await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:${ep}?key=${AKEY}`,{method:'POST',headers:{'Content-Type':'application/json','X-Firebase-Locale':CFG.lang||'de'},body:JSON.stringify(body)})}catch(e){throw new Error('net')}
+ const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(String((j.error&&j.error.message)||'net'));return j}
+async function accTok(){if(!ACC)return null;if(ACC.idT&&Date.now()<ACC.exp-90000)return ACC.idT;let r;
+ try{r=await fetch(`https://securetoken.googleapis.com/v1/token?key=${AKEY}`,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:'grant_type=refresh_token&refresh_token='+encodeURIComponent(ACC.rT)})}catch(e){throw new Error('net')}
+ const j=await r.json().catch(()=>({}));if(!r.ok){if(r.status===400||r.status===401){accOut(true);try{toast(tr(V73.expired),'bad')}catch(e){}throw new Error('auth')}throw new Error('net')}
+ ACC.idT=j.id_token;ACC.rT=j.refresh_token;ACC.exp=Date.now()+(+j.expires_in||3600)*1000;accStore();return ACC.idT}
+async function fsReq(path,opt){opt=opt||{};const h={'Content-Type':'application/json'};if(ACC&&!opt.anon){const tk=await accTok();if(tk)h.Authorization='Bearer '+tk}let r;
+ try{r=await fetch(FSB+path+(path.includes('?')?'&':'?')+'key='+AKEY,{method:opt.method||'GET',headers:h,body:opt.body,keepalive:!!opt.keep})}catch(e){throw new Error('net')}
+ if(r.status===404&&!opt.strict)return null;if(r.status===409)throw new Error('taken');if(!r.ok)throw new Error(r.status===403||r.status===401?'perm':'net');return r.json().catch(()=>({}))}
+const accErr=e=>{const m=String(e&&e.message||e||'');if(m==='taken')return V73.taken;if(m==='EMAIL_EXISTS')return V73.exists;if(/^(EMAIL_NOT_FOUND|INVALID_PASSWORD|INVALID_LOGIN_CREDENTIALS|USER_DISABLED)/.test(m))return V73.wrong;
+ if(/^(INVALID_EMAIL|MISSING_EMAIL)/.test(m))return V73.badMail;if(/^(WEAK_PASSWORD|MISSING_PASSWORD)/.test(m))return V73.pwShort;if(/^TOO_MANY/.test(m))return V73.many;
+ if(/^(OPERATION_NOT_ALLOWED|CONFIGURATION_NOT_FOUND|PASSWORD_LOGIN_DISABLED|ADMIN_ONLY)/.test(m))return V73.cfg;if(m==='perm')return V73.perm;if(V72[m])return V72[m];if(m.startsWith('bad'))return V72.badLen;return V73.net};
+const setAcc=j=>{ACC={uid:j.localId,email:j.email||'',idT:j.idToken,rT:j.refreshToken,exp:Date.now()+(+j.expiresIn||3600)*1000,n:'',k:''};accStore()};
+
+// ---------- Profil-Daten (pro Konto bzw. Gast, lokal + Cloud) ----------
+const GSUM=['zk','bk','dog','boss','built','crafted','earned','quests','camps','cure','srch','stash','rescued','drive','ate','walk','jack'];
+const GADD=GSUM.concat(['games','deaths','hcDeaths','play','cook','rep','days']),GMAX=['rec','maxLv','bestKills','bestDay','hcBest'];
+const prNew=()=>({gs:{},ch:[],best:{nk:0,nd:0,hk:0,hd:0},av:'sv',fr:'holz',ti:'frisch'});
+const prLoad=id=>{try{const o=JSON.parse(LS.get('zwa_p_'+id)||'null');if(o&&o.gs)return Object.assign(prNew(),o)}catch(e){}return prNew()};
+let PR=prLoad(ACC?ACC.uid:'guest'),PRDIRTY=0,PRLAST=0;
+const prSave=()=>LS.set('zwa_p_'+(ACC?ACC.uid:'guest'),JSON.stringify(PR));
+function gsMerge(a,b,add){const o=Object.assign({},a||{});b=b||{};for(const k in b){if(k==='pl'){o.pl=[...new Set((o.pl||[]).concat(b.pl||[]))];continue}const x=+o[k]||0,y=+b[k]||0;o[k]=add&&GADD.includes(k)?x+y:Math.max(x,y)}return o}
+function bestMerge(a,b){const o=Object.assign({nk:0,nd:0,hk:0,hd:0},a||{});for(const k in(b||{}))o[k]=Math.max(+o[k]||0,+b[k]||0);return o}
+function prMerge(cloud,addGuest){const loc=prLoad(ACC.uid),m=prNew();let cs={},cc=[];try{cs=JSON.parse(cloud&&cloud.st||'{}')||{}}catch(e){}try{cc=JSON.parse(cloud&&cloud.ch||'[]')||[]}catch(e){}
+ m.gs=gsMerge(loc.gs,cs.gs,false);m.best=bestMerge(loc.best,cs.best);m.ch=[...new Set(loc.ch.concat(cc))];
+ for(const k of['av','fr','ti'])m[k]=(cloud&&cloud[k])||loc[k]||m[k];
+ if(addGuest){const g=prLoad('guest');m.gs=gsMerge(m.gs,g.gs,true);m.best=bestMerge(m.best,g.best);m.ch=[...new Set(m.ch.concat(g.ch))];LS.del('zwa_p_guest')}
+ PR=m;prSave();chCheck(false);prSoon(300)}
+const prLevel=()=>{let p=0;for(const c of CHL)if(PR.ch.includes(c.id))p+=c.st;return{p,l:1+Math.floor(p/5),f:(p%5)/5}};
+async function prPush(){if(!ACC||!ACC.n)return;PRDIRTY=0;PRLAST=Date.now();const lv=prLevel().l;
+ const o={av:PR.av,fr:PR.fr,ti:PR.ti,lv,st:JSON.stringify({gs:PR.gs,best:PR.best}),ch:JSON.stringify(PR.ch),t:Date.now()};
+ await fsReq(`/users/${ACC.uid}?${fsMask(o)}`,{method:'PATCH',body:JSON.stringify(fsDoc(o))})}
+let PRT=0,PRDUE=0;function prSoon(ms){PRDIRTY=1;if(!ACC)return;ms=ms==null?4000:ms;const due=Date.now()+ms;if(PRT&&PRDUE<=due)return;clearTimeout(PRT);PRDUE=due;PRT=setTimeout(()=>{PRT=0;prPush().catch(()=>{PRDIRTY=1})},ms)}
+
+// ---------- Gesamtstatistik: zählt in jedem Spielstand mit ----------
+let GSNAP=null;const GST3={day:null,last:0};
+const gsSnap=()=>{GSNAP={};for(const k of GSUM)GSNAP[k]=+(window.STATS&&STATS[k])||0;GST3.day=null;GST3.last=0};
+function gsInc(k,n){PR.gs[k]=(PR.gs[k]||0)+(n||1);PRDIRTY=1}
+const gsMax=(k,v)=>{v=+v||0;if(v>(PR.gs[k]||0)){PR.gs[k]=v;PRDIRTY=1}};
+function gsTick(){if(state!==1||!P||!window.STATS)return;if(!GSNAP)gsSnap();const g=PR.gs;
+ for(const k of GSUM){const v=+STATS[k]||0,d=v-GSNAP[k];if(d>0){g[k]=(g[k]||0)+d;PRDIRTY=1}GSNAP[k]=v}
+ gsMax('rec',STATS.rec);gsMax('maxLv',STATS.maxLv);gsMax('bestKills',STATS.zk);
+ const d=dayN();if(GST3.day==null)GST3.day=d;if(d>GST3.day){gsInc('days',d-GST3.day);GST3.day=d}gsMax('bestDay',d);if(P.hcm)gsMax('hcBest',d);
+ const pl=new Set(g.pl||[]),n0=pl.size;for(const k of(STATS.sp||[]))pl.add(k);for(const k in(STATS.sps||{}))pl.add(k);if(pl.size!==n0){g.pl=[...pl];PRDIRTY=1}
+ const now=performance.now();if(GST3.last&&!paused&&!document.hidden)g.play=(g.play||0)+Math.min(3,(now-GST3.last)/1000);GST3.last=now;
+ prSave();chCheck(false);if(PRDIRTY&&ACC&&Date.now()-PRLAST>120000)prSoon(0)}
+{const _st=step;step=function(){_st();if(state===1&&t%60===0)try{gsTick()}catch(e){}}}
+{const _n=newGame;newGame=function(s,cc){const r=_n.apply(this,arguments);gsSnap();gsInc('games',1);prSave();return r}}
+{const _l=load;load=function(s){const r=_l.apply(this,arguments);if(r){gsSnap();try{const o=JSON.parse(LS.get('zw4_h'+s)||'{}')||{};if(P)P.hcm=o.v73&&o.v73.hcm?1:0}catch(e){}}return r}}
+// Hardcore-Kennzeichen im Spielstand sichern (P.hc ist der Treffer-Schutz und wird ständig zurückgesetzt)
+{const _s=save;save=function(q){const r=_s.apply(this,arguments);if(state===1&&P)try{const k='zw4_h'+slot,o=JSON.parse(LS.get(k)||'{}')||{};o.v73={hcm:P.hcm?1:0};LS.set(k,JSON.stringify(o))}catch(e){}return r}}
+{const _o=over;over=function(){if(state===1&&P){try{gsTick();gsInc('deaths',1);if(P.hcm)gsInc('hcDeaths',1);prSave()}catch(e){}}const r=_o.apply(this,arguments);try{chCheck(false);prSoon(800)}catch(e){}return r}}
+
+// ---------- Belohnungen: Avatare, Rahmen, Titel ----------
+const AVD={sv:{bg:'#34402c',skin:'#d8a878',hair:'#5a3a1e',hs:'short',shirt:'#5a6a3a'},sv2:{bg:'#40303a',skin:'#e8b890',hair:'#a8401e',hs:'long',shirt:'#3a5a7a'},
+ cap:{bg:'#2c3a48',skin:'#c89060',hair:'#2a1a10',hs:'short',shirt:'#7a3a2a',x:'cap'},bean:{bg:'#3a2c2c',skin:'#d8a878',hair:'#6a4a2a',hs:'short',shirt:'#4a4a52',x:'beanie'},
+ band:{bg:'#4a2a20',skin:'#b88058',hair:'#1a1410',hs:'short',shirt:'#2a2a2a',x:'bandana'},zom:{bg:'#1e2a1c',skin:'#7a9a5a',hair:'#3a3020',hs:'messy',eye:'#e83a2a',shirt:'#4a3a2a',x:'blood'},
+ zom2:{bg:'#26201a',skin:'#6a8a4a',eye:'#ffd23a',shirt:'#3a2a2a',x:'rot'},dog:{bg:'#2a2018',sp:'dog'},skull:{bg:'#2a1414',sp:'skull'},
+ gas:{bg:'#2a302a',skin:'#c89060',hair:'#2a2a2a',hs:'short',shirt:'#4a5040',x:'gas'},helm:{bg:'#2e3424',skin:'#d0a070',shirt:'#4a5a30',x:'helmet'},
+ cow:{bg:'#4a3420',skin:'#c88a5a',hair:'#6a4020',hs:'short',shirt:'#8a5a30',x:'cowboy'},chef:{bg:'#3a3a40',skin:'#e0b088',hair:'#3a2a1a',hs:'short',shirt:'#e8e8e0',x:'chef'},
+ med:{bg:'#2a3a3e',skin:'#d8a878',hair:'#4a3020',hs:'short',shirt:'#e0e0e0',x:'medic'},mech:{bg:'#3a3020',skin:'#c89060',hair:'#2a1a10',hs:'short',shirt:'#3a4a6a',x:'goggles'},
+ hood:{bg:'#1a1a22',skin:'#a87850',shirt:'#2a2a34',x:'hood'},eye:{bg:'#3a2420',skin:'#c88a5a',hair:'#8a8a8a',hs:'short',shirt:'#4a3a2a',x:'patch'},
+ mohawk:{bg:'#2a1a2e',skin:'#d8a878',hair:'#e83a8a',hs:'mohawk',shirt:'#1a1a1a',x:'spikes'},boss:{bg:'#24261e',sp:'boss'},
+ sci:{bg:'#24303a',skin:'#e0b890',hair:'#e8e8e8',hs:'wild',shirt:'#e8e8e8',x:'glasses'},pump:{bg:'#1e1a2a',sp:'pump'},ghost:{bg:'#1a2030',sp:'ghost'},
+ crown:{bg:'#3a2a10',skin:'#d8a878',hair:'#5a3a1e',hs:'short',shirt:'#8a2a2a',x:'crown'},rad:{bg:'#2a2a1a',skin:'#c89060',shirt:'#d8b820',x:'hazmat'}};
+const AVX={
+ cap:P=>{P('#c83a2a',4,1,8,4);P('#e85a3a',5,1,4,1);P('#8a2010',3,5,10,1);P('#f0e8d8',7,2,2,1)},
+ beanie:P=>{P('#3a6a8a',4,1,8,4);P('#5a8aaa',4,4,8,1);P('#2a4a6a',5,2,1,2);P('#2a4a6a',8,2,1,2);P('#e8e0d0',7,0,2,1)},
+ bandana:P=>{P('#a82a2a',4,8,8,3);P('#c84040',4,8,8,1);P('#7a1a1a',6,10,1,1);P('#7a1a1a',9,9,1,1);P('#1a1410',5,6,2,1);P('#1a1410',9,6,2,1)},
+ blood:P=>{P('#2a0a0a',6,9,4,1);P('#a81a1a',9,10,2,1);P('#a81a1a',10,11,1,1);P('#7a1010',5,11,1,1);P('#a81a1a',3,14,2,1);P('#a81a1a',11,13,1,2)},
+ rot:P=>{P('#e8e0c8',9,3,2,3);P('#c8c0a8',10,5,1,1);P('#2a0a0a',6,9,4,2);P('#e8e0c8',6,9,1,1);P('#e8e0c8',8,9,1,1);P('#1a0a0a',5,7,2,1);P('#ffd23a',6,7,1,1);P('#4a6a3a',4,10,1,1)},
+ gas:P=>{P('#3a3a3a',4,6,8,5);P('#5a5a5a',4,6,8,1);P('#a8d8e8',5,7,2,2);P('#a8d8e8',9,7,2,2);P('#e8f8ff',5,7,1,1);P('#e8f8ff',9,7,1,1);P('#2a2a2a',6,10,4,2);P('#6a6a6a',7,11,2,2);P('#4a4a4a',3,7,1,2);P('#4a4a4a',12,7,1,2)},
+ helmet:P=>{P('#4a5a30',3,2,10,4);P('#5a6a3a',4,1,8,1);P('#6a7a4a',4,2,4,1);P('#3a4a24',2,5,12,1);P('#3a3020',4,6,1,5);P('#3a3020',11,6,1,5)},
+ cowboy:P=>{P('#8a5a28',4,1,8,3);P('#a8703a',5,1,6,1);P('#4a2a10',4,3,8,1);P('#7a4a20',1,4,14,1);P('#5a3414',1,4,1,1);P('#5a3414',14,4,1,1)},
+ chef:P=>{P('#f0f0e8',4,1,8,3);P('#ffffff',3,0,3,2);P('#ffffff',10,0,3,2);P('#ffffff',6,0,4,1);P('#d8d8d0',4,4,8,1);P('#3a3a3a',7,14,1,1)},
+ medic:P=>{P('#e8e8e8',4,1,8,3);P('#d0d0d0',4,4,8,1);P('#d82a2a',7,1,2,3);P('#d82a2a',6,2,4,1);P('#d82a2a',7,13,2,3);P('#d82a2a',6,14,4,1)},
+ goggles:P=>{P('#3a3a3a',3,6,10,2);P('#e8a020',5,6,2,2);P('#e8a020',9,6,2,2);P('#ffd060',5,6,1,1);P('#ffd060',9,6,1,1)},
+ hood:P=>{P('#2a2a34',3,2,10,3);P('#2a2a34',3,5,2,8);P('#2a2a34',11,5,2,8);P('#3a3a48',4,1,8,1);P('#1a1a22',5,5,6,1);P('#e8d040',6,7,1,1);P('#e8d040',9,7,1,1)},
+ patch:P=>{P('#1a1a1a',5,6,2,2);P('#1a1a1a',3,5,2,1);P('#1a1a1a',7,5,5,1);P('#a85a4a',10,8,1,2)},
+ spikes:P=>{P('#d8d8d8',3,9,1,1);P('#d8d8d8',12,9,1,1);P('#c8c8c8',3,13,1,1);P('#c8c8c8',12,13,1,1);P('#c8c8c8',5,14,1,1);P('#c8c8c8',10,14,1,1)},
+ glasses:P=>{P('#2a2a2a',4,7,8,1);P('#a8d8f8',5,6,2,2);P('#a8d8f8',9,6,2,2);P('#1a1a1a',6,7,1,1);P('#1a1a1a',9,7,1,1);P('#e8e8e8',6,9,4,1)},
+ crown:P=>{P('#ffd23a',4,1,8,2);P('#ffd23a',4,0,1,1);P('#ffd23a',7,0,2,1);P('#ffd23a',11,0,1,1);P('#c8901a',4,2,8,1);P('#e83a3a',7,1,2,1);P('#3a8ae8',5,1,1,1);P('#3a8ae8',10,1,1,1)},
+ hazmat:P=>{P('#d8b820',3,2,10,10);P('#e8d040',4,2,8,1);P('#2a3a3a',5,5,6,4);P('#5a8a8a',5,5,6,1);P('#8ababa',6,6,1,1);P('#a89010',3,11,10,1);P('#1a1a1a',7,10,2,1)}};
+const AVSP={
+ dog:P=>{P('#5a4a3a',3,2,2,4);P('#5a4a3a',11,2,2,4);P('#7a6a50',4,4,8,6);P('#8a7a60',5,9,6,4);P('#2a1a1a',7,9,2,1);P('#e83a2a',5,6,2,1);P('#e83a2a',9,6,2,1);P('#3a0a0a',6,12,4,1);P('#e8e0c8',6,12,1,1);P('#e8e0c8',9,12,1,1);P('#5a7a3a',10,4,2,2);P('#a81a1a',4,13,1,2);P('#5a4a3a',3,13,10,3)},
+ skull:P=>{P('#e8e0c8',4,2,8,8);P('#e8e0c8',5,1,6,1);P('#d0c8b0',4,9,8,1);P('#e8e0c8',5,10,6,3);P('#1a1410',5,5,2,3);P('#1a1410',9,5,2,3);P('#1a1410',7,8,2,1);P('#1a1410',6,11,1,2);P('#1a1410',8,11,1,2);P('#c8c0a8',2,14,12,1);P('#e8e0c8',1,13,2,2);P('#e8e0c8',13,13,2,2)},
+ boss:P=>{P('#5a6a5a',1,11,14,5);P('#4a5a4a',1,15,14,1);P('#7a8a6a',3,5,10,6);P('#8a9a7a',4,3,8,9);P('#5a6a4a',4,5,8,1);P('#ff5a2a',5,6,2,1);P('#ff5a2a',9,6,2,1);P('#5a6a4a',5,10,6,2);P('#e8e0c8',6,10,1,1);P('#e8e0c8',9,10,1,1);P('#3a2a2a',8,2,1,3);P('#7a3a2a',11,4,1,3)},
+ pump:P=>{P('#2a5a1a',7,1,2,2);P('#e87a1a',3,3,10,10);P('#e87a1a',2,5,12,6);P('#c85a10',5,3,1,10);P('#c85a10',10,3,1,10);P('#ffe060',4,6,3,2);P('#ffe060',9,6,3,2);P('#ffe060',4,9,8,2);P('#e87a1a',5,9,1,1);P('#e87a1a',8,10,1,1);P('#e87a1a',10,9,1,1)},
+ ghost:P=>{P('#e8ecf0',4,2,8,11);P('#e8ecf0',3,4,10,9);P('#e8ecf0',5,1,6,1);P('#e8ecf0',3,13,2,1);P('#e8ecf0',7,13,2,1);P('#e8ecf0',11,13,2,1);P('#c8ccd8',11,4,2,9);P('#1a1a2a',5,6,2,3);P('#1a1a2a',9,6,2,3);P('#1a1a2a',7,10,2,2)}};
+function avPaint(id){const o=AVD[id]||AVD.sv;return cv(16,16,P=>{const bg=o.bg;P(bg,0,0,16,16);P(shade(bg,1.3),0,0,16,1);P(shade(bg,.65),0,15,16,1);
+ if(o.sp){AVSP[o.sp](P);return}const s=o.skin,sd=shade(s,.78),sh=o.shirt;
+ P(sh,2,13,12,3);P(shade(sh,.75),2,15,12,1);P(sd,6,12,4,1);P(s,5,3,6,1);P(s,4,4,8,7);P(s,5,11,6,1);P(sd,4,10,1,1);P(sd,11,10,1,1);P(shade(s,1.1),5,4,2,1);P(sd,3,7,1,2);P(sd,12,7,1,2);
+ const e=o.eye||'#1a1410';P('#f0ece0',5,7,2,1);P('#f0ece0',9,7,2,1);P(e,6,7,1,1);P(e,9,7,1,1);P(shade(s,.6),7,9,2,1);
+ const h=o.hair;if(h){const hd=shade(h,.75);if(o.hs!=='mohawk'){P(h,4,3,8,2);P(h,5,2,6,1);P(h,4,5,1,1);P(h,11,5,1,1);P(hd,5,4,1,1);P(hd,9,4,2,1)}
+  if(o.hs==='long'){P(h,3,4,1,8);P(h,12,4,1,8);P(h,4,5,1,6);P(h,11,5,1,6);P(hd,3,10,1,2);P(hd,12,10,1,2)}
+  if(o.hs==='messy'){P(h,3,3,1,2);P(h,12,2,1,2);P(h,7,1,1,1)}
+  if(o.hs==='wild'){P(h,3,2,2,3);P(h,11,2,2,3);P(h,2,4,1,3);P(h,13,4,1,3);P(h,6,1,4,1)}
+  if(o.hs==='mohawk'){P(h,7,0,2,5);P(hd,7,4,2,1);P(shade(s,.9),5,3,2,1);P(shade(s,.9),9,3,2,1)}}
+ if(o.x)AVX[o.x](P)})}
+for(const k in AVD){ICO['av_'+k]=avPaint(k);delete ICU['av_'+k]}
+const AVN={sv:L4('Überlebender','Survivor','Superviviente','Survivant'),sv2:L4('Überlebende','Survivor','Superviviente','Survivante'),cap:L4('Kappe','Cap','Gorra','Casquette'),bean:L4('Mütze','Beanie','Gorro','Bonnet'),
+ band:L4('Bandit','Bandit','Bandido','Bandit'),zom:L4('Zombie','Zombie','Zombi','Zombie'),zom2:L4('Verrottet','Rotten','Podrido','Pourri'),dog:L4('Zombiehund','Zombie dog','Perro zombi','Chien zombie'),
+ skull:L4('Schädel','Skull','Calavera','Crâne'),gas:L4('Gasmaske','Gas mask','Máscara de gas','Masque à gaz'),helm:L4('Soldat','Soldier','Soldado','Soldat'),cow:L4('Cowboy','Cowboy','Vaquero','Cowboy'),
+ chef:L4('Koch','Cook','Cocinero','Cuistot'),med:L4('Sanitäter','Medic','Médico','Infirmier'),mech:L4('Schweißer','Welder','Soldador','Soudeur'),hood:L4('Kapuze','Hood','Capucha','Capuche'),
+ eye:L4('Einäugig','One-eyed','Tuerto','Borgne'),mohawk:L4('Punk','Punk','Punk','Punk'),boss:L4('Koloss','Colossus','Coloso','Colosse'),sci:L4('Forscher','Scientist','Científico','Scientifique'),
+ pump:L4('Kürbiskopf','Pumpkin head','Cabeza de calabaza','Tête de citrouille'),ghost:L4('Geist','Ghost','Fantasma','Fantôme'),crown:L4('König','King','Rey','Roi'),rad:L4('Strahlenanzug','Hazmat suit','Traje NBQ','Combinaison')};
+const FRD={holz:['#8a6038','#3a2614',L4('Holz','Wood','Madera','Bois')],rost:['#b8642e','#4a2210',L4('Rost','Rust','Óxido','Rouille')],bronze:['#d8964e','#6a4220',L4('Bronze','Bronze','Bronce','Bronze')],
+ silber:['#e0e4e8','#6a7078',L4('Silber','Silver','Plata','Argent')],gold:['#ffd23a','#a87818',L4('Gold','Gold','Oro','Or')],blut:['#d81a1a','#4a0606',L4('Blut','Blood','Sangre','Sang')],
+ gift:['#8af04a','#245a10',L4('Gift','Toxic','Tóxico','Toxique')],eis:['#b8f0ff','#3a7aa8',L4('Eis','Ice','Hielo','Glace')],feuer:['#ffa030','#b0200a',L4('Feuer','Fire','Fuego','Feu')],
+ knochen:['#ece4cc','#8a8070',L4('Knochen','Bone','Hueso','Os')],nacht:['#a070ff','#2a1a5a',L4('Nacht','Night','Noche','Nuit')],legende:['#ffe070','#d83a8a',L4('Legende','Legend','Leyenda','Légende')]};
+const TIN={frisch:L4('Frischling','Rookie','Novato','Débutant'),jaeger:L4('Zombiejäger','Zombie Hunter','Cazazombis','Chasseur de zombies'),schl:L4('Schlächter','Butcher','Carnicero','Boucher'),
+ legende:L4('Legende der Ödnis','Wasteland Legend','Leyenda del páramo','Légende des terres désolées'),bandit:L4('Banditenschreck','Bandit Bane','Azote de bandidos','Fléau des bandits'),
+ hund:L4('Hundefänger','Dog Catcher','Perrero','Chasseur de chiens'),koloss:L4('Kolosstöter','Colossus Slayer','Matacolosos','Tueur de colosses'),ueberl:L4('Überlebenskünstler','Survivalist','Superviviente nato','Survivaliste'),
+ unsterbl:L4('Unsterblich','Immortal','Inmortal','Immortel'),hc:L4('Hardcore-Veteran','Hardcore Veteran','Veterano hardcore','Vétéran hardcore'),bau:L4('Baumeister','Master Builder','Maestro constructor','Maître bâtisseur'),
+ tueft:L4('Tüftler','Tinkerer','Inventor','Bricoleur'),kapi:L4('Kapitalist','Capitalist','Capitalista','Capitaliste'),koch:L4('Lagerkoch','Camp Cook','Cocinero del campamento','Cuistot du camp'),
+ mecha:L4('Mechaniker','Mechanic','Mecánico','Mécanicien'),wander:L4('Wanderer','Wanderer','Caminante','Vagabond'),strasse:L4('Straßenkönig','Road King','Rey de la carretera','Roi de la route'),
+ pluend:L4('Plünderkönig','Scavenger King','Rey del saqueo','Roi du pillage'),retter:L4('Retter','Rescuer','Rescatador','Sauveteur'),anf:L4('Anführer','Leader','Líder','Chef de bande'),entd:L4('Entdecker','Explorer','Explorador','Explorateur')};
+const AVDEF=['sv','sv2','cap'];
+const avBox=(av,fr,px)=>{const b=Math.max(1,Math.round(px/18));return`<span class="avb f_${FRD[fr]?fr:'holz'}" style="width:${px}px;height:${px}px;--b:${b}px"><img src="${icoUrl('av_'+(AVD[av]?av:'sv'))}" alt=""></span>`};
+
+// ---------- Herausforderungen ----------
+const fKm=n=>nfm(n/1000)+' km',fH=n=>nfm(n/3600)+' h',fUsd=n=>nfm(n)+' $';
+const CHG=[
+ ['zk',[10,50,100,250,500,1000,2500,5000,10000],L4('Zombiejäger','Zombie Hunter','Cazazombis','Chasseur de zombies'),L4('Töte insgesamt {n} Zombies','Kill {n} zombies in total','Elimina {n} zombis en total','Tue {n} zombies au total'),0,[0,'a:zom','t:jaeger',0,0,'f:blut','t:schl','a:zom2','t:legende']],
+ ['bk',[5,25,100,250],L4('Gesetzeshüter','Lawbringer','Justiciero','Justicier'),L4('Besiege {n} Banditen','Defeat {n} bandits','Derrota a {n} bandidos','Vaincs {n} bandits'),0,['a:band','f:rost','t:bandit',0]],
+ ['dog',[10,50,200],L4('Hundefänger','Dog Catcher','Perrero','Chasseur de chiens'),L4('Töte {n} Zombie-Hunde','Kill {n} zombie dogs','Mata {n} perros zombi','Tue {n} chiens zombies'),0,[0,'a:dog','t:hund']],
+ ['boss',[1,5,20],L4('Riesentöter','Giant Slayer','Matagigantes','Tueur de géants'),L4('Besiege {n} Kolosse','Defeat {n} Colossi','Derrota {n} Colosos','Vaincs {n} Colosses'),0,['t:koloss','a:boss','f:knochen']],
+ ['days',[10,50,100,250,500],L4('Ausdauer','Endurance','Resistencia','Endurance'),L4('Überlebe insgesamt {n} Tage','Survive {n} days in total','Sobrevive {n} días en total','Survis {n} jours au total'),0,[0,'t:ueberl','f:silber',0,0]],
+ ['bestDay',[3,7,14,30,50,100],L4('Langer Atem','Long Haul','Largo aliento','Longue haleine'),L4('Erreiche Tag {n} in einem Spiel','Reach day {n} in one game','Llega al día {n} en una partida','Atteins le jour {n} en une partie'),0,[0,'a:bean',0,'a:hood','t:unsterbl','a:crown']],
+ ['hcBest',[3,7,15,30],L4('Ohne Netz','No Safety Net','Sin red','Sans filet'),L4('Erreiche Tag {n} im Hardcore-Modus','Reach day {n} in Hardcore','Llega al día {n} en Hardcore','Atteins le jour {n} en Hardcore'),0,[0,'a:skull','t:hc','f:legende']],
+ ['built',[25,100,300,1000],L4('Baumeister','Builder','Constructor','Bâtisseur'),L4('Baue {n} Teile','Build {n} parts','Construye {n} piezas','Construis {n} éléments'),0,[0,'a:helm','f:bronze','t:bau']],
+ ['crafted',[20,100,300],L4('Tüftler','Tinkerer','Inventor','Bricoleur'),L4('Stelle {n} Gegenstände her','Craft {n} items','Fabrica {n} objetos','Fabrique {n} objets'),0,[0,'t:tueft','a:mech']],
+ ['earned',[1000,10000,50000,200000],L4('Händler','Trader','Comerciante','Marchand'),L4('Verdiene insgesamt {n}','Earn {n} in total','Gana {n} en total','Gagne {n} au total'),fUsd,[0,'t:kapi',0,'f:gold']],
+ ['quests',[5,25,100],L4('Auftragsarbeit','Contractor','Contratista','Mercenaire'),L4('Erledige {n} Aufträge','Complete {n} jobs','Completa {n} encargos','Termine {n} missions'),0,[0,'a:eye',0]],
+ ['cook',[10,50,200],L4('Feldküche','Field Kitchen','Cocina de campaña','Cuisine de campagne'),L4('Koche {n} Gerichte','Cook {n} meals','Cocina {n} platos','Cuisine {n} plats'),0,['a:chef','t:koch','f:feuer']],
+ ['rep',[5,25,100],L4('Schrauber','Grease Monkey','Mecánico','Mécano'),L4('Repariere {n} Waffen','Repair {n} weapons','Repara {n} armas','Répare {n} armes'),0,[0,0,'t:mecha']],
+ ['walk',[10000,50000,200000],L4('Wanderer','Wanderer','Caminante','Vagabond'),L4('Lege {n} zu Fuß zurück','Walk {n}','Camina {n}','Marche {n}'),fKm,[0,'t:wander','f:eis']],
+ ['drive',[5000,25000,100000],L4('Straßenkrieger','Road Warrior','Guerrero de la carretera','Guerrier de la route'),L4('Fahre {n}','Drive {n}','Conduce {n}','Conduis {n}'),fKm,[0,'a:cow','t:strasse']],
+ ['srch',[50,250,1000],L4('Plünderer','Scavenger','Saqueador','Pillard'),L4('Durchsuche {n} Behälter','Search {n} containers','Registra {n} contenedores','Fouille {n} conteneurs'),0,[0,'a:gas','t:pluend']],
+ ['ate',[50,250],L4('Feinschmecker','Gourmet','Gourmet','Gourmet'),L4('Iss {n} Mal','Eat {n} times','Come {n} veces','Mange {n} fois'),0,[0,0]],
+ ['camps',[1,10,30],L4('Lagerbrecher','Camp Breaker','Rompecampamentos','Briseur de camps'),L4('Befreie {n} Banditenlager','Clear {n} bandit camps','Limpia {n} campamentos','Nettoie {n} camps'),0,[0,0,0]],
+ ['rescued',[1,5,20],L4('Retter','Rescuer','Rescatador','Sauveteur'),L4('Rette {n} Überlebende','Rescue {n} survivors','Rescata a {n} supervivientes','Sauve {n} survivants'),0,[0,'t:retter',0]],
+ ['cure',[1,5],L4('Immun','Immune','Inmune','Immunisé'),L4('Heile {n} Infektionen','Cure {n} infections','Cura {n} infecciones','Guéris {n} infections'),0,['a:med','f:gift']],
+ ['rec',[1,3,6],L4('Anführer','Leader','Líder','Chef'),L4('Habe {n} Verbündete gleichzeitig','Have {n} allies at once','Ten {n} aliados a la vez','Aie {n} alliés en même temps'),0,[0,0,'t:anf']],
+ ['maxLv',[5,10],L4('Meisterschaft','Mastery','Maestría','Maîtrise'),L4('Bringe eine Fähigkeit auf Stufe {n}','Get a skill to level {n}','Sube una habilidad a nivel {n}','Monte une compétence au niveau {n}'),0,[0,'a:sci']],
+ ['play',[3600,18000,72000,180000],L4('Veteran','Veteran','Veterano','Vétéran'),L4('Spiele insgesamt {n}','Play for {n} in total','Juega {n} en total','Joue {n} au total'),fH,[0,0,0,'f:nacht']],
+ ['games',[1,5,20],L4('Neuanfang','Fresh Start','Nuevo comienzo','Nouveau départ'),L4('Starte {n} Spiele','Start {n} games','Empieza {n} partidas','Lance {n} parties'),0,[0,'a:pump',0]],
+ ['deaths',[1,10,50],L4('Unkaputtbar','Unbreakable','Irrompible','Increvable'),L4('Stirb {n} Mal – und mach weiter','Die {n} times – and keep going','Muere {n} veces y sigue','Meurs {n} fois – et continue'),0,[0,'a:mohawk','a:ghost']],
+ ['bestKills',[50,200,500],L4('Blutrausch','Bloodlust','Sed de sangre','Soif de sang'),L4('Töte {n} Zombies in einem Spiel','Kill {n} zombies in one game','Mata {n} zombis en una partida','Tue {n} zombies en une partie'),0,[0,0,0]],
+ ['pl',[2,5,8],L4('Entdecker','Explorer','Explorador','Explorateur'),L4('Entdecke {n} verschiedene besondere Orte','Discover {n} different special places','Descubre {n} lugares especiales distintos','Découvre {n} lieux spéciaux différents'),0,[0,'t:entd','a:rad']],
+ ['stash',[1,10],L4('Schatzsucher','Treasure Hunter','Buscatesoros','Chasseur de trésors'),L4('Finde {n} Verstecke','Find {n} stashes','Encuentra {n} escondites','Trouve {n} caches'),0,[0,0]],
+ ['jack',[1],L4('Glückspilz','Lucky Devil','Suertudo','Veinard'),L4('Knacke den Jackpot am Automaten','Hit the jackpot on the slot machine','Gana el jackpot en la tragaperras','Décroche le jackpot à la machine'),0,[0]]];
+const ROM=['I','II','III','IV','V','VI','VII','VIII','IX'],CHL=[],RWC={};
+for(const[k,tv,nm,ds,fm,rw]of CHG)tv.forEach((n,i)=>{const id=k+'_'+i,c={id,k,n,i,nm,ds,fm,rw:rw[i]||null,st:Math.min(5,1+Math.floor(i*5/tv.length)),one:tv.length===1};CHL.push(c);if(c.rw)RWC[c.rw]=c});
+const chName=c=>tr(c.nm)+(c.one?'':' '+ROM[c.i]),chDesc=c=>tr(c.ds).replace('{n}',c.fm?c.fm(c.n):nfm(c.n));
+const chVal=k=>k==='pl'?(PR.gs.pl||[]).length:+PR.gs[k]||0;
+const rwName=r=>{if(!r)return'';const[t_,id]=r.split(':');return t_==='a'?tr(V73.avatar)+' „'+tr(AVN[id])+'“':t_==='f'?tr(V73.frame)+' „'+tr(FRD[id][2])+'“':tr(V73.title)+' „'+tr(TIN[id])+'“'};
+const unl=r=>{const[t_,id]=r.split(':');if((t_==='a'&&AVDEF.includes(id))||(t_==='f'&&id==='holz')||(t_==='t'&&id==='frisch'))return true;const c=RWC[r];return!!(c&&PR.ch.includes(c.id))};
+function chCheck(quiet){const nw=[];for(const c of CHL){if(PR.ch.includes(c.id))continue;if(chVal(c.k)>=c.n){PR.ch.push(c.id);nw.push(c)}}if(!nw.length)return;prSave();PRDIRTY=1;if(ACC)prSoon(2500);
+ if(quiet)return;try{const rws=nw.filter(c=>c.rw).map(c=>rwName(c.rw));const head=nw.length===1?tr(V73.chDone):tr(V73.chMany).replace('{n}',nw.length);
+  if(state===1&&typeof evBanner==='function')evBanner(head,nw.length===1?chName(nw[0]):'');else toast(head+(nw.length===1?' '+chName(nw[0]):''),'good');
+  if(rws.length)setTimeout(()=>toast(tr(V73.rwNew).replace('{r}',rws.slice(0,2).join(', ')+(rws.length>2?' …':'')),'good'),900);coinS&&coinS(3)}catch(e){}updChip()}
+
+// ---------- Spielstände im Profil ----------
+let SYNCF=0,INUP=0,SYNCING=null;const SYNCST={},UPT={},UPC={};
+const pendDel=()=>{try{return JSON.parse(LS.get('zwa_del')||'{}')||{}}catch(e){return{}}};
+{const _d=LS.del;LS.del=function(k){const r=_d.call(LS,k);const m=/^zw4_s(\d)$/.exec(k||'');if(m&&ACC&&!SYNCF){const s=+m[1];clearTimeout(UPT[s]);const pd=pendDel();pd[s]=Date.now();LS.set('zwa_del',JSON.stringify(pd));SYNCST[s]='none';
+ fsReq(`/users/${ACC.uid}/saves/s${s}`,{method:'DELETE'}).then(()=>{const q=pendDel();delete q[s];LS.set('zwa_del',JSON.stringify(q))}).catch(()=>{});updChip()}return r}}
+async function doUp(s){if(!ACC||!LS.get('zw4_s'+s))return;let pr;INUP=1;try{pr=mkCode(s)}finally{INUP=0}const d=await pr;if(!d)return;const m=meta(s)||{},tt=m.at||Date.now();
+ SYNCST[s]='wait';await fsReq(`/users/${ACC.uid}/saves/s${s}`,{method:'PATCH',body:JSON.stringify(fsDoc({d,t:tt,m:JSON.stringify(m)}))});SYNCST[s]='ok'}
+function cloudUp(s){UPC[s]=(UPC[s]||Promise.resolve()).catch(()=>{}).then(()=>doUp(s)).catch(e=>{SYNCST[s]='err';updChip();throw e}).finally(()=>updChip());return UPC[s]}
+function cldSoon(s,ms){if(!ACC||INUP)return;SYNCST[s]='wait';clearTimeout(UPT[s]);UPT[s]=setTimeout(()=>cloudUp(s).catch(()=>{}),ms==null?4000:ms)}
+{const _s=save;save=function(q){const r=_s.apply(this,arguments);if(state===1&&ACC&&!INUP)cldSoon(slot);return r}}
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&ACC){for(const s in UPT){clearTimeout(UPT[s]);if(SYNCST[s]==='wait')cloudUp(+s).catch(()=>{})}if(PRDIRTY)prPush().catch(()=>{})}});
+async function cloudDown(s){const j=await fsReq(`/users/${ACC.uid}/saves/s${s}`);if(!j)return false;const o=unDoc(j);const c=await rdCode(o.d);if(!c)return false;const last=LS.get('zw4_last');
+ SYNCF=1;try{useCode(c,s)}finally{SYNCF=0}if(last!=null)LS.set('zw4_last',last);SYNCST[s]='ok';return true}
+function syncAll(){if(!ACC)return Promise.resolve();if(SYNCING)return SYNCING;SYNCING=(async()=>{updChip();
+ const j=await fsReq(`/users/${ACC.uid}/saves?mask.fieldPaths=t&pageSize=10`);const cl={};for(const d of(j&&j.documents)||[]){const s=+d.name.split('/').pop().slice(1);if(s>=0&&s<3)cl[s]=+unDoc(d).t||1}
+ const pd=pendDel();
+ for(const s of[0,1,2]){const has=!!LS.get('zw4_s'+s),la=has?((meta(s)||{}).at||1):0,ct=cl[s]||0;
+  if(pd[s]&&!has){if(ct&&ct<=pd[s]+1000){await fsReq(`/users/${ACC.uid}/saves/s${s}`,{method:'DELETE'})}else if(ct)await cloudDown(s);delete pd[s];SYNCST[s]=ct>pd[s]?'ok':'none';continue}
+  if(state===1&&s===slot){if(la>ct+1000)await cloudUp(s);continue}
+  if(ct>la+1000)await cloudDown(s);else if(la>ct+1000)await cloudUp(s);SYNCST[s]=has||ct?'ok':'none'}
+ LS.set('zwa_del',JSON.stringify(pd));LS.set('zwa_sync',String(Date.now()));try{if(typeof renderSlots==='function'&&!$('slots').classList.contains('hide'))renderSlots()}catch(e){}})()
+ .catch(e=>{for(const s of[0,1,2])if(LS.get('zw4_s'+s)&&SYNCST[s]!=='ok')SYNCST[s]='err';throw e}).finally(()=>{SYNCING=null;updChip();if($('prf')&&!$('prf').classList.contains('hide'))prfDraw()});return SYNCING}
+
+// ---------- Anmelden, Registrieren, Abmelden ----------
+async function claimName(n){const k=nkey(n),old=ACC.k;if(old===k&&ACC.n===n)return;
+ if(old!==k)await fsReq(`/names?documentId=${encodeURIComponent(k)}`,{method:'POST',body:JSON.stringify(fsDoc({u:ACC.uid,n}))});
+ const o={n,k,av:PR.av,fr:PR.fr,ti:PR.ti,t:Date.now()};await fsReq(`/users/${ACC.uid}?${fsMask(o)}`,{method:'PATCH',body:JSON.stringify(fsDoc(o))});
+ if(old&&old!==k)fsReq('/names/'+encodeURIComponent(old),{method:'DELETE'}).catch(()=>{});ACC.n=n;ACC.k=k;accStore()}
+async function afterLogin(cloud){if(cloud){ACC.n=cloud.n||'';ACC.k=cloud.k||''}accStore();prMerge(cloud,true);lbAccSync();
+ try{await syncAll()}catch(e){}try{await prPush()}catch(e){}if(ACC&&ACC.n){lbAfter()}updChip()}
+async function accIn(email,pw){const j=await idp('signInWithPassword',{email,password:pw,returnSecureToken:true});setAcc(j);const u=await fsReq(`/users/${ACC.uid}`);await afterLogin(u?unDoc(u):null)}
+async function accUp(email,pw,name){const[n,err]=lbCheck(name);if(!n)throw new Error(err===V72.badWord?'badWord':'badLen');if(String(pw||'').length<6)throw new Error('WEAK_PASSWORD');
+ if(await fsReq('/names/'+encodeURIComponent(nkey(n)),{anon:1}))throw new Error('taken');
+ const j=await idp('signUp',{email,password:pw,returnSecureToken:true});setAcc(j);
+ try{await claimName(n)}catch(e){if(e.message==='taken'){const tk=ACC.idT;ACC=null;accStore();idp('delete',{idToken:tk}).catch(()=>{})}throw e}await afterLogin({n,k:nkey(n)})}
+async function accOut(force,keep){if(!ACC)return;if(!force){for(const s of[0,1,2])if(LS.get('zw4_s'+s)){try{await cloudUp(s)}catch(e){if(!keep)throw e}}try{if(PRDIRTY)await prPush()}catch(e){}}
+ if(!force){SYNCF=1;try{for(const s of[0,1,2]){const k=svKeys(s);for(const x in k)LS.del('zw4_'+x+s)}LS.del('zw4_last');LS.del('zwa_del')}finally{SYNCF=0}}
+ for(const s in UPT)clearTimeout(UPT[s]);clearTimeout(PRT);PRT=0;ACC=null;accStore();PR=prLoad('guest');GSNAP=null;for(const s of[0,1,2])SYNCST[s]=null;
+ try{updChip();if(typeof renderSlots==='function'&&!$('slots').classList.contains('hide'))renderSlots()}catch(e){}}
+
+// ---------- Bestenliste über das Konto ----------
+Object.defineProperty(LBP,'uid',{get(){return ACC?ACC.uid:''},configurable:true});
+Object.defineProperty(LBP,'name',{get(){return ACC&&ACC.n||''},set(v){},configurable:true});
+Object.defineProperty(LBP,'best',{get(){return Object.assign({nk:0,nd:0,hk:0,hd:0},PR.best)},set(v){PR.best=v;prSave();PRDIRTY=1},configurable:true});
+lbPush=async function(){if(!ACC||!ACC.n)return;const b=PR.best,o={n:ACC.n,av:PR.av,fr:PR.fr,ti:PR.ti,lv:prLevel().l,t:Date.now()};for(const k of['nk','nd','hk','hd'])o[k]=Math.max(0,Math.min(99999,b[k]|0));
+ await fsReq(`/lb/${ACC.uid}`,{method:'PATCH',body:JSON.stringify(fsDoc(o))})};
+lbTop=async function(field){const body={structuredQuery:{from:[{collectionId:'lb'}],orderBy:[{field:{fieldPath:field},direction:'DESCENDING'}],limit:25}};
+ const j=await fsReq(':runQuery',{method:'POST',body:JSON.stringify(body),anon:1})||[];
+ return j.filter(x=>x.document).map(x=>{const o=unDoc(x.document);return{id:x.document.name.split('/').pop(),n:o.n||'?',v:+o[field]||0,av:o.av,fr:o.fr,ti:o.ti,lv:o.lv}}).filter(e=>e.v>0)};
+const lbAccSync=()=>{};const lbAfter=()=>{lbPush().catch(()=>{})};
+{const b=$('mLb'),L=$('lbL');const field=()=>{const m=$('lbM').querySelector('.on'),f=$('lbF').querySelector('.on');return((m&&m.dataset.m)==='h'?'h':'n')+((f&&f.dataset.f)||'k')};
+ const prof=()=>{$('lbPr').innerHTML=ACC&&ACC.n?`<span class="lbme">${avBox(PR.av,PR.fr,26)}<span>${tr(V73.lbYou)} <b style="color:#ffd23a">${escH(ACC.n)}</b><small>${escH(tr(TIN[PR.ti]||TIN.frisch))}</small></span></span>`
+  :`<span>${tr(V73.lbNeed)}</span><button class="btn sm pr" id="lbIn">${tr(V73.login)}</button>`;if($('lbIn'))$('lbIn').onclick=()=>{S.ui&&S.ui();$('lbP').classList.add('hide');autOpen('in')}};
+ const list=async()=>{L.innerHTML=`<div class="msg">${tr(V72.load)}</div>`;if(!OC_ON){L.innerHTML=`<div class="msg">${tr(V72.off)}</div>`;return}
+  try{const f=field(),rows=await lbTop(f);if(field()!==f)return;const me=LBP.uid;
+   L.innerHTML=rows.length?rows.map((e,i)=>`<li class="${e.id===me?'me ':''}r${i+1}"><i>#${i+1}</i><span class="lbn">${avBox(e.av,e.fr,22)}<span>${escH(e.n)}${e.id===me?' ('+tr(V72.you)+')':''}<small>${escH(tr(TIN[e.ti]||TIN.frisch))}${e.lv?' · '+tr(V73.lv)+' '+e.lv:''}</small></span></span><b>${nfm(e.v)}</b></li>`).join(''):`<div class="msg">${tr(V72.none)}</div>`}
+  catch(e){L.innerHTML=`<div class="msg">${tr(V72.off)}</div>`}};
+ if(b)b.onclick=()=>{initAudio&&initAudio();S.ui&&S.ui();$('lbP').classList.remove('hide');prof();list()};
+ $('lbM').onclick=e=>{const x=e.target.closest('[data-m]');if(!x)return;for(const c of $('lbM').children)c.classList.toggle('on',c===x);S.ui&&S.ui();list()};
+ $('lbF').onclick=e=>{const x=e.target.closest('[data-f]');if(!x)return;for(const c of $('lbF').children)c.classList.toggle('on',c===x);S.ui&&S.ui();list()}}
+
+// ---------- Oberfläche: Profil-Chip, Anmeldung, Profil ----------
+{const st=document.createElement('style');st.textContent=`
+.avb{display:inline-block;position:relative;flex:none;line-height:0;background:#000;margin:calc(var(--b)*3);box-shadow:0 0 0 var(--b) var(--c2),0 0 0 calc(var(--b)*2) var(--c1),0 0 0 calc(var(--b)*3) #0b0e12}
+.avb img{width:100%;height:100%;image-rendering:pixelated;display:block}
+${Object.keys(FRD).map(k=>`.avb.f_${k}{--c1:${FRD[k][0]};--c2:${FRD[k][1]}}`).join('')}
+.avb.f_feuer{animation:avFire 1.2s ease-in-out infinite}.avb.f_gift{animation:avTox 2s ease-in-out infinite}.avb.f_nacht{animation:avNight 2.4s ease-in-out infinite}.avb.f_legende{animation:avLeg 3s linear infinite}
+@keyframes avFire{50%{box-shadow:0 0 0 var(--b) #ffd040,0 0 0 calc(var(--b)*2) #ff5a1a,0 0 calc(var(--b)*6) calc(var(--b)*2) rgba(255,110,20,.55)}}
+@keyframes avTox{50%{box-shadow:0 0 0 var(--b) var(--c2),0 0 0 calc(var(--b)*2) var(--c1),0 0 calc(var(--b)*6) calc(var(--b)*2) rgba(130,240,70,.45)}}
+@keyframes avNight{50%{box-shadow:0 0 0 var(--b) var(--c2),0 0 0 calc(var(--b)*2) #d0b0ff,0 0 calc(var(--b)*6) calc(var(--b)*2) rgba(150,100,255,.5)}}
+@keyframes avLeg{0%{--c1:#ffe070}25%{--c1:#ff7ad8}50%{--c1:#7ad8ff}75%{--c1:#9aff7a}100%{--c1:#ffe070}}
+@property --c1{syntax:'<color>';inherits:true;initial-value:#888}
+#pfC{position:fixed!important;right:calc(env(safe-area-inset-right,0px) + 12px);bottom:calc(env(safe-area-inset-bottom,0px) + 10px);z-index:5;display:flex;align-items:center;gap:8px;max-width:min(300px,48vw);padding:5px 10px 5px 6px;background:#1e1914;background-clip:padding-box;border:var(--w-chip) solid transparent;border-image:var(--f-chip);color:#e8dcc0;font:inherit;text-align:left;cursor:pointer;animation:none!important}
+#pfC>div{display:flex;flex-direction:column;min-width:0}#pfC b{font-size:13px;color:#ffd23a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#pfC small{font-size:10px;line-height:1.25;opacity:.8}#pfC small.ok{color:#9ad06a;opacity:1}#pfC small.warn{color:#e8b060;opacity:1}
+#pfC .pfcl{font-size:10px;color:#cfc3a8;opacity:.9}
+#aut,#prf{align-items:center;justify-content:center;z-index:41}
+.pfw{width:min(640px,97%);max-height:100%;display:flex;flex-direction:column;gap:7px;padding:10px 14px;background:var(--noise) #1e1914;border:var(--w-pnl) solid transparent;border-image:var(--f-pnl);box-sizing:border-box;min-height:0}
+#aut .pfw{width:min(400px,96%)}
+.pfh{display:flex;align-items:center;gap:12px}.pfh .pfn{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}.pfh .pfn b{font-size:18px;color:#ffd23a;letter-spacing:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.pfh .pfn small{font-size:11.5px;color:#cfc3a8}
+.pfl{display:flex;align-items:center;gap:6px;font-size:11px;color:#cfc3a8}.pfl i{flex:1;max-width:160px;height:6px;background:#0e0c0a;border:1px solid #3a3026}.pfl u{display:block;height:100%;background:#c8902e;text-decoration:none}
+.pfx{display:flex;justify-content:space-between;align-items:center}.pfx b{font-size:17px;letter-spacing:2px;color:#ffd23a}
+.pfw .lbt{display:flex;gap:5px}.pfw .lbt button{flex:1;border:var(--w-chip) solid transparent;border-image:var(--f-chip);background:#221d18;background-clip:padding-box;color:#cfc3a8;font:inherit;font-size:12px;padding:4px 2px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.pfw .lbt button.on{border-image:var(--f-chipA);background:#c8902e;color:#1a1208}
+.pfb{overflow-y:auto;flex:1;min-height:60px;display:flex;flex-direction:column;gap:6px;padding-right:2px;-webkit-overflow-scrolling:touch}
+.pfm{min-height:15px;font-size:12px}.pfm.bad{color:#e87a5a}.pfm.ok{color:#9ad06a}
+.pfst{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:5px}.pfst div{background:rgba(0,0,0,.28);border:1px solid #2c2620;padding:4px 7px;display:flex;flex-direction:column}.pfst small{font-size:10.5px;opacity:.7}.pfst b{font-size:15px;color:#ffd23a}
+.chf{display:flex;gap:5px;align-items:center;font-size:12px}.chf span{flex:1;opacity:.8}.chf button{border:var(--w-chip) solid transparent;border-image:var(--f-chip);background:#221d18;background-clip:padding-box;color:#cfc3a8;font:inherit;font-size:11px;padding:2px 8px}.chf button.on{border-image:var(--f-chipA);background:#c8902e;color:#1a1208}
+.chr{display:grid;grid-template-columns:1fr auto;gap:2px 8px;background:rgba(0,0,0,.28);border:1px solid #2c2620;padding:5px 8px}.chr.dn{border-color:#5a4a1a;background:rgba(200,144,46,.1)}
+.chr b{font-size:13px;color:#e8dcc0}.chr.dn b{color:#ffd23a}.chr .stars{font-size:10px;color:#c8902e;letter-spacing:1px;text-align:right}.chr small{font-size:11px;opacity:.75}.chr .rwd{font-size:10.5px;color:#9ad06a;text-align:right;opacity:.9}
+.chr .bar{grid-column:1/-1;height:5px;background:#0e0c0a;border:1px solid #3a3026}.chr .bar u{display:block;height:100%;background:#7a9a3a;text-decoration:none}.chr.dn .bar u{background:#c8902e}
+.cuh{font-size:12px;color:#ffd23a;letter-spacing:1px;margin-top:4px}.cug{display:flex;flex-wrap:wrap;gap:4px}
+.cug button{background:none;border:2px solid transparent;padding:2px;position:relative;cursor:pointer;line-height:0}.cug button.on{border-color:#ffd23a;background:rgba(255,210,58,.12)}.cug button.lk .avb{filter:grayscale(1) brightness(.45)}.cug button.lk::after{content:'🔒';position:absolute;right:1px;bottom:1px;font-size:11px;line-height:1}
+.cut{display:flex;flex-wrap:wrap;gap:4px}.cut button{border:var(--w-chip) solid transparent;border-image:var(--f-chip);background:#221d18;background-clip:padding-box;color:#cfc3a8;font:inherit;font-size:11.5px;padding:3px 8px}.cut button.on{border-image:var(--f-chipA);background:#c8902e;color:#1a1208}.cut button.lk{opacity:.4}
+.pfr{display:flex;align-items:center;gap:8px;font-size:12.5px;flex-wrap:wrap}.pfr span{opacity:.7;min-width:90px}.pfr b{color:#ffd23a;word-break:break-all}
+#prf .pfw .btn,#aut .pfw .btn,.sv73 .btn{padding:6px 14px!important;min-height:0!important;height:auto!important;line-height:1.2!important;font-size:12.5px!important;width:auto!important;margin:0!important;max-width:none!important;min-width:0!important;letter-spacing:1px!important}
+#aut .pfw{overflow-y:auto;-webkit-overflow-scrolling:touch}#aut .pfd{font-size:11.5px}
+.pfbt{display:flex;flex-wrap:wrap;gap:6px}.pfd{font-size:12px;opacity:.8;line-height:1.4}
+.pfsl{display:flex;flex-direction:column;gap:3px}.pfsl div{display:flex;justify-content:space-between;gap:8px;font-size:12px;background:rgba(0,0,0,.25);padding:3px 8px}.pfsl i{font-style:normal}.pfsl .ok{color:#9ad06a}.pfsl .wait{color:#e8c860}.pfsl .err{color:#e8905a}
+.pfw input{width:100%;box-sizing:border-box;background:#0e0c0a;color:#ffd23a;border:var(--w-chip) solid transparent;border-image:var(--f-chip);font:inherit;font-size:16px;padding:5px 8px;touch-action:auto;-webkit-user-select:text;user-select:text}
+.pfw label{display:flex;flex-direction:column;gap:2px;font-size:11.5px;color:#cfc3a8}.pfw .lnk{background:none;border:none;color:#cfc3a8;text-decoration:underline;font:inherit;font-size:12px;align-self:flex-start;padding:2px 0;cursor:pointer}
+#lbP li{grid-template-columns:34px 1fr auto!important;align-items:center}#lbP .lbn{display:flex;align-items:center;gap:8px;min-width:0}#lbP .lbn>span{display:flex;flex-direction:column;min-width:0}#lbP .lbn small{font-size:10px;opacity:.6}
+#lbP .lbme{display:flex;align-items:center;gap:8px}#lbP .lbme>span{display:flex;flex-direction:column}#lbP .lbme small{font-size:10.5px;opacity:.65}
+#slots .sln{font-size:11.5px;text-align:center;opacity:.8;margin-top:2px}#slots .sln.ok{color:#9ad06a;opacity:1}
+.sv73 .pfbt{margin-top:6px}.sv73 .pfsl{margin-top:6px}
+body:has(#menu:not(.hide)) #tut{display:none!important}
+@media (max-height:430px){.pfw{gap:5px;padding:7px 10px}.pfh .pfn b{font-size:15px}#pfC{padding:3px 8px 3px 4px}}
+@media (max-width:520px){#pfC small{display:none}}`;document.head.appendChild(st)}
+const m73=$('menu');
+{const c=document.createElement('button');c.id='pfC';m73.appendChild(c);c.onclick=()=>{initAudio&&initAudio();S.ui&&S.ui();prfOpen(ACC&&ACC.n?'ov':ACC?'ac':'ov')};
+ const a=document.createElement('div');a.id='aut';a.className='pn hide';document.body.appendChild(a);
+ const p=document.createElement('div');p.id='prf';p.className='pn hide';document.body.appendChild(p);
+ for(const e of[a,p])e.addEventListener('keydown',ev=>ev.stopPropagation())}
+function updChip(){const c=$('pfC');if(!c)return;const lv=prLevel().l;let s,cl='';
+ if(ACC&&ACC.n){if(SYNCING)s=tr(V73.syncing);else if([0,1,2].some(i=>SYNCST[i]==='err'))s=tr(V73.offline),cl='warn';else s='☁ '+tr(V73.synced),cl='ok'}else if(ACC){s=tr(V73.pickName);cl='warn'}else{s=tr(V73.guestS);cl='warn'}
+ c.innerHTML=`${avBox(PR.av,PR.fr,34)}<div><b>${escH(ACC&&ACC.n?ACC.n:tr(V73.guest))} <span class="pfcl">· ${tr(V73.lv)} ${lv}</span></b><small class="${cl}">${s}</small></div>`}
+let AUTM='in';
+function autOpen(m){AUTM=m||'in';const a=$('aut');a.classList.remove('hide');autDraw()}
+function autDraw(msg,bad){const a=$('aut'),nm=AUTM==='nm';const ev=$('auE')?$('auE').value:'',pv='';
+ a.innerHTML=`<div class="pfw"><div class="pfx"><b>${tr(V73.prof)}</b><button class="ib" id="auX">${icoImg('x')}</button></div>
+ ${nm?'':`<div class="lbt" id="auM"><button data-m="in" class="${AUTM==='in'?'on':''}">${tr(V73.login)}</button><button data-m="up" class="${AUTM==='up'?'on':''}">${tr(V73.reg)}</button></div>`}
+ <div class="pfd">${tr(nm?V73.pickName:V73.autD)}</div>
+ ${nm?'':`<label>${tr(V73.email)}<input id="auE" type="email" autocomplete="email" autocapitalize="off" spellcheck="false" value="${escH(ev)}"></label>`}
+ ${AUTM!=='in'?`<label>${tr(V73.uname)}<input id="auN" maxlength="16" autocomplete="username" spellcheck="false"></label><small style="opacity:.6;font-size:10.5px">${tr(V73.nameH)}</small>`:''}
+ ${nm?'':`<label>${tr(V73.pw)}<input id="auP" type="password" autocomplete="${AUTM==='in'?'current-password':'new-password'}" value="${pv}"></label>`}
+ <div class="pfbt"><button class="btn pr" id="auGo">${tr(nm?V73.save:AUTM==='in'?V73.login:V73.reg)}</button>${AUTM==='in'?`<button class="lnk" id="auF">${tr(V73.forgot)}</button>`:''}</div>
+ <div class="pfm ${bad?'bad':'ok'}" id="auMsg">${msg||''}</div></div>`;
+ $('auX').onclick=()=>{S.ui&&S.ui();a.classList.add('hide');updChip()};
+ if($('auM'))$('auM').onclick=e=>{const x=e.target.closest('[data-m]');if(!x)return;AUTM=x.dataset.m;S.ui&&S.ui();autDraw()};
+ const go=async()=>{const say=(m,b)=>{const e=$('auMsg');if(e){e.textContent=m;e.className='pfm '+(b?'bad':'ok')}};if(!OC_ON){say(tr(V73.net),1);return}
+  const em=$('auE')?$('auE').value.trim():'',pw=$('auP')?$('auP').value:'',nn=$('auN')?$('auN').value:'';
+  if(!nm&&!/^\S+@\S+\.\S+$/.test(em)){say(tr(V73.badMail),1);return}if(!nm&&pw.length<6){say(tr(V73.pwShort),1);return}
+  if(AUTM!=='in'){const[v,err]=lbCheck(nn);if(!v){say(tr(err),1);return}}
+  say(tr(V73.busy));$('auGo').disabled=true;
+  try{if(nm){await claimName(lbCheck(nn)[0]);prSoon(0);lbAfter()}else if(AUTM==='in')await accIn(em,pw);else await accUp(em,pw,nn);
+   if(ACC&&!ACC.n){AUTM='nm';autDraw();return}a.classList.add('hide');toast(tr(V73.welcome).replace('{n}',ACC.n),'good');coinS&&coinS(3);updChip();updMenu73()}
+  catch(e){if($('auGo'))$('auGo').disabled=false;say(tr(accErr(e)),1)}};
+ $('auGo').onclick=()=>{S.ui&&S.ui();go()};for(const i of a.querySelectorAll('input'))i.addEventListener('keydown',e=>{if(e.key==='Enter')go()});
+ if($('auF'))$('auF').onclick=async()=>{S.ui&&S.ui();const em=$('auE').value.trim(),e=$('auMsg');if(!/^\S+@\S+\.\S+$/.test(em)){e.textContent=tr(V73.needMail);e.className='pfm bad';return}
+  e.textContent=tr(V73.busy);e.className='pfm ok';try{await idp('sendOobCode',{requestType:'PASSWORD_RESET',email:em});e.textContent=tr(V73.resetSent)}catch(x){const m=accErr(x);e.textContent=tr(m===V73.wrong?V73.resetSent:m);e.className='pfm '+(m===V73.wrong?'ok':'bad')}}}
+let PFT='ov',CHF='open',PFREN=0,PFOUT=0;
+function prfOpen(tab){PFT=tab||'ov';PFREN=0;PFOUT=0;$('prf').classList.remove('hide');prfDraw();if(ACC&&ACC.n&&!SYNCING)syncAll().catch(()=>{})}
+function prfDraw(msg,bad){const p=$('prf'),L=prLevel(),nm=ACC&&ACC.n?ACC.n:tr(V73.guest);const sc=$('pfB')?$('pfB').scrollTop:0,same=p.dataset.t===PFT;p.dataset.t=PFT;
+ p.innerHTML=`<div class="pfw"><div class="pfh">${avBox(PR.av,PR.fr,52)}<div class="pfn"><b>${escH(nm)}</b><small>${escH(tr(TIN[PR.ti]||TIN.frisch))}</small>
+  <div class="pfl">${tr(V73.lv)} ${L.l}<i><u style="width:${Math.round(L.f*100)}%"></u></i>${PR.ch.length}/${CHL.length} ★</div></div>
+  ${ACC?'':`<button class="btn pr" id="pfIn">${tr(V73.login)}</button>`}<button class="ib" id="pfX">${icoImg('x')}</button></div>
+ <div class="lbt" id="pfTb">${Object.keys(V73.tabs).map(k=>`<button data-t="${k}" class="${PFT===k?'on':''}">${tr(V73.tabs[k])}</button>`).join('')}</div>
+ <div class="pfb" id="pfB">${prfBody()}</div><div class="pfm ${bad?'bad':'ok'}" id="pfM">${msg||''}</div></div>`;
+ if(same)$('pfB').scrollTop=sc;
+ $('pfX').onclick=()=>{S.ui&&S.ui();p.classList.add('hide');updChip()};if($('pfIn'))$('pfIn').onclick=()=>{S.ui&&S.ui();p.classList.add('hide');autOpen('in')};
+ $('pfTb').onclick=e=>{const x=e.target.closest('[data-t]');if(!x)return;PFT=x.dataset.t;PFREN=0;PFOUT=0;S.ui&&S.ui();prfDraw()};
+ $('pfB').onclick=prfClick}
+const STL=[['zk',L4('Zombies getötet','Zombies killed','Zombis eliminados','Zombies tués')],['bk',L4('Banditen besiegt','Bandits defeated','Bandidos derrotados','Bandits vaincus')],['dog',L4('Zombie-Hunde','Zombie dogs','Perros zombi','Chiens zombies')],
+ ['boss',L4('Kolosse besiegt','Colossi defeated','Colosos derrotados','Colosses vaincus')],['days',L4('Tage überlebt','Days survived','Días sobrevividos','Jours survécus')],['bestDay',L4('Längstes Spiel (Tage)','Longest game (days)','Partida más larga (días)','Plus longue partie (jours)')],
+ ['bestKills',L4('Meiste Kills in einem Spiel','Most kills in one game','Más bajas en una partida','Plus de kills en une partie')],['hcBest',L4('Hardcore-Rekord (Tage)','Hardcore record (days)','Récord hardcore (días)','Record hardcore (jours)')],
+ ['games',L4('Spiele gestartet','Games started','Partidas iniciadas','Parties lancées')],['deaths',L4('Tode','Deaths','Muertes','Morts')],['play',L4('Spielzeit','Play time','Tiempo de juego','Temps de jeu'),n=>Math.floor(n/3600)+' h '+String(Math.floor(n%3600/60)).padStart(2,'0')+' min'],
+ ['built',L4('Gebaut','Built','Construido','Construit')],['crafted',L4('Hergestellt','Crafted','Fabricado','Fabriqué')],['cook',L4('Gekocht','Cooked','Cocinado','Cuisiné')],['rep',L4('Repariert','Repaired','Reparado','Réparé')],
+ ['earned',L4('Verdient','Earned','Ganado','Gagné'),fUsd],['quests',L4('Aufträge erledigt','Jobs done','Encargos hechos','Missions faites')],['walk',L4('Zu Fuß','On foot','A pie','À pied'),n=>(n/1000).toFixed(1)+' km'],
+ ['drive',L4('Gefahren','Driven','Conducido','En véhicule'),n=>(n/1000).toFixed(1)+' km'],['srch',L4('Durchsucht','Searched','Registrado','Fouillé')],['rescued',L4('Überlebende gerettet','Survivors rescued','Supervivientes rescatados','Survivants sauvés')],
+ ['pl',L4('Besondere Orte entdeckt','Special places found','Lugares especiales','Lieux spéciaux trouvés')],['camps',L4('Lager befreit','Camps cleared','Campamentos limpiados','Camps nettoyés')],['cure',L4('Infektionen geheilt','Infections cured','Infecciones curadas','Infections guéries')],
+ ['ate',L4('Gegessen','Meals eaten','Comidas','Repas')],['rec',L4('Max. Verbündete','Most allies','Máx. aliados','Alliés max')],['maxLv',L4('Höchste Fähigkeit','Top skill level','Habilidad máx.','Compétence max')],['stash',L4('Verstecke gefunden','Stashes found','Escondites','Caches trouvées')],['jack',L4('Jackpots','Jackpots','Jackpots','Jackpots')]];
+function prfBody(){if(PFT==='ov')return`<div class="pfst">${STL.map(([k,n,f])=>{const v=chVal(k);return`<div><small>${tr(n)}</small><b>${f?f(v):nfm(v)}</b></div>`}).join('')}</div>${ACC?'':`<small class="pfd">${tr(V73.guestP)}</small>`}`;
+ if(PFT==='ch'){const L=CHL.filter(c=>CHF==='all'||(CHF==='done')===PR.ch.includes(c.id));
+  return`<div class="chf"><span>${PR.ch.length} ${tr(V73.of)} ${CHL.length}</span>${['open','done','all'].map(k=>`<button data-f="${k}" class="${CHF===k?'on':''}">${tr(V73[k])}</button>`).join('')}</div>`+
+  L.map(c=>{const dn=PR.ch.includes(c.id),v=Math.min(c.n,chVal(c.k));return`<div class="chr${dn?' dn':''}"><b>${dn?'✔ ':''}${chName(c)}</b><span class="stars">${'★'.repeat(c.st)}</span><small>${chDesc(c)}</small><span class="rwd">${c.rw?rwName(c.rw):''}</span><div class="bar"><u style="width:${Math.round(v/c.n*100)}%"></u></div></div>`}).join('')}
+ if(PFT==='cu')return`<div class="cuh">${tr(V73.avatar)}</div><div class="cug">${Object.keys(AVD).map(k=>{const u=unl('a:'+k);return`<button data-av="${k}" class="${PR.av===k?'on':''}${u?'':' lk'}" title="${escH(tr(AVN[k]))}">${avBox(k,'holz',36)}</button>`}).join('')}</div>
+  <div class="cuh">${tr(V73.frame)}</div><div class="cug">${Object.keys(FRD).map(k=>{const u=unl('f:'+k);return`<button data-fr="${k}" class="${PR.fr===k?'on':''}${u?'':' lk'}" title="${escH(tr(FRD[k][2]))}">${avBox(PR.av,k,36)}</button>`}).join('')}</div>
+  <div class="cuh">${tr(V73.title)}</div><div class="cut">${Object.keys(TIN).map(k=>{const u=unl('t:'+k);return`<button data-ti="${k}" class="${PR.ti===k?'on':''}${u?'':' lk'}">${escH(tr(TIN[k]))}</button>`}).join('')}</div>`;
+ if(!ACC)return`<div class="pfd">${tr(V73.saveG)}</div><div class="pfd">${tr(V73.autD)}</div><div class="pfbt"><button class="btn pr" data-a="in">${tr(V73.login)}</button><button class="btn" data-a="up">${tr(V73.reg)}</button></div><small class="pfd">${tr(V73.guestP)}</small>`;
+ if(!ACC.n)return`<div class="pfd">${tr(V73.pickName)}</div><div class="pfbt"><button class="btn pr" data-a="nm">${tr(V73.uname)}</button><button class="btn" data-a="out">${tr(V73.logout)}</button></div>`;
+ return`<div class="pfr"><span>${tr(V73.email)}</span><b>${escH(ACC.email)}</b></div>
+  <div class="pfr"><span>${tr(V73.uname)}</span>${PFREN?`<input id="pfRn" maxlength="16" value="${escH(ACC.n)}" style="flex:1;min-width:120px"><button class="btn pr" data-a="rns">${tr(V73.save)}</button><button class="btn" data-a="rnx">${tr(V73.cancel)}</button>`:`<b>${escH(ACC.n)}</b><button class="btn" data-a="ren">${tr(V73.rename)}</button>`}</div>
+  <div class="cuh">${tr(V73.slotsH)}</div>${slotList()}
+  <div class="pfbt"><button class="btn pr" data-a="sync">${tr(V73.sync)}</button><button class="btn" data-a="rpw">${tr(V73.resetPw)}</button><button class="btn" data-a="out">${tr(V73.logout)}</button></div>`}
+function slotList(){return`<div class="pfsl">${[0,1,2].map(s=>{const m=LS.get('zw4_s'+s)?meta(s):null,st=SYNCST[s]||(m?'ok':'none');
+ return`<div><span>${tr(V73.slot)} ${s+1}${m?' · '+tr(V73.day)+' '+(m.day||1)+(m.name?' · '+escH(m.name):''):''}</span><i class="${st}">${tr(st==='ok'?(m?V73.sOk:V73.sNone):st==='wait'?V73.sWait:st==='err'?V73.sErr:V73.sNone)}</i></div>`}).join('')}</div>`}
+async function prfClick(e){const say=(m,b)=>{const x=$('pfM');if(x){x.textContent=m;x.className='pfm '+(b?'bad':'ok')}};
+ const f=e.target.closest('[data-f]');if(f){CHF=f.dataset.f;S.ui&&S.ui();prfDraw();return}
+ const lockMsg=r=>{const c=RWC[r];say(tr(V73.locked).replace('{c}',c?chName(c)+' – '+chDesc(c):'?'),1)};
+ const av=e.target.closest('[data-av]');if(av){const k=av.dataset.av;if(!unl('a:'+k)){lockMsg('a:'+k);return}PR.av=k;S.ui&&S.ui();prSave();prSoon(1500);if(ACC&&ACC.n)setTimeout(lbAfter,1600);prfDraw(tr(AVN[k]));updChip();return}
+ const fr=e.target.closest('[data-fr]');if(fr){const k=fr.dataset.fr;if(!unl('f:'+k)){lockMsg('f:'+k);return}PR.fr=k;S.ui&&S.ui();prSave();prSoon(1500);if(ACC&&ACC.n)setTimeout(lbAfter,1600);prfDraw(tr(FRD[k][2]));updChip();return}
+ const ti=e.target.closest('[data-ti]');if(ti){const k=ti.dataset.ti;if(!unl('t:'+k)){lockMsg('t:'+k);return}PR.ti=k;S.ui&&S.ui();prSave();prSoon(1500);if(ACC&&ACC.n)setTimeout(lbAfter,1600);prfDraw(tr(TIN[k]));updChip();return}
+ const a=e.target.closest('[data-a]');if(!a)return;const act=a.dataset.a;S.ui&&S.ui();
+ if(act==='in'||act==='up'||act==='nm'){$('prf').classList.add('hide');autOpen(act);return}
+ if(act==='ren'){PFREN=1;prfDraw();return}if(act==='rnx'){PFREN=0;prfDraw();return}
+ if(act==='rns'){const[v,err]=lbCheck($('pfRn').value);if(!v){say(tr(err),1);return}say(tr(V73.busy));try{await claimName(v);PFREN=0;lbAfter();prfDraw(tr(V73.nameOk));updChip()}catch(x){say(tr(accErr(x)),1)}return}
+ if(act==='sync'){say(tr(V73.syncing));try{await syncAll();await prPush();prfDraw(tr(V73.syncOk))}catch(x){prfDraw(tr(accErr(x)),1)}return}
+ if(act==='rpw'){say(tr(V73.busy));try{await idp('sendOobCode',{requestType:'PASSWORD_RESET',email:ACC.email});say(tr(V73.resetSent))}catch(x){say(tr(accErr(x)),1)}return}
+ if(act==='out'){if(!PFOUT){PFOUT=1;say(tr(V73.outQ),1);return}say(tr(V73.busy));try{await accOut(false,PFOUT===2);PFOUT=0;$('prf').classList.add('hide');toast(tr(V73.bye));updMenu73()}catch(x){PFOUT=2;say(tr(V73.outFail),1)}return}}
+
+// ---------- Hauptmenü, Spiel laden, Einstellungen ----------
+function updMenu73(){updChip();try{if(typeof updMenu==='function')updMenu()}catch(e){}}
+{let lastSync=0,wasH=true;const mo=new MutationObserver(()=>{const h=m73.classList.contains('hide');if(h===wasH)return;wasH=h;if(!h){updChip();if(ACC&&ACC.n){if(PRDIRTY)prSoon(500);if(Date.now()-lastSync>30000){lastSync=Date.now();syncAll().catch(()=>{})}}}});mo.observe(m73,{attributes:true,attributeFilter:['class']})}
+{const _r=renderSlots;renderSlots=function(){const r=_r.apply(this,arguments);let n=$('slots').querySelector('.sln');if(!n){n=document.createElement('div');n.className='sln';$('slL').after(n)}
+ n.className='sln'+(ACC&&ACC.n?' ok':'');n.textContent=ACC&&ACC.n?'☁ '+tr(V73.slNoteA).replace('{n}',ACC.n):tr(V73.slNoteG);return r}}
+{const _ml=$('mLoad');if(_ml)_ml.addEventListener('click',()=>{if(ACC&&ACC.n&&!SYNCING)syncAll().catch(()=>{})})}
+{const pane=document.querySelector('#sets .spane[data-p="sav"]');if(pane){for(const sel of['.cloud','.svb','.ocb','.sv71'])for(const e of pane.querySelectorAll(sel))e.style.display='none';
+ const d=document.createElement('div');d.className='sopt sv73';pane.prepend(d);
+ const draw=()=>{d.innerHTML=ACC&&ACC.n?`<h3>☁ ${tr(V73.slotsH)}</h3><small>${tr(V73.saveA).replace('{n}',escH(ACC.n))}</small>${slotList()}<div class="pfbt"><button class="btn sm pr" id="s73S">${tr(V73.sync)}</button><button class="btn sm" id="s73P">${tr(V73.prof)}</button></div><small id="s73M"></small>`
+  :`<h3>${tr(V73.prof)}</h3><small>${tr(V73.saveG)}</small><div class="pfbt"><button class="btn sm pr" id="s73L">${tr(V73.login)}</button><button class="btn sm" id="s73R">${tr(V73.reg)}</button></div>`;
+  const cl=()=>{$('sets').classList.add('hide');if(state!==1)$('menu').classList.remove('hide')};
+  if($('s73L'))$('s73L').onclick=()=>{S.ui&&S.ui();if(state===1)return;cl();autOpen('in')};if($('s73R'))$('s73R').onclick=()=>{S.ui&&S.ui();if(state===1)return;cl();autOpen('up')};
+  if($('s73P'))$('s73P').onclick=()=>{S.ui&&S.ui();if(state===1)return;cl();prfOpen('ac')};
+  if($('s73S'))$('s73S').onclick=async()=>{S.ui&&S.ui();$('s73M').textContent=tr(V73.syncing);try{if(state===1)save(true);for(const s of[0,1,2])if(LS.get('zw4_s'+s))await cloudUp(s);if(state!==1)await syncAll();draw();$('s73M').textContent=tr(V73.syncOk)}catch(x){draw();$('s73M').textContent=tr(accErr(x))}}};
+ draw();d.drawSav=draw;const _st=window.setTab;if(_st)window.setTab=function(k){const r=_st(k);if(k==='sav')draw();return r};
+ document.querySelector('#sets .stabs')&&document.querySelector('#sets .stabs').addEventListener('click',()=>setTimeout(draw,0))}}
+
+// ---------- Start ----------
+updChip();
+if(ACC&&OC_ON)setTimeout(async()=>{try{const u=await fsReq(`/users/${ACC.uid}`);if(!ACC)return;if(u){const o=unDoc(u);ACC.n=o.n||ACC.n;ACC.k=o.k||ACC.k;accStore();prMerge(o,false)}await syncAll()}catch(e){}updChip()},900);
 applyLang();
 </script><script>if('serviceWorker'in navigator&&location.protocol.startsWith('http'))addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));</script></body></html>
