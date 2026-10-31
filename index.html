@@ -925,7 +925,7 @@ const TN=['leer','baum','tanne','totbaum','busch','beeren','beeren_leer','pilze'
  'unkraut','distel','brennnessel','wildblume','loewenzahn','moos','gestruepp','efeu',
  'wellblech','bretterwand','zinnen','rolltor','rolltor_o','lagerregal','feuertonne','wachturm','betonsperre',
  'gitarre','teddy','kerzenst','totempfahl','reifenstapel','palettenst','keepout','oellampe','blumenkuebel','sonnenliege','gasflaschen','pflanzregal',
- 'treppe','treppe_ob','waffenstaender','wandhalter','solarpanel','lichtschalter','deckenlampe','deckenlampe_an','wandlampe','wandlampe_an','flutlicht','flutlicht_an','geschuetz_a','geschuetz_g','stahlwand','stahltuer','stahltuer_o','etagenbett','haengematte','couchtisch','bild','wanduhr','spiegel','dartscheibe','boxsack','waschmaschine','kaffeemaschine','weinregal','werkzeugwand','barhocker','tresen','jukebox','generator','holzstapel','tonne','schaukelstuhl','arcade','automat','pinnwand','kronleuchter','kronleuchter_an','neonschild','neonschild_an','lavalampe','ampel','bushaltestelle','telefonzelle','litfass','aktenschrank','buerostuhl','kopierer','wasserspender','globus','hoftor_l','hoftor_m','hoftor_r','hoftor_lo','hoftor_mo','hoftor_ro','gartentor','gartentor_o','maschendraht','schiessscharte','fensterladen','fensterladen_o','nagelbrett','hochbeet','sprinkler','kompost','gewaechshaus','waescheleine','hundehuette','gartenlaterne','teich','hochsitz','futterkrippe','spieltisch','roulette','slotmaschine','alarmanlage','kamera','funkturm','betonwand','munipresse','heizofen','koeder','landmine','ezaun','repbank'];
+ 'treppe','treppe_ob','waffenstaender','wandhalter','solarpanel','lichtschalter','deckenlampe','deckenlampe_an','wandlampe','wandlampe_an','flutlicht','flutlicht_an','geschuetz_a','geschuetz_g','stahlwand','stahltuer','stahltuer_o','etagenbett','haengematte','couchtisch','bild','wanduhr','spiegel','dartscheibe','boxsack','waschmaschine','kaffeemaschine','weinregal','werkzeugwand','barhocker','tresen','jukebox','generator','holzstapel','tonne','schaukelstuhl','arcade','automat','pinnwand','kronleuchter','kronleuchter_an','neonschild','neonschild_an','lavalampe','ampel','bushaltestelle','telefonzelle','litfass','aktenschrank','buerostuhl','kopierer','wasserspender','globus','hoftor_l','hoftor_m','hoftor_r','hoftor_lo','hoftor_mo','hoftor_ro','gartentor','gartentor_o','maschendraht','schiessscharte','fensterladen','fensterladen_o','nagelbrett','hochbeet','sprinkler','kompost','gewaechshaus','waescheleine','hundehuette','gartenlaterne','teich','hochsitz','futterkrippe','spieltisch','roulette','slotmaschine','alarmanlage','kamera','funkturm','betonwand','munipresse','heizofen','koeder','landmine','ezaun','repbank','ubahn','ubahn_aus','luke','luke_aus','grab','ruinwand'];
 const T={};TN.forEach((n,i)=>T[n]=i);const COOK=new Uint8Array(512),XLIGHT={},XDRAW={},NOSWAY=new Uint8Array(512),CONN={};
 const flag=l=>{const a=new Uint8Array(512);l.forEach(n=>a[T[n]]=1);return a};
 const TSOL=flag(['baum','tanne','totbaum','stein','kiste','mkiste','kiste_offen','auto','auto_leer','fass','muell','muell_leer','laterne','hwand','hfassade','hfenster','htuer','schrank','schrank_leer','regal','regal_leer','kuehl','kuehl_leer','bett','tisch','sofa','herd','holzwand','steinwand','tuer','feuer','ziegelwand','metallwand','fensterwand','mtuer','zaun','stuhl','tv','tv_an','lampe','lampe_an','pflanze','regentonne','kiste_s','kiste_m','spind','auto_ausg',
@@ -3437,8 +3437,8 @@ const animOnce=(el,cls='anim',ms=700)=>{if(!el)return;el.classList.remove(cls);v
 // ================= v10: Autospeichern, Welt v2, Rechte, Zombie-Stimmen =================
 // ---------- Welt-Version pro Spielstand ----------
 {const _s=save;save=function(q){_s(q);if(state===1)LS.set('zw4_gv'+slot,String(GENV))}}
-{const _l=load;load=function(s){const gv=+(LS.get('zw4_gv'+s)||1);GENV=gv>=2?2:1;TWC.clear();return _l(s)}}
-{const _n=newGame;newGame=function(s,cc){GENV=2;clearWorldCache();const r=_n(s,cc);LS.set('zw4_gv'+s,'2');return r}}
+{const _l=load;load=function(s){const gv=+(LS.get('zw4_gv'+s)||1);GENV=gv>=3?3:gv>=2?2:1;TWC.clear();return _l(s)}}
+{const _n=newGame;newGame=function(s,cc){GENV=3;clearWorldCache();const r=_n(s,cc);LS.set('zw4_gv'+s,'3');return r}}
 {const _d=LS.del;LS.del=function(k){_d(k);const m=/^zw4_s(\d+)$/.exec(k);if(m){_d('zw4_gv'+m[1]);_d('zw4_ad'+m[1])}}}
 // ---------- Automatisch speichern ----------
 if(CFG.autosave==null)CFG.autosave=1;
@@ -9200,7 +9200,7 @@ function lbSpin(bi){const b=LBOX[bi];if(state!==1)return;try{closeAll()}catch(e)
  o.innerHTML=`<div class="lxw"><div class="lxh"><i class="ic">${icoImg(b.id)}</i><b style="color:${b.col}">${escH(tr(D[b.id].n))}</b></div>
   <div class="lxv"><div class="lxs">${cards.map(c=>`<div class="lxc t${c.t}"><span>${icoImg(c.id)}</span><small>${escH(lbName(c))}</small></div>`).join('')}</div><i class="lxm"></i></div>
   <div class="lxo">${b.odds.map((p,t)=>p?`<span style="color:${RC[t]}">■ ${p}%</span>`:'').join('')}</div>
-  <div class="lxr" id="lxR">${tr(V75.spin)}</div><div class="lxb" id="lxB"></div></div>`;
+  <div class="lxr" id="lbxR">${tr(V75.spin)}</div><div class="lxb" id="lbxB"></div></div>`;
  document.body.appendChild(o);const strip=o.querySelector('.lxs'),view=o.querySelector('.lxv'),card=strip.children[0];
  requestAnimationFrame(()=>{const cw=card.getBoundingClientRect().width,gap=parseFloat(getComputedStyle(strip).columnGap)||6,vw=view.getBoundingClientRect().width;
   const target=WIN*(cw+gap)+cw/2-vw/2+(Math.random()-.5)*cw*.7;strip.style.transition='transform 6.2s cubic-bezier(.06,.62,.13,1)';strip.style.transform=`translateX(${-target}px)`;
@@ -9208,13 +9208,13 @@ function lbSpin(bi){const b=LBOX[bi];if(state!==1)return;try{closeAll()}catch(e)
    if(idx!==last){last=idx;try{A(null,null,.12,0,(bb,t2)=>tn(bb,t2,.025,'square',1500,1200,.22))}catch(e){}}if(!done)requestAnimationFrame(tick)};let done=false;requestAnimationFrame(tick);
   strip.addEventListener('transitionend',()=>{done=true;finish()},{once:true})});
  const finish=()=>{const el=strip.children[WIN];el.classList.add('win');const it=mkItem(win.id,win.n,win.r);if(it.m!=null&&D[win.id].mag)it.m=D[win.id].mag;
-  $('lxR').innerHTML=`${tr(V75.won)}: <b style="color:${RC[win.t]}">${escH(lbName(win))}</b>${win.r?` <small style="color:${RC[win.r]}">${tr(RN[win.r])}</small>`:''}`;
+  $('lbxR').innerHTML=`${tr(V75.won)}: <b style="color:${RC[win.t]}">${escH(lbName(win))}</b>${win.r?` <small style="color:${RC[win.r]}">${tr(RN[win.r])}</small>`:''}`;
   try{if(win.t>=3){shk=6;o.classList.add('big')}coinS&&coinS(win.t+1)}catch(e){}
   const more=inv.findIndex(x=>x&&x.id===b.id);
-  $('lxB').innerHTML=`<button class="btn pr" id="lxT">${tr(V75.take)}</button>${more>=0?`<button class="btn" id="lxA">${tr(V75.again)} (${inv.filter(x=>x&&x.id===b.id).reduce((a,x)=>a+x.n,0)})</button>`:''}`;
+  $('lbxB').innerHTML=`<button class="btn pr" id="lbxT">${tr(V75.take)}</button>${more>=0?`<button class="btn" id="lbxA">${tr(V75.again)} (${inv.filter(x=>x&&x.id===b.id).reduce((a,x)=>a+x.n,0)})</button>`:''}`;
   const collect=()=>{if(win.id==='dollar'){if(!addItem(it))dropIt(it,P.x,P.y,1)}else if(!addItem(it)){dropIt(it,P.x,P.y,1);toast(tr(V75.full),'bad')}hudDirty=1;try{save(true)}catch(e){}};
-  $('lxT').onclick=()=>{S.ui&&S.ui();collect();o.remove();paused=false};
-  if($('lxA'))$('lxA').onclick=()=>{S.ui&&S.ui();collect();const i=inv.findIndex(x=>x&&x.id===b.id);if(i<0){o.remove();paused=false;return}inv[i].n--;if(inv[i].n<=0)inv[i]=null;lbSpin(bi)}}}
+  $('lbxT').onclick=()=>{S.ui&&S.ui();collect();o.remove();paused=false};
+  if($('lbxA'))$('lbxA').onclick=()=>{S.ui&&S.ui();collect();const i=inv.findIndex(x=>x&&x.id===b.id);if(i<0){o.remove();paused=false;return}inv[i].n--;if(inv[i].n<=0)inv[i]=null;lbSpin(bi)}}}
 {const _u=useIt;useIt=function(it,ref){const d=it&&D[it.id];if(d&&d.lbox!=null){it.n=(it.n||1)-1;if(it.n<=0){try{if(ref)setS(ref,null);else{const i=inv.indexOf(it);if(i>=0)inv[i]=null}}catch(e){}}S.ui&&S.ui();setTimeout(()=>lbSpin(d.lbox),30);return}return _u.apply(this,arguments)}}
 {const _r=renderInv;renderInv=function(){const x=_r.apply(this,arguments);try{const it=isel&&getS(isel);if(it&&D[it.id]&&D[it.id].lbox!=null){const bt=document.querySelector('#det [data-a="use"]');if(bt)bt.textContent=tr(V75.open)}}catch(e){}return x}}
 {const st=document.createElement('style');st.textContent=`
@@ -9276,5 +9276,273 @@ ${[0,1,2,3,4].map(t=>`#lbx .lxc.t${t}{border-bottom-color:${RC[t]};background:va
 {const _rp=renderProg;renderProg=function(){const r=_rp.apply(this,arguments);try{const b=$('pgT').querySelector('[data-pt="ach"]');if(b)b.textContent=tr(V75.chP)+' '+PR.ch.length+'/'+CHL.length;
  if(PGT==='ach'){const L=CHL.slice().sort((a,b2)=>(PR.ch.includes(a.id)?1:0)-(PR.ch.includes(b2.id)?1:0));
   $('pgB').innerHTML=`<div style="display:flex;flex-direction:column;gap:5px">${L.map(c=>{const dn=PR.ch.includes(c.id),v=Math.min(c.n,chVal(c.k));return`<div class="chr${dn?' dn':''}"><b>${dn?'✔ ':''}${chName(c)}</b><span class="stars">${'★'.repeat(c.st)}</span><small>${chDesc(c)}</small><span class="rwd">${c.rw?rwName(c.rw):''}</span><div class="bar"><u style="width:${Math.round(v/c.n*100)}%"></u></div></div>`}).join('')}</div>`}}catch(e){}return r}}
+applyLang();
+// ================= v76: Maus-Zielen am PC · intuitives Fahren · seltenere Beute · Missionen =================
+const V76={
+ mis:L4('Mission','Mission','Misión','Mission'),done:L4('Mission geschafft!','Mission complete!','¡Misión cumplida!','Mission accomplie !'),
+ all:L4('Alle Missionen geschafft – du bist eine Legende!','All missions complete – you are a legend!','¡Todas las misiones cumplidas: eres una leyenda!','Toutes les missions accomplies – tu es une légende !'),
+ rw:L4('Belohnung','Reward','Recompensa','Récompense'),maim:L4('Mit der Maus zielen (PC)','Aim with the mouse (PC)','Apuntar con el ratón (PC)','Viser à la souris (PC)'),
+ on:L4('An','On','Sí','Oui'),off:L4('Aus','Off','No','Non')};
+
+// ---------- 1. PC: mit der Maus zielen, Linksklick greift an ----------
+if(CFG.maim==null)CFG.maim=1;
+const MAIM={sx:0,sy:0,t:0};
+const mAimOn=()=>CFG.maim&&state===1&&!paused&&DEV==='k'&&!BM&&P&&!P.veh&&MAIM.t>0;
+addEventListener('mousemove',e=>{MAIM.sx=e.clientX;MAIM.sy=e.clientY;MAIM.t=performance.now();if(isPC()&&DEV==='t'&&(e.movementX||e.movementY))setDev('k')},true);
+addEventListener('pointerdown',e=>{if(e.pointerType!=='mouse'||e.button!==0||!mAimOn())return;if(e.target!==$('c'))return;
+ MAIM.sx=e.clientX;MAIM.sy=e.clientY;MAIM.t=performance.now();firing=true;fireEdge=true;fid=e.pointerId;e.stopImmediatePropagation();e.preventDefault()},true);
+{const _t=target;target=function(){if(!mAimOn())return _t();const wx=MAIM.sx/Z+cx,wy=MAIM.sy/Z+cy+5;
+ let best=null,bd=16;for(const z of Zs){if(z.hp<=0)continue;const d=dist(z.x,z.y-6,wx,wy-5);if(d<bd){bd=d;best=z}}if(best)return best;
+ for(const a of As){if(a.dead)continue;const d=dist(a.x,a.y-6,wx,wy-5);if(d<bd){bd=d;best=a}}return best||{x:wx,y:wy,aim:1}}}
+{const _st=step;step=function(){_st();if(mAimOn()&&P.tg){const l=Math.hypot(P.ax,P.ay)||1;P.fx=P.ax/l;P.fy=P.ay/l;P.dir=dirOf(P.ax,P.ay)}}}
+{const st=document.createElement('style');st.textContent='body.maimOn #c{cursor:crosshair}';document.head.appendChild(st);
+ setInterval(()=>document.body.classList.toggle('maimOn',!!mAimOn()),300)}
+{const pane=document.querySelector('#sets .spane[data-p="ctl"]');if(pane){const d=document.createElement('div');d.className='sopt pcO';d.innerHTML=`<h3>${tr(V76.maim)}</h3><div class="seg3" id="sMaim"><button data-v="1">${tr(V76.on)}</button><button data-v="0">${tr(V76.off)}</button></div>`;pane.prepend(d);
+ const sync=()=>{for(const b of $('sMaim').children)b.classList.toggle('on',+b.dataset.v===(CFG.maim?1:0))};sync();
+ $('sMaim').onclick=e=>{const b=e.target.closest('[data-v]');if(!b)return;CFG.maim=+b.dataset.v;saveCfg();S.ui&&S.ui();sync()}}}
+
+// ---------- 2. Fahren: feste Richtungen (Joystick/WASD zeigen, wohin), zurückziehen = rückwärts ----------
+if(!CFG.v76d){CFG.v76d=1;CFG.vctl=0;try{saveCfg()}catch(e){}}
+{const _dr=drive;drive=function(v){if(typeof vUse==='function'&&vUse())return _dr(v);let ix=jx,iy=jy;if(K.a||K.arrowleft)ix-=1;if(K.d||K.arrowright)ix+=1;if(K.w||K.arrowup)iy-=1;if(K.s||K.arrowdown)iy+=1;
+ const m=Math.hypot(ix,iy);if(m>.3){const diff=Math.abs(wrapA(Math.atan2(iy,ix)-v.a));if(diff>2.35&&v.spd<.9){const f=firing;firing=true;try{return _dr(v)}finally{firing=f}}}return _dr(v)}}
+window.STEERK=Math.max(window.STEERK||1,1.15);
+
+// ---------- 3. Beute: weniger und seltener – gute Waffen sind echte Funde ----------
+{const gunP=id=>{const d=D[id];if(!d||d.c!=='waf'||d.mel||d.thr)return 0;return PRICE[id]?PRICE[id][0]:500};
+ const nerf=(tb,key)=>{if(!tb||!tb.it||tb._n76)return;tb._n76=1;if(key==='drop')return;
+  for(const e of tb.it){const p=gunP(e[0]);if(p>=900)e[1]*=.18;else if(p>=600)e[1]*=.3;else if(p>=300)e[1]*=.5;else if(p>0)e[1]*=.7;
+   const d=D[e[0]];if(d&&d.c==='klei'&&d.rar&&/^m|kevlar|ghillie|polizei/.test(e[0]))e[1]*=.5}
+  if(tb.n&&tb.n[1]>=3)tb.n=[Math.max(0,tb.n[0]-1),tb.n[1]-1];
+  if(key==='mil'||key==='wl')for(const e of tb.it)if(gunP(e[0])>=600)e[1]*=.45;
+  if(tb.w){const m=[1.25,1,.62,.38,.2];tb.w=tb.w.map((v,i)=>v*m[i])}};
+ for(const k in LT)nerf(LT[k],k);if(typeof SPLT!=='undefined')for(const k in SPLT)nerf(SPLT[k],k);
+ const _r=roll;roll=function(tb){if(tb&&!tb._n76){for(const k in LT)if(LT[k]===tb)nerf(tb,k);if(!tb._n76&&tb.it)nerf(tb,'x')}const out=_r(tb);
+  if(tb===LT.drop)return out;return out.filter(it=>{const p=gunP(it.id);return!(p>=900&&rnd()<.4)})}}
+
+// ---------- 4. Missionen ----------
+const MS=[
+ ['srch',10,L4('Durchsuche 10 Behälter','Search 10 containers','Registra 10 contenedores','Fouille 10 conteneurs'),[['verband',2],['a9',20]]],
+ ['zk',10,L4('Töte 10 Zombies','Kill 10 zombies','Mata 10 zombis','Tue 10 zombies'),[['dollar',100]]],
+ ['wb',1,L4('Baue eine Werkbank','Build a workbench','Construye un banco de trabajo','Construis un établi'),[['schrott',6],['nagel',20]]],
+ ['built',10,L4('Baue 10 Teile für deine Basis','Build 10 base parts','Construye 10 piezas para tu base','Construis 10 éléments pour ta base'),[['dollar',150]]],
+ ['cook',1,L4('Koche ein Gericht an Feuer oder Herd','Cook a meal at a fire or stove','Cocina un plato en un fuego o fogón','Cuisine un plat au feu ou au réchaud'),[['energieriegel',2]]],
+ ['op',1,L4('Finde einen Außenposten mit Händler','Find an outpost with a trader','Encuentra un puesto con comerciante','Trouve un avant-poste avec un marchand'),[['dollar',200]]],
+ ['quests',1,L4('Erledige einen Auftrag','Complete a job','Completa un encargo','Termine une mission'),[['dollar',300]]],
+ ['day',5,L4('Überlebe bis Tag 5','Survive until day 5','Sobrevive hasta el día 5','Survis jusqu’au jour 5'),[['medkit',2]]],
+ ['day',6,L4('Überstehe die erste Horde','Survive the first horde','Sobrevive a la primera horda','Survis à la première horde'),[['a762',30],['granate',2]]],
+ ['drive',2000,L4('Fahre 2 km mit einem Fahrzeug','Drive 2 km in a vehicle','Conduce 2 km en un vehículo','Conduis 2 km en véhicule'),[['benzin',2]]],
+ ['rep',1,L4('Repariere eine Waffe an der Reparaturwerkbank','Repair a weapon at the repair bench','Repara un arma en el banco de reparación','Répare une arme à l’établi de réparation'),[['dollar',250]]],
+ ['bk',5,L4('Besiege 5 Banditen','Defeat 5 bandits','Derrota a 5 bandidos','Vaincs 5 bandits'),[['mweste',1,1]]],
+ ['sp',3,L4('Betritt 3 besondere Orte','Enter 3 special places','Entra en 3 lugares especiales','Entre dans 3 lieux spéciaux'),[['dollar',400]]],
+ ['rescued',1,L4('Rette einen Überlebenden','Rescue a survivor','Rescata a un superviviente','Sauve un survivant'),[['medkit',1],['antibiotika',1]]],
+ ['boss',1,L4('Besiege einen Koloss','Defeat a Colossus','Derrota a un Coloso','Vaincs un Colosse'),[['lbox2',1]]],
+ ['day',21,L4('Überlebe bis zum Winter (Tag 21)','Survive until winter (day 21)','Sobrevive hasta el invierno (día 21)','Survis jusqu’à l’hiver (jour 21)'),[['lbox3',1]]]].map(m=>(m[3]=m[3].filter(r=>D[r[0]]),m));
+let MI={i:0,b:0};
+const msVal=k=>{if(k==='day')return dayN();if(k==='wb')return[...own].some(q=>mods.get(q)===T.werkbank)?1:0;if(k==='op')return(window.OUTP||[]).some(o=>dist(P.x,P.y,o.x*16,o.y*16)<16*18)?1:0;if(k==='sp')return(STATS.sp||[]).length;return+(STATS[k]||0)};
+const msAbs=k=>['day','wb','op','sp'].includes(k);
+const msProg=()=>{const m=MS[MI.i];if(!m)return[1,1];const v=msVal(m[0]),cur=msAbs(m[0])?v:v-MI.b;return[Math.min(m[1],Math.max(0,cur)),m[1]]};
+const msStart=()=>{const m=MS[MI.i];MI.b=m&&!msAbs(m[0])?msVal(m[0]):0};
+{const _g=window.gsInc;if(_g)gsInc=window.gsInc=function(k,n){_g(k,n);if(window.STATS&&(k==='cook'||k==='rep'))STATS[k]=(STATS[k]||0)+(n||1)}}
+{const _n=newGame;newGame=function(s,cc){const r=_n.apply(this,arguments);MI={i:0,b:0};msStart();return r}}
+{const _l=load;load=function(s){const r=_l.apply(this,arguments);if(r){try{const o=JSON.parse(LS.get('zw4_h'+s)||'{}')||{};MI=o.v76&&o.v76.mi?o.v76.mi:{i:0,b:0};if(!(o.v76&&o.v76.mi))msStart()}catch(e){MI={i:0,b:0}}}return r}}
+{const _s=save;save=function(q){const r=_s.apply(this,arguments);if(state===1&&P)try{const k='zw4_h'+slot,o=JSON.parse(LS.get(k)||'{}')||{};o.v76={mi:MI};LS.set(k,JSON.stringify(o))}catch(e){}return r}}
+const msReward=m=>m[3].map(([id,n,r])=>tr(D[id].n)+(n>1&&id!=='dollar'?' ×'+n:id==='dollar'?' '+n+' $':'')).join(', ');
+{const d=document.createElement('div');d.id='msn';d.className='hide';$('game').appendChild(d);
+ const st=document.createElement('style');st.textContent=`#msn{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 8px);transform:translateX(-50%);z-index:6;min-width:220px;max-width:min(380px,46vw);padding:5px 10px 6px;background:var(--noise) rgba(20,16,12,.84);border:var(--w-chip) solid transparent;border-image:var(--f-chip);font-size:11px;color:#e8dcc0;pointer-events:auto;cursor:pointer}
+#msn.hide{display:none}#msn b{display:flex;justify-content:space-between;gap:10px;font-size:10px;letter-spacing:1.5px;color:#ffd23a}#msn b small{color:#cfc3a8;letter-spacing:0;font-size:10px}#msn span{display:block;line-height:1.35;margin-top:2px}
+#msn i{display:block;height:4px;background:#0e0c0a;margin-top:4px;border:1px solid #3a3026}#msn i u{display:block;height:100%;background:#c8902e;text-decoration:none}#msn em{display:block;font-style:normal;font-size:9.5px;color:#9ad06a;margin-top:3px}#msn.mini span,#msn.mini em,#msn.mini i{display:none}`;document.head.appendChild(st);
+ d.onclick=()=>{d.classList.toggle('mini');S.ui&&S.ui()}}
+{let last='',tk=0;const _h=hud;hud=function(){const r=_h.apply(this,arguments);if(++tk%10)return r;const el=$('msn');if(!el)return r;
+ const g=$('guide');const gOn=g&&!g.classList.contains('hide');if(state!==1||!P||paused||gOn||P.daily){el.classList.add('hide');return r}
+ const m=MS[MI.i];if(!m){el.classList.add('hide');return r}
+ const[c,n]=msProg();if(c>=n){const done=m;MI.i++;msStart();for(const[id,k,rr]of done[3]){const it=mkItem(id,k,rr||0);if(it.m!=null&&D[id].mag)it.m=D[id].mag;if(!addItem(it))dropIt(it,P.x,P.y,1)}
+  try{evBanner(tr(V76.done),tr(done[2]));coinS&&coinS(4);toast(tr(V76.rw)+': '+msReward(done),'good')}catch(e){}hudDirty=1;if(!MS[MI.i])setTimeout(()=>toast(tr(V76.all),'good'),2500);last='';return r}
+ const pct=Math.round(c/n*100),fmt=v=>m[0]==='drive'?(v/1000).toFixed(1)+' km':v;
+ const h=`<b>${tr(V76.mis)} ${MI.i+1}/${MS.length}<small>${fmt(c)}/${fmt(n)}</small></b><span>${tr(m[2])}</span><i><u style="width:${pct}%"></u></i><em>${tr(V76.rw)}: ${msReward(m)}</em>`;
+ if(h!==last){el.innerHTML=h;last=h}el.classList.remove('hide');return r}}
+// in Pause → Fortschritt: Missionsliste
+{const _rp=renderProg;renderProg=function(){const r=_rp.apply(this,arguments);try{const T_=$('pgT');if(T_&&!T_.querySelector('[data-pt="mis"]')){const b=document.createElement('button');b.dataset.pt='mis';b.textContent=tr(V76.mis)+' '+Math.min(MI.i,MS.length)+'/'+MS.length;if(PGT==='mis')b.className='on';T_.appendChild(b)}
+ if(PGT==='mis'){for(const b of T_.children)b.classList.toggle('on',b.dataset.pt==='mis');$('pgB').innerHTML=`<div style="display:flex;flex-direction:column;gap:5px">${MS.map((m,i)=>{const dn=i<MI.i,cur=i===MI.i,[c,n]=cur?msProg():[dn?m[1]:0,m[1]];return`<div class="chr${dn?' dn':''}"><b>${dn?'✔ ':cur?'➤ ':''}${tr(V76.mis)} ${i+1}: ${tr(m[2])}</b><span class="stars"></span><small>${tr(V76.rw)}: ${msReward(m)}</small><span class="rwd"></span><div class="bar"><u style="width:${Math.round(c/n*100)}%"></u></div></div>`}).join('')}</div>`}}catch(e){}return r}}
+applyLang();
+// ================= v77: Erkundung – U-Bahn & Tunnel, Bunker, Keller, Großgebäude, größere Häuser, Zufallsorte =================
+const V77={
+ down:L4('Hinabsteigen','Go down','Bajar','Descendre'),up:L4('Hinaufsteigen','Go up','Subir','Monter'),open:L4('Luke öffnen','Open hatch','Abrir escotilla','Ouvrir la trappe'),
+ disc:L4('Entdeckt','Discovered','Descubierto','Découvert'),ug:L4('U-Bahn','Subway','Metro','Métro'),bk:L4('Bunker','Bunker','Búnker','Bunker'),cel:L4('Keller','Cellar','Sótano','Cave'),
+ dark:L4('Hier unten ist es stockdunkel – Taschenlampe!','It is pitch black down here – flashlight!','Aquí abajo está oscurísimo: ¡linterna!','Il fait noir ici – lampe torche !'),
+ poi:{ubahn:L4('U-Bahn-Station','Subway station','Estación de metro','Station de métro'),bunker:L4('Militärbunker','Military bunker','Búnker militar','Bunker militaire'),keller:L4('Geheimer Keller','Hidden cellar','Sótano oculto','Cave cachée'),
+  apart:L4('Wohnblock','Apartment block','Bloque de pisos','Immeuble'),mall:L4('Einkaufszentrum','Shopping mall','Centro comercial','Centre commercial'),office:L4('Bürogebäude','Office building','Edificio de oficinas','Immeuble de bureaux'),lager:L4('Lagerhalle','Warehouse','Almacén','Entrepôt'),
+  ruine:L4('Waldruine','Forest ruin','Ruina del bosque','Ruine forestière'),camp:L4('Verlassenes Lager','Abandoned camp','Campamento abandonado','Camp abandonné'),heli:L4('Hubschrauber-Absturz','Helicopter crash','Accidente de helicóptero','Crash d’hélicoptère'),
+  friedhof:L4('Alter Friedhof','Old graveyard','Cementerio antiguo','Vieux cimetière'),stein:L4('Steinkreis','Stone circle','Círculo de piedras','Cercle de pierres'),konvoi:L4('Zerstörter Konvoi','Wrecked convoy','Convoy destruido','Convoi détruit'),
+  schrott:L4('Schrottplatz','Scrapyard','Desguace','Casse'),hochsitz:L4('Jägerstand','Hunter’s stand','Puesto de caza','Poste de chasse'),hof:L4('Verlassener Hof','Abandoned farm','Granja abandonada','Ferme abandonnée')}};
+const UGO=1000000,UGB=2000000,UGL=500000,BKL=1500000;
+const isUG=()=>P&&P.x>=(UGL)*16;
+
+// ---------- neue Kacheln ----------
+S2('ubahn',[mkSp(16,16,P=>{P('#3a3c42',0,2,16,14);P('#1a1a1e',2,4,12,11);for(let i=0;i<5;i++){P('#4a4c52',3,5+i*2,10,1);P('#2a2a30',3,6+i*2,10,1)}P('#8a8e96',1,2,1,13);P('#8a8e96',14,2,1,13);P('#1e5aa8',5,0,6,5);P('#ffffff',6,1,1,3);P('#ffffff',9,1,1,3);P('#ffffff',7,3,2,1)})],-8);
+S2('ubahn_aus',[mkSp(16,16,P=>{P('#3a3c42',0,0,16,16);for(let i=0;i<6;i++){P('#6a6c72',2,2+i*2,12,1);P('#4a4c52',2,3+i*2,12,1)}P('#8a8e96',1,0,1,16);P('#8a8e96',14,0,1,16);P('#2a8a3a',5,0,6,3);P('#e8ffe8',7,1,2,1)})],-8);
+S2('luke',[mkSp(16,16,P=>{P('#1a1a1a',1,1,14,14);P('#d8b020',2,2,12,12);for(let i=0;i<6;i++){P('#1a1a1a',2+i*2,2,1,1);P('#1a1a1a',3+i*2,13,1,1)}P('#5a5e66',3,3,10,10);P('#7a7e86',3,3,10,1);P('#3a3c42',4,7,8,1);P('#3a3c42',7,4,1,8);P('#a8aeb6',6,6,3,3)})],-8);
+S2('luke_aus',[mkSp(16,16,P=>{P('#2a2a2e',2,0,12,16);P('#8a6a42',4,0,1,16);P('#8a6a42',11,0,1,16);for(let i=0;i<5;i++)P('#a8845a',4,1+i*3,8,1)})],-8);
+S2('grab',[mkSp(12,14,P=>{P('#6a6e74',2,1,8,12);P('#8a8e94',3,0,6,1);P('#8a8e94',2,1,8,1);P('#4a4e54',9,2,1,11);P('#3a3c40',5,3,2,6);P('#3a3c40',3,5,6,1);P('#4a5a2a',1,12,10,2);P('#5a7a3a',2,12,3,1)})]);
+S2('ruinwand',[mkSp(16,18,P=>{P('#6a6660',0,6,16,12);P('#8a867e',0,6,5,2);P('#8a867e',6,3,4,3);P('#6a6660',6,3,4,3);P('#8a867e',11,7,5,2);P('#4a4640',0,10,16,1);P('#4a4640',0,14,16,1);P('#4a4640',5,6,1,4);P('#4a4640',11,11,1,3);P('#3a5a2a',2,15,3,2);P('#4a7a3a',12,13,2,3);P('#4a7a3a',7,5,1,2)})]);
+TSOL[T.grab]=1;TSOL[T.ruinwand]=1;TSOL[T.ubahn_aus]=0;
+ACTX('ubahn','arr',V77.down,0);ACTX('ubahn_aus','arr',V77.up,0);ACTX('luke','arr',V77.open,0);ACTX('luke_aus','arr',V77.up,0);
+
+// ---------- Welt-Version 3 für neue Spiele ----------
+// (Großgebäude & größere Häuser nur in neuen Welten; Untergrund & Zufallsorte überall)
+{const _n=newGame;newGame=function(s,cc){const r=_n.apply(this,arguments);return r}}
+
+// ---------- Großgebäude (Doppel-Blöcke) & größere Häuser ----------
+const sbBig=(sbx,sby)=>GENV>=3&&isTown(sbx*2,sby*2)&&isTown(sbx*2+1,sby*2)&&isTown(sbx*2,sby*2+1)&&isTown(sbx*2+1,sby*2+1)&&H(sbx*29+3,sby*31+7)>.7;
+function bigBuild(sbx,sby){const k='B'+sbx+','+sby;if(HSC.has(k))return HSC.get(k);
+ const x0=sbx*24+3,y0=sby*24+3,w=19,h=18,type=['apart','mall','office','lager'][Math.floor(H(sbx*5+1,sby*7+3)*4)];
+ const hs={key:k,x0,y0,w,h,dx:x0+9,roof:Math.floor(H(sbx,sby+9)*4),wall:Math.floor(H(sbx+4,sby)*3),floor:{apart:G.dielen,mall:G.fliesen,office:G.teppich,lager:G.beton}[type],ch:x0+3,furn:new Map(),big:type};
+ const F=hs.furn,K=(x,y)=>x*65536+y,put=(x,y,n)=>{if(T[n]!=null&&T[n]<256)F.set(K(x,y),T[n])},wall=(x,y)=>F.set(K(x,y),T.hwand),door=(x,y)=>F.set(K(x,y),T.tuer);
+ const r=i=>hh(sbx*977+i,sby*131+i*7,SEED+7777);let ri=0;const pickN=L=>L[Math.floor(r(ri++)*L.length)];
+ const room=(ax,ay,bx,by,theme)=>{const T1={living:['sofa','tv','pflanze','buecherregal','sessel','kommode'],bed:['doppelbett','kleiderschrank','nachttisch','kommode','bett'],kitchen:['kuechenzeile','kuehlschrank','herd','esstisch','kuehl'],bath:['badewanne','toilette','waschbecken','schrank'],store:['kiste','regal','kistenstapel','fass','kiste']}[theme];
+  for(let x=ax;x<=bx;x++)for(let y=ay;y<=by;y++){const edge=x===ax||x===bx||y===ay||y===by;if(edge&&r(ri++)<.42&&!F.has(K(x,y)))put(x,y,pickN(T1))}
+  if(theme==='living'||theme==='kitchen'){const mx=(ax+bx)>>1,my=(ay+by)>>1;if(!F.has(K(mx,my)))put(mx,my,theme==='kitchen'?'esstisch':'tisch')}};
+ const X1=x0+1,X2=x0+w-2,Y1=y0+1,Y2=y0+h-2;
+ if(type==='apart'){for(let x=X1;x<=X2;x++){wall(x,y0+7);wall(x,y0+10)}for(const wx of[x0+6,x0+12])for(let y=Y1;y<y0+7;y++)wall(wx,y);for(let y=y0+11;y<=Y2;y++){wall(x0+8,y);wall(x0+10,y)}
+  for(const dx_ of[x0+3,x0+9,x0+15])door(dx_,y0+7);door(x0+4,y0+10);door(x0+15,y0+10);F.delete(K(x0+9,y0+10));door(x0+8,y0+14);door(x0+10,y0+14);
+  const th=['living','bed','kitchen','bath','living','bed'];room(X1,Y1,x0+5,y0+6,th[Math.floor(r(1)*6)]);room(x0+7,Y1,x0+11,y0+6,th[Math.floor(r(2)*6)]);room(x0+13,Y1,X2,y0+6,th[Math.floor(r(3)*6)]);
+  room(X1,y0+11,x0+7,Y2,th[Math.floor(r(4)*6)]);room(x0+11,y0+11,X2,Y2,th[Math.floor(r(5)*6)]);for(const cx_ of[x0+2,x0+16])put(cx_,y0+8,'pflanze')}
+ else if(type==='mall'){for(let x=x0+2;x<=X2-1;x+=3)for(let y=y0+2;y<=y0+11;y++)if(y!==y0+6)put(x,y,r(ri++)<.75?'regal':'kuehl');
+  for(let x=X1;x<=X2;x++)if(x%4!==1&&Math.abs(x-hs.dx)>1)put(x,y0+13,'tresen');put(X1,Y2,'automat');put(X2,Y2,'automat');put(x0+3,Y2,'pflanze');put(X2-2,Y2,'pflanze');
+  for(let y=Y1;y<=y0+5;y++)wall(x0+14,y);for(let x=x0+14;x<=X2;x++)wall(x,y0+5);door(x0+16,y0+5);for(const[a,b]of[[x0+15,Y1],[X2,Y1],[x0+15,y0+3],[X2,y0+3],[x0+16,Y1]])put(a,b,r(ri++)<.5?'kiste':'kistenstapel')}
+ else if(type==='office'){for(let x=x0+2;x<=X2-1;x+=3)for(let y=y0+7;y<=Y2-2;y+=3){put(x,y,r(ri++)<.4?'computer':'schreibtisch');F.set(K(x,y+1),T.buerostuhl<256?T.buerostuhl:0)}
+  for(let x=X1;x<=x0+7;x++)wall(x,y0+5);for(let y=Y1;y<y0+5;y++)wall(x0+8,y);door(x0+4,y0+5);put(X1,Y1,'buecherregal');put(x0+3,Y1,'kommode');put(x0+6,Y1,'tresor');put(x0+4,y0+3,'schreibtisch');put(x0+7,y0+3,'pflanze');
+  put(x0+10,Y1,'kopierer');put(x0+12,Y1,'wasserspender');put(x0+14,Y1,'schrank');put(x0+16,Y1,'aktenschrank');put(X2,y0+4,'regal')}
+ else{for(let x=x0+2;x<=X2-1;x+=3)for(let y=y0+2;y<=y0+12;y++)if(y!==y0+7)put(x,y,r(ri++)<.45?'lagerregal':r(ri++)<.5?'kistenstapel':'regal');
+  for(const[a,b,n]of[[X1,Y2,'fass'],[x0+2,Y2,'fass'],[X2,Y2,'gasflaschen'],[X2-1,Y2,'kiste'],[x0+4,Y2,'kiste'],[X2,y0+14,'werkbank'],[X1,y0+14,'kiste']])put(a,b,n)}
+ for(let y=Y2;y>=Y2-1;y--)F.delete(K(hs.dx,y));
+ HSC.set(k,hs);return hs}
+{const _th=townHouse;townHouse=function(bx,by){const sbx=Math.floor(bx/2),sby=Math.floor(by/2);if(sbBig(sbx,sby))return bigBuild(sbx,sby);
+ if(GENV<3)return _th(bx,by);const k='t'+bx+','+by;if(HSC.has(k))return HSC.get(k);let hs=null;
+ if(H(bx*7+3,by*11+5)>.14){const w=6+Math.floor(H(bx+1,by*3+1)*4),h=6+Math.floor(H(bx+5,by*2+9)*3);hs=mkHouse(k,bx*12+2+Math.floor(H(bx*3+2,by+7)*(10-w)),by*12+2+Math.floor(H(bx*9+4,by+2)*(10-h)),w,h,bx*31+by*977)}
+ HSC.set(k,hs);return hs}}
+// Innenwände & Keller-Luken in normalen Häusern
+{const _mh=mkHouse;mkHouse=function(key,x0,y0,w,h,sd){const hs=_mh(key,x0,y0,w,h,sd);if(key[0]!=='t')return hs;const r=i=>hh(sd,i*3313+17,SEED+7171),F=hs.furn,K=(x,y)=>x*65536+y;
+ if(GENV>=3&&!hs.sp&&w>=8&&h>=6){const wx=x0+Math.floor(w/2)+(r(1)<.5?0:-1);if(wx!==hs.dx&&wx-1!==hs.dx&&wx+1!==hs.dx){const dy=y0+1+Math.floor(r(2)*(h-3));for(let y=y0+1;y<=y0+h-2;y++)F.set(K(wx,y),y===dy?T.tuer:T.hwand);F.delete(K(wx-1,dy));F.delete(K(wx+1,dy))}}
+ if(!hs.sp&&r(9)>.88){let hx=x0+1,hy=y0+h-2;if(hx===hs.dx)hx=x0+w-2;F.delete(K(hx,hy));F.delete(K(hx,hy-1));hs.cellar=[hx,hy]}return hs}}
+{const _gt=genTown;genTown=function(x,y,bx,by){const sbx=Math.floor(bx/2),sby=Math.floor(by/2);if(!sbBig(sbx,sby)){const v=_gt(x,y,bx,by);if(GENV>=3&&!(v&255)&&(v>>8)===G.gehweg&&H(x*3+1,y*5+2)>.985){return(G.gehweg<<8)|[T.bank,T.pflanze,T.muell,T.fahrrad][Math.floor(H(x,y+5)*4)]}return v}
+ const lx=x-sbx*24,ly=y-sby*24;if(lx===0||ly===0)return _gt(x,y,bx,by);
+ const hs=bigBuild(sbx,sby);if(x>=hs.x0&&x<hs.x0+hs.w&&y>=hs.y0&&y<hs.y0+hs.h)return houseCell(hs,x,y);
+ if(x===hs.dx&&y>=hs.y0+hs.h)return G.gehweg<<8;
+ const hv=H(x,y);if(lx===1||ly===1||lx===23||ly===23){let t=0;if((lx===1||lx===23)&&ly%6===2)t=T.strassenlaterne;else if(hv>.96)t=T.muell;else if(hv>.93)t=T.bank;return(G.gehweg<<8)|t}
+ if(ly===22&&lx>3&&lx<21&&lx!==hs.dx-sbx*24&&lx%3===0&&hv>.35)return(G.asphalt<<8)|T.auto;
+ return(G.kopfstein<<8)|(hv>.97?T.pflanze:hv>.955?T.baum:hv>.94?T.zeitung:hv>.93?T.blutfleck:0)}}
+TWC.clear();HSC.clear();CC.clear();
+
+// ---------- U-Bahn: Stationen unter Park-Blöcken, Tunnel dazwischen ----------
+const STC=new Map();
+function stationAt(bx,by){const k=bx*65536+by;let v=STC.get(k);if(v===undefined){v=isTown(bx,by)&&!sbBig(Math.floor(bx/2),Math.floor(by/2))&&!townHouse(bx,by)&&H(bx*13+5,by*17+3)>.42?1:0;STC.set(k,v)}return v}
+function sbFloor(ux,y){const bx=Math.floor(ux/12),by=Math.floor(y/12);
+ for(const ox of[0,-1,1]){const sx=bx+ox;if(stationAt(sx,by)){const cx=sx*12+6,cy=by*12+6;if(Math.abs(ux-cx)<=7&&Math.abs(y-cy)<=3)return 2}}
+ const cy=by*12+6,cx=bx*12+6;
+ if(Math.abs(y-cy)<=1){let L=null,R=null;for(let k=0;k<=8;k++){if(L==null&&stationAt(bx-k,by))L=(bx-k)*12+6;if(R==null&&stationAt(bx+k,by))R=(bx+k)*12+6}
+  if((L!=null&&R!=null&&L!==R)||(L!=null&&ux>=L&&ux-L<=44)||(R!=null&&ux<=R&&R-ux<=44))return 1}
+ if(Math.abs(ux-cx)<=1){let U=null,Dn=null;for(let k=0;k<=8;k++){if(U==null&&stationAt(bx,by-k))U=(by-k)*12+6;if(Dn==null&&stationAt(bx,by+k))Dn=(by+k)*12+6}
+  if((U!=null&&Dn!=null&&U!==Dn)||(U!=null&&y>=U&&y-U<=44)||(Dn!=null&&y<=Dn&&Dn-y<=44))return 1}
+ return 0}
+function subCell(x,y){const ux=x-UGO,f=sbFloor(ux,y),h=H(x,y);
+ if(f===2){const bx=Math.floor(ux/12),by=Math.floor(y/12);let cx=0,cy=by*12+6;for(const ox of[0,-1,1])if(stationAt(bx+ox,by)&&Math.abs(ux-((bx+ox)*12+6))<=7){cx=(bx+ox)*12+6;break}
+  const lx=ux-cx,ly=y-cy;let t=0;if(ly===-3&&lx%4===0)t=T.strassenlaterne;else if(ly===-2&&(lx+9)%3===1&&Math.abs(lx)<7&&lx!==0)t=T.bank;else if(ly===3&&Math.abs(lx)>=2)t=h<.3?T.schrank:h<.42?T.muell:h<.5?T.kiste:0;else if(lx!==0||ly!==0)t=h<.03?T.zeitung:h<.05?T.blutfleck:0;
+  return(G.beton<<8)|t}
+ if(f===1){const bx=Math.floor(ux/12),by=Math.floor(y/12),edge=Math.abs(y-(by*12+6))===1&&Math.abs(ux-(bx*12+6))>1||Math.abs(ux-(bx*12+6))===1&&Math.abs(y-(by*12+6))>1;
+  let t=0;if(edge)t=h<.014?T.kiste:h<.017?T.mkiste:h<.026?T.fass:h<.03?T.auto_ausg:h<.05?T.schutt:0;else t=h<.03?T.steinchen:h<.04?T.knochen:h<.05?T.blutfleck:h<.06?T.schutt:0;return(G.kies<<8)|t}
+ for(const[a,b]of[[1,0],[-1,0],[0,1],[0,-1],[1,1],[-1,-1],[1,-1],[-1,1]])if(sbFloor(ux+a,y+b))return(G.beton<<8)|T.betonmauer;
+ return G.luft<<8}
+// ---------- Bunker & Keller ----------
+const BKC=new Map();
+function bunkerAt(gx,gy){const k=gx*65536+gy;let v=BKC.get(k);if(v===undefined){v=0;const hx=gx*64+32,hy=gy*64+20;
+ if(H(gx*37+11,gy*53+7)>.8){const r=regionRaw(hx,hy),rx=((hx%48)+48)%48,ry=((hy%48)+48)%48;if(r!==R_M&&!isTown(Math.floor(hx/12),Math.floor(hy/12))&&!isLake(hx,hy,r)&&rx>4&&ry>4&&rx<44&&ry<44)v=1}BKC.set(k,v)}return v}
+const BKR=[[-3,-2,3,2,'entry'],[-1,3,1,10,'cor'],[-6,11,6,17,'hub'],[-16,10,-8,18,'A'],[8,10,16,18,'B'],[-5,20,5,28,'C']],BKD=[[-7,14],[7,14],[0,19]];
+function bkRoom(lx,ly){for(const R of BKR)if(lx>=R[0]&&lx<=R[2]&&ly>=R[1]&&ly<=R[3])return R;return null}
+function bkCell(x,y){const sx=x-UGB,gx=Math.floor(sx/64),gy=Math.floor(y/64);
+ if(bunkerAt(gx,gy)){const hx=gx*64+32,hy=gy*64+20,lx=sx-hx,ly=y-hy,h=H(x,y);const R=bkRoom(lx,ly);
+  if(R){const ty=R[4]==='A'||R[4]==='B'||R[4]==='C'?['armory','dorm','lab','store','command'][Math.floor(H(gx*7+R[0],gy*5+R[1])*5)]:R[4];
+   const edge=lx===R[0]||lx===R[2]||ly===R[1]||ly===R[3];let t=0;
+   if(edge&&!BKD.some(([a,b])=>Math.abs(a-lx)+Math.abs(b-ly)<=1)&&!(R[4]==='cor')&&!(R[4]==='entry'&&lx===0)&&!(R[4]==='hub'&&(lx===0)))
+    t=ty==='armory'?(h<.45?T.waffenregal:h<.6?T.mkiste:h<.75?T.kiste:0):ty==='dorm'?(h<.4?T.bett:h<.6?T.schrank:0):ty==='lab'?(h<.3?T.computer:h<.5?T.regal:h<.62?T.kuehl:h<.72?T.erstehilfe:0):ty==='store'?(h<.35?T.kistenstapel:h<.65?T.kiste:h<.75?T.fass:0):ty==='command'?(h<.3?T.computer:h<.45?T.schreibtisch:h<.55?T.flagge:h<.65?T.mkiste:0):ty==='hub'?(h<.2?T.fackel:h<.3?T.kiste:0):ty==='entry'?(h<.25?T.fackel:0):0;
+   else if(!edge)t=h<.04?T.blutfleck:h<.06?T.knochen:h<.07?T.schutt:0;
+   return(G.beton<<8)|t}
+  for(const[a,b]of BKD)if(lx===a&&ly===b)return(G.beton<<8)|T.mtuer;
+  for(const[a,b]of[[1,0],[-1,0],[0,1],[0,-1],[1,1],[-1,-1],[1,-1],[-1,1]])if(bkRoom(lx+a,ly+b)||BKD.some(([c,d])=>c===lx+a&&d===ly+b))return(G.beton<<8)|T.betonmauer;
+  return G.luft<<8}
+ const bx=Math.floor(sx/12),by=Math.floor(y/12);if(isTown(bx,by)){const hs=townHouse(bx,by);if(hs&&hs.cellar&&!hs.big){const lx=sx-hs.x0,ly=y-hs.y0;
+  if(lx>=0&&ly>=0&&lx<hs.w&&ly<hs.h){if(lx===0||ly===0||lx===hs.w-1||ly===hs.h-1)return(G.beton<<8)|T.betonmauer;const h=H(x,y);let t=0;
+   if((ly===1||lx===1||lx===hs.w-2)&&!(sx===hs.cellar[0]&&y===hs.cellar[1])&&!(sx===hs.cellar[0]&&y===hs.cellar[1]-1))t=h<.35?T.regal:h<.55?T.kiste:h<.65?T.weinregal:h<.72?T.fass:0;else t=h<.05?T.spinnennetz||0:0;return(G.beton<<8)|t}}}
+ return G.luft<<8}
+{const _gc=genCell;genCell=function(x,y){if(x>=BKL)return bkCell(x,y);if(x>=UGL)return subCell(x,y);return _gc(x,y)}}
+{const _ha=houseAt;houseAt=function(x,y){if(x>=UGL)return null;return _ha(x,y)}}
+{const _it=isTown;isTown=function(bx,by){if(bx*12>=UGL)return 0;return _it(bx,by)}}
+CC.clear();
+
+// ---------- Ein- & Ausgänge ----------
+function ugGo(x,y,stairs){mods.set(x*65536+y,T[stairs]);P.x=x*16+8;P.y=(y+1)*16+9;cam.x=P.x;cam.y=P.y;P.svx=P.svy=0;P.job=null;P.tg=null;CC.clear();try{stepSnd(stairs!=='ubahn')}catch(e){}hudDirty=1}
+{const _ea=extraAct;extraAct=function(a){const{tx,ty,tt}=a;if(P.veh)return _ea(a);
+ if(tt===T.ubahn){ugGo(tx+UGO,ty,'ubahn_aus');discover('ubahn',tx,ty);toast(tr(V77.dark));return true}
+ if(tt===T.ubahn_aus&&tx>=UGL&&tx<BKL){ugGo(tx-UGO,ty,'ubahn');return true}
+ if(tt===T.luke){ugGo(tx+UGB,ty,'luke_aus');const gx=Math.floor(tx/64),gy=Math.floor(ty/64);discover(bunkerAt(gx,gy)&&tx===gx*64+32?'bunker':'keller',tx,ty);toast(tr(V77.dark));return true}
+ if(tt===T.luke_aus&&tx>=BKL){ugGo(tx-UGB,ty,'luke');return true}
+ return _ea(a)}}
+
+// ---------- Dunkelheit & schwere Zombies im Untergrund ----------
+{const _st=step;let tk=0;step=function(){_st();if(state!==1||!P)return;if(!isUG())return;dark=Math.max(dark,.94);if(window.W8)W8.rain=0;Ps=Ps.filter(q=>q.k!=='ff'&&q.k!=='lf');
+ if(++tk%45)return;const bk=P.x>=(BKL)*16,cap=bk?7:10;let n=0;for(const z of Zs)if(z.hp>0&&Math.abs(z.x-P.x)<360&&Math.abs(z.y-P.y)<360)n++;if(n>=cap)return;
+ for(let tries=0;tries<14;tries++){const a=rnd()*6.283,d=170+rnd()*170,x=P.x+Math.cos(a)*d,y=P.y+Math.sin(a)*d,tx=Math.floor(x/16),ty=Math.floor(y/16);
+  if(gnd(tx,ty)===G.luft||solidAt(tx,ty))continue;const z=mkZ(tx*16+8,ty*16+8,++zid,R_S);const k=['ar','b','sp','r','ar','w','b','sl'][Math.floor(rnd()*8)];try{if(ZVI[k])setZK(z,k)}catch(e){}z.hp=z.mh=Math.round((z.mh||z.hp)*1.6);break}}}
+{const _ba=banner;banner=function(n){if(isUG()&&typeof RGN!=='undefined'&&RGN.some(r=>tr(r)===n))return;return _ba.apply(this,arguments)}}
+{const _sa=spawnAnimal;spawnAnimal=function(){if(isUG())return;return _sa.apply(this,arguments)}}
+{const _dw=draw;draw=function(){if(state===1&&isUG()){g.setTransform(1,0,0,1,0,0);g.fillStyle='#030406';g.fillRect(0,0,g.canvas.width,g.canvas.height)}return _dw.apply(this,arguments)}}
+// Region-Anzeige unten
+{const _h=hud;hud=function(){const r=_h.apply(this,arguments);if(state===1&&isUG()){const e=$('iReg');if(e){const s=tr(P.x>=(BKL)*16?(BUNK_NOW()?V77.bk:V77.cel):V77.ug);if(e.textContent!==s)e.textContent=s}}return r}}
+const BUNK_NOW=()=>{const sx=Math.floor(P.x/16)-UGB,gx=Math.floor(sx/64),gy=Math.floor(Math.floor(P.y/16)/64);return bunkerAt(gx,gy)};
+
+// ---------- Zufallsorte in der Wildnis ----------
+let STP=new Set(),DISC=new Set(),POIL=[];
+function poiAt(gx,gy){const ax=gx*40+8+Math.floor(H(gx*3,gy+3)*24),ay=gy*40+8+Math.floor(H(gx+5,gy*3)*24);if(H(gx*11+2,gy*13+5)>.68)return null;
+ const r=regionRaw(ax,ay);if(isTown(Math.floor(ax/12),Math.floor(ay/12))||isLake(ax,ay,r)||r===R_M&&H(gx,gy)>.5)return null;const q=H(gx*17+9,gy*19+1);
+ const L=r===R_F?['ruine','hochsitz','camp','friedhof','stein','heli','ruine']:r===R_W?['hof','ruine','camp','friedhof','stein','heli','konvoi']:r===R_O?['schrott','konvoi','heli','camp','stein']:r===R_B?['heli','stein','camp','schrott']:['camp','ruine','friedhof'];
+ const type=L[Math.floor(q*L.length)];let x=ax,y=ay;if(type==='konvoi'){x=Math.round(ax/48)*48;}const rx=((x%48)+48)%48,ry=((y%48)+48)%48;if(type!=='konvoi'&&(rx<6||ry<6||rx>42||ry>42))return null;
+ return{type,x,y,id:'p'+gx+','+gy}}
+const okCell=(x,y)=>{const k=x*65536+y;if(own.has(k)||mods.has(k))return false;const g=gnd(x,y);if(g===G.wasser||g===G.sumpfwasser||houseAt(x,y))return false;return true};
+function stampPOI(p){const{x,y,type}=p,r=i=>hh(x+i*31,y+i*17,SEED+999);let ri=0;const TCH=new Set();const S_=(dx,dy,n,g)=>{const X=x+dx,Y=y+dy,K_=X*65536+Y;if(!TCH.has(K_)&&!okCell(X,Y))return;TCH.add(K_);if(g)gmods.set(X*65536+Y,G[g]);if(n!==undefined)mods.set(X*65536+Y,n?(T[n]!=null?T[n]:0):0)};
+ const clear=(a,b,c,d)=>{for(let i=a;i<=c;i++)for(let j=b;j<=d;j++)S_(i,j,0)};const zs=[];
+ if(type==='ruine'){clear(-5,-4,5,4);for(let i=-4;i<=4;i++)for(let j=-3;j<=3;j++){const e=Math.abs(i)===4||Math.abs(j)===3;if(e&&(r(ri++)<.62||Math.abs(i)===4&&Math.abs(j)===3)&&!(j===3&&i===0))S_(i,j,'ruinwand','kopfstein');else if(!e){S_(i,j,r(ri++)<.12?'schutt':r(ri++)<.1?'moos':r(ri++)<.06?'efeu':0,r(ri++)<.6?'kopfstein':undefined)}}
+  S_(-2,-1,'kiste');S_(2,-2,'kerze');S_(3,1,'knochen');S_(0,0,'totempfahl');zs.push('w','w','sk')}
+ else if(type==='camp'){clear(-4,-3,4,3);S_(-2,-1,'zelt');S_(2,-1,'zelt_l');S_(0,1,'feuerschale');S_(-1,2,'schlafsack');S_(1,2,'baumstamm');S_(3,1,'kiste');S_(-3,1,'holzstapel');S_(2,2,'knochen');S_(-2,2,'blutfleck');zs.push('w','w')}
+ else if(type==='heli'){clear(-4,-3,4,3);for(const[a,b]of[[-1,0],[0,0],[1,0],[0,-1],[2,0]])S_(a,b,'schrotthaufen');S_(-2,1,'feuer');S_(3,-1,'auto_ausg');S_(-3,-1,'mkiste');S_(2,2,'kiste');S_(1,1,'blutfleck');S_(-1,2,'schutt');S_(3,2,'schutt');zs.push('ar','ar','sp')}
+ else if(type==='friedhof'){clear(-5,-4,5,4);for(let i=-5;i<=5;i++)for(const j of[-4,4])if(!(j===4&&Math.abs(i)<=1))S_(i,j,'zaun');for(let j=-3;j<=3;j++)for(const i of[-5,5])S_(i,j,'zaun');
+  for(let i=-3;i<=3;i+=2)for(let j=-2;j<=2;j+=2)S_(i,j,r(ri++)<.85?'grab':'blumen');S_(4,-3,'totbaum');S_(0,3,'kerze');S_(-4,3,'kiste');zs.push('w','w','w','r')}
+ else if(type==='stein'){clear(-4,-4,4,4);for(let k=0;k<8;k++){const a=k/8*6.283;S_(Math.round(Math.cos(a)*3.4),Math.round(Math.sin(a)*3.4),'stein')}S_(0,0,'kiste');S_(1,0,'kerze');S_(-1,0,'kerze');S_(0,1,'knochen')}
+ else if(type==='konvoi'){for(let j=-6;j<=6;j++){const n=j%3===0?'auto':j%3===1?'auto_ausg':0;if(n)S_(j%2?1:0,j,n)}S_(-1,-7,'betonsperre');S_(1,7,'betonsperre');S_(-2,0,'mkiste');S_(2,-3,'warnschild');S_(0,2,'blutfleck');S_(1,-2,'reifenstapel');zs.push('w','w','sl','r')}
+ else if(type==='schrott'){clear(-6,-5,6,5);for(let i=-6;i<=6;i++)for(const j of[-5,5])if(!(j===5&&Math.abs(i)<=1))S_(i,j,'maschendraht');for(let j=-4;j<=4;j++)for(const i of[-6,6])S_(i,j,'maschendraht');
+  for(let k=0;k<12;k++){const a=Math.floor(r(ri++)*10)-5,b=Math.floor(r(ri++)*8)-4;S_(a,b,['schrotthaufen','reifenstapel','fass','auto_ausg','schrotthaufen'][Math.floor(r(ri++)*5)])}S_(4,-3,'kiste');S_(-4,3,'kiste');S_(0,-3,'wellblech');zs.push('w','b')}
+ else if(type==='hochsitz'){clear(-2,-2,2,2);S_(0,0,'hochsitz');S_(1,1,'kiste');S_(-1,1,'baumstamm');S_(2,-1,'zielscheibe')}
+ else if(type==='hof'){clear(-6,-4,6,4);for(let i=-6;i<=6;i++)if(Math.abs(i)>1)S_(i,4,'zaun');S_(-4,-2,'heuballen');S_(-3,-2,'heuballen');S_(4,-2,'vogelscheuche');S_(0,-2,'brunnen');for(let i=1;i<=4;i++)S_(i,1,'beet');S_(-4,1,'huehnerstall');S_(-2,2,'kiste');S_(5,2,'kiste');zs.push('w','w')}
+ // Zombies an gefährlichen Orten
+ for(const k of zs){const a=r(ri++)*6.283,d=24+r(ri++)*40,zx=x*16+8+Math.cos(a)*d,zy=y*16+8+Math.sin(a)*d;if(solidAt(Math.floor(zx/16),Math.floor(zy/16)))continue;const z=mkZ(zx,zy,++zid,R_W);try{if(k!=='sk'&&ZVI[k])setZK(z,k)}catch(e){}z.st='idle';z.gx=z.x;z.gy=z.y}
+ STP.add(p.id);POIL.push({type,x,y,id:p.id})}
+function stampStation(bx,by){const id='s'+bx+','+by;const cx=bx*12+6,cy=by*12+6;for(let i=2;i<=10;i++)for(let j=2;j<=10;j++){const X=bx*12+i,Y=by*12+j,k=X*65536+Y;if(own.has(k))continue;gmods.set(k,G.kopfstein);mods.set(k,0)}
+ mods.set(cx*65536+cy,T.ubahn);for(const[a,b,n]of[[-2,-2,'strassenlaterne'],[2,-2,'strassenlaterne'],[-3,1,'bank'],[3,1,'bank'],[-4,-4,'litfass'],[4,4,'telefonzelle'],[3,-3,'muell']]){const k=(cx+a)*65536+cy+b;if(!own.has(k)&&T[n]!=null)mods.set(k,T[n])}STP.add(id);POIL.push({type:'ubahn',x:cx,y:cy,id})}
+function stampBunker(gx,gy){const id='b'+gx+','+gy,hx=gx*64+32,hy=gy*64+20;for(let i=-2;i<=2;i++)for(let j=-2;j<=2;j++){const k=(hx+i)*65536+hy+j;if(own.has(k))continue;gmods.set(k,G.beton);mods.set(k,0)}
+ mods.set(hx*65536+hy,T.luke);for(const[a,b,n]of[[-3,-2,'sandsack'],[-3,-1,'sandsack'],[-3,0,'sandsack'],[3,1,'betonsperre'],[2,-3,'keepout'],[-2,3,'warnschild']]){const k=(hx+a)*65536+hy+b;if(!own.has(k)&&!mods.has(k)&&T[n]!=null)mods.set(k,T[n])}
+ for(let i=0;i<2;i++){const z=mkZ((hx+3+i*2)*16,(hy+3)*16,++zid,R_W);try{setZK(z,'ar')}catch(e){}z.st='idle';z.gx=z.x;z.gy=z.y}STP.add(id);POIL.push({type:'bunker',x:hx,y:hy,id})}
+function stampCellar(hs){const id='k'+hs.key;const[hx,hy]=hs.cellar,k=hx*65536+hy;if(!own.has(k))mods.set(k,T.luke);STP.add(id)}
+function discover(type,x,y){const id=type+':'+Math.round(x/24)+','+Math.round(y/24);if(DISC.has(id))return;DISC.add(id);const nm=V77.poi[type];if(!nm)return;
+ try{evBanner(tr(V77.disc),tr(nm));coinS&&coinS(3);if(window.STATS){STATS.sp=STATS.sp||[];const key='x_'+type;if(!STATS.sp.includes(key))STATS.sp.push(key)}}catch(e){}}
+{let tk=0;const _st=step;step=function(){_st();if(state!==1||!P||LV||++tk%30)return;if(isUG())return;const ptx=Math.floor(P.x/16),pty=Math.floor(P.y/16);
+ const gx0=Math.floor(ptx/40),gy0=Math.floor(pty/40);for(let a=-2;a<=2;a++)for(let b=-2;b<=2;b++){const p=poiAt(gx0+a,gy0+b);if(p&&!STP.has(p.id)&&Math.abs(p.x-ptx)<46&&Math.abs(p.y-pty)<34)stampPOI(p)}
+ const bx0=Math.floor(ptx/12),by0=Math.floor(pty/12);for(let a=-4;a<=4;a++)for(let b=-3;b<=3;b++){const bx=bx0+a,by=by0+b;if(stationAt(bx,by)&&!STP.has('s'+bx+','+by))stampStation(bx,by);
+  if(isTown(bx,by)){const hs=townHouse(bx,by);if(hs&&hs.cellar&&!hs.big&&!STP.has('k'+hs.key))stampCellar(hs)}}
+ const bgx=Math.floor(ptx/64),bgy=Math.floor(pty/64);for(let a=-1;a<=1;a++)for(let b=-1;b<=1;b++){const gx=bgx+a,gy=bgy+b;if(bunkerAt(gx,gy)&&!STP.has('b'+gx+','+gy)&&Math.abs(gx*64+32-ptx)<50&&Math.abs(gy*64+20-pty)<40)stampBunker(gx,gy)}
+ for(const p of POIL)if(Math.abs(p.x-ptx)<7&&Math.abs(p.y-pty)<6&&p.type!=='ubahn'&&p.type!=='bunker')discover(p.type,p.x,p.y);
+ const hs=houseAt(ptx,pty);if(hs&&hs.big){discover(hs.big,hs.x0,hs.y0);if(!hs.pop){hs.pop=1;const n=4+Math.floor(rnd()*5);for(let i=0;i<n;i++){for(let t_=0;t_<10;t_++){const x=hs.x0+1+Math.floor(rnd()*(hs.w-2)),y=hs.y0+1+Math.floor(rnd()*(hs.h-2));if(solidAt(x,y)||Math.abs(x-ptx)+Math.abs(y-pty)<5)continue;const z=mkZ(x*16+8,y*16+8,++zid,R_S);z.st='idle';z.gx=z.x;z.gy=z.y;break}}}}}}
+// Speichern / Laden der entdeckten und gestempelten Orte
+{const _s=save;save=function(q){const r=_s.apply(this,arguments);if(state===1&&P)try{const k='zw4_h'+slot,o=JSON.parse(LS.get(k)||'{}')||{};o.v77={stp:[...STP],disc:[...DISC],poi:POIL};LS.set(k,JSON.stringify(o))}catch(e){}return r}}
+{const _l=load;load=function(s){STP=new Set();DISC=new Set();POIL=[];STC.clear();BKC.clear();const r=_l.apply(this,arguments);if(r)try{const o=JSON.parse(LS.get('zw4_h'+s)||'{}')||{};if(o.v77){STP=new Set(o.v77.stp||[]);DISC=new Set(o.v77.disc||[]);POIL=o.v77.poi||[]}}catch(e){}return r}}
+{const _n=newGame;newGame=function(s,cc){STP=new Set();DISC=new Set();POIL=[];STC.clear();BKC.clear();return _n.apply(this,arguments)}}
+{const _c=clearWorldCache;clearWorldCache=function(){_c();STC.clear();BKC.clear()}}
 applyLang();
 </script><script>if('serviceWorker'in navigator&&location.protocol.startsWith('http'))addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));</script></body></html>
