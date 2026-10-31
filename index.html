@@ -2427,7 +2427,7 @@ function draw(){const menu=state===0;
  for(const e of L){if(e[1]===7){drawHuman(e[2]);continue}
   if(e[1]===0)drawObj(e[2],e[3],e[4],lights);
   else if(e[1]===1){if(P.hc>0&&Math.floor(P.hc/4)%2)continue;if(P.sit){const s=PSPR[0][0];g.drawImage(s,0,0,s.width,17,RQ(P.x-cx-s.width/2),RQ(P.y-cy-15),s.width,17)}else{if(P.crouch){g.save();const fy=RQ(P.y-cy+6);g.translate(0,fy);g.scale(1,.76);g.translate(0,-fy)}if(P.dir===1)drawWeapon();drawChar(PSPR,P.dir,P.f,P.x,P.y,P.mv);if(P.dir!==1)drawWeapon();if(P.crouch)g.restore()}
-   if(P.sw>0&&(!qs[P.sel]||D[qs[P.sel].id].mel)){g.strokeStyle=`rgba(255,255,255,${P.sw/14})`;g.lineWidth=2;g.beginPath();const a=P.swa;g.arc(P.x-cx,P.y-cy-5,13,a-1.1+(12-P.sw)*.08,a+.9);g.stroke();g.lineWidth=1}}
+   if(P.sw>0&&qs[P.sel]&&D[qs[P.sel].id].mel){g.strokeStyle=`rgba(255,255,255,${P.sw/14})`;g.lineWidth=2;g.beginPath();const a=P.swa;g.arc(P.x-cx,P.y-cy-5,13,a-1.1+(12-P.sw)*.08,a+.9);g.stroke();g.lineWidth=1}}
   else if(e[1]===2){const z=e[2],v=ZV[z.vi],fi=z.mvv>.05?Math.floor(z.f)%4:0,dir=z.dir;const sc=v.big?1.3:1;const[X0,Y0]=drawChar(v.fr,dir,z.f,z.x,z.y,z.mvv>.05,z.wf>0?zWhite(v,dir,fi):null,sc);
    if(dir!==1)EYES.push(dir===0?[X0+7*sc,Y0+7*sc,X0+10*sc,Y0+7*sc]:[dir===2?X0+7*sc:X0+10*sc,Y0+7*sc]);
    if(z.al>0)txt(g,'!',z.x-cx+1,z.y-cy-30*sc+(z.al>35?(z.al-35):0),'#ff4040');else if(z.qa>0){g.fillStyle='#ffd23a';const X=RQ(z.x-cx),Y=RQ(z.y-cy-30*sc);g.fillRect(X-1,Y,3,1);g.fillRect(X+1,Y+1,1,1);g.fillRect(X,Y+2,1,1);g.fillRect(X,Y+4,1,1)}
@@ -9166,5 +9166,115 @@ addEventListener('resize',()=>setTimeout(fitIG,60));
 @media (orientation:landscape){#bld{top:0!important;bottom:0!important;max-height:none!important;height:auto!important;padding-top:calc(env(safe-area-inset-top,0px) + 10px)!important;border-top:0!important;box-shadow:none!important}
  #bld #bl{flex:1;min-height:0;overflow-y:auto}}`;document.head.appendChild(st)}
 
+applyLang();
+// ================= v75: Glückskisten mit Dreh-Rad · echter Box-Schlag · Kofferraum-Inventar · schlichte Fahr-Knöpfe · Herausforderungen in der Pause =================
+const V75={
+ crate:L4('Glückskiste','Lucky crate','Caja de la suerte','Caisse chance'),
+ tiers:[L4('Gewöhnlich','Common','Común','Commune'),L4('Selten','Rare','Rara','Rare'),L4('Episch','Epic','Épica','Épique'),L4('Legendär','Legendary','Legendaria','Légendaire')],
+ open:L4('Öffnen','Open','Abrir','Ouvrir'),take:L4('Einsammeln','Collect','Recoger','Récupérer'),again:L4('Nächste öffnen','Open next','Abrir otra','Ouvrir la suivante'),
+ won:L4('Du hast erhalten','You got','Has obtenido','Tu as obtenu'),spin:L4('Die Kiste dreht …','Spinning …','Girando…','Ça tourne…'),
+ desc:L4('Öffne sie im Inventar – ein Rad entscheidet, was drin ist.','Open it in your backpack – a wheel decides what is inside.','Ábrela en el inventario: una ruleta decide qué hay dentro.','Ouvre-la dans l’inventaire – une roue décide du contenu.'),
+ odds:L4('Chancen','Odds','Probabilidades','Chances'),full:L4('Inventar voll – liegt am Boden','Backpack full – dropped on the ground','Inventario lleno: está en el suelo','Inventaire plein – posé au sol'),
+ chP:L4('Herausforderungen','Challenges','Desafíos','Défis')};
+
+// ---------- 1. Glückskisten ----------
+// Preisklassen der Gewinne: 0 grau · 1 grün · 2 blau · 3 lila · 4 gold
+const LBP_={
+ 0:[['verband',3],['dose',3],['wasser',3],['a9',24],['a12',10],['batterie',2],['schmerzmittel',2],['dollar',60],['schrott',8],['klebeband',3],['nagel',20]],
+ 1:[['taschenlampe',1],['antibiotika',1],['medkit',1],['pistole',1,1],['makarow',1,1],['a762',30],['rotpunkt',1],['dollar',220],['trekkingrucksack',1,1],['mhelm',1,1],['machete',1,1],['energydrink',3]],
+ 2:[['glock',1,2],['revolver',1,2],['uzi',1,2],['pumpgun',1,2],['jagd',1,2],['mrucksack',1,2],['mweste',1,2],['schalldaempfer',1],['holo',1],['dollar',650],['antiserum',2],['katana',1,2]],
+ 3:[['ak47',1,3],['m4',1,3],['mp5',1,3],['scar',1,3],['mosin',1,3],['erucksack',1,3],['ghillie',1,3],['acog',1],['kevlarweste',1,3],['vector',1,3],['dollar',1800]],
+ 4:[['barrett',1,4],['m249',1,4],['scharfschuetze',1,4],['raketenwerfer',1,4],['mg',1,4],['deagle',1,4],['thermal',1],['nachtsicht',1],['dollar',5000]]};
+for(const k in LBP_)LBP_[k]=LBP_[k].filter(e=>D[e[0]]);
+const LBOX=[{id:'lbox0',price:150,odds:[70,25,5,0,0],col:RC[0]},{id:'lbox1',price:600,odds:[0,55,35,9,1],col:RC[2]},{id:'lbox2',price:1500,odds:[0,0,55,37,8],col:RC[3]},{id:'lbox3',price:3500,odds:[0,0,0,60,40],col:RC[4]}];
+LBOX.forEach((b,i)=>{b.i=i;D[b.id]={n:L4(...[0,1,2,3].map(l=>{const a=[V75.crate,V75.tiers[i]];return(I18N[a[0]]&&l?I18N[a[0]][l-1]:a[0])+' · '+(I18N[a[1]]&&l?I18N[a[1]][l-1]:a[1])})),c:'ver',st:10,use:{},d:V75.desc,lbox:i};
+ const c=b.col,dk=shade(c,.55),lt=shade(c,1.3);
+ ICO[b.id]=outline(cv(16,16,P=>{P('#5a3a1e',2,5,12,9);P('#7a5230',2,5,12,2);P('#3a2412',2,13,12,1);P(c,2,8,12,2);P(lt,2,8,12,1);P(dk,7,5,2,9);P(c,6,4,4,2);P(lt,6,4,4,1);P('#ffe070',7,10,2,2);P('#2a1a0a',7,11,1,1);
+  if(i>=2){P(lt,1,3,1,1);P(lt,14,2,1,1)}if(i===3){P('#fff',13,4,1,1);P('#fff',3,2,1,1)}}));delete ICU[b.id];
+ PRICE[b.id]=[b.price,1];});for(const b of LBOX.slice().reverse())if(!BASEBUY.includes(b.id))BASEBUY.unshift(b.id);
+const lbPick=b=>{let r=Math.random()*100,t=0;for(;t<4;t++){r-=b.odds[t];if(r<0)break}const L=LBP_[t].length?LBP_[t]:LBP_[0];const e=L[(Math.random()*L.length)|0];return{t,id:e[0],n:e[1],r:e[2]||0}};
+const lbName=p=>tr(D[p.id].n)+(p.n>1?' ×'+p.n:'');
+function lbSpin(bi){const b=LBOX[bi];if(state!==1)return;try{closeAll()}catch(e){}paused=true;relInput&&relInput();
+ const N=46,WIN=38,cards=[];for(let i=0;i<N;i++)cards.push(lbPick(b));const win=cards[WIN];
+ let o=$('lbx');if(o)o.remove();o=document.createElement('div');o.id='lbx';
+ o.innerHTML=`<div class="lxw"><div class="lxh"><i class="ic">${icoImg(b.id)}</i><b style="color:${b.col}">${escH(tr(D[b.id].n))}</b></div>
+  <div class="lxv"><div class="lxs">${cards.map(c=>`<div class="lxc t${c.t}"><span>${icoImg(c.id)}</span><small>${escH(lbName(c))}</small></div>`).join('')}</div><i class="lxm"></i></div>
+  <div class="lxo">${b.odds.map((p,t)=>p?`<span style="color:${RC[t]}">■ ${p}%</span>`:'').join('')}</div>
+  <div class="lxr" id="lxR">${tr(V75.spin)}</div><div class="lxb" id="lxB"></div></div>`;
+ document.body.appendChild(o);const strip=o.querySelector('.lxs'),view=o.querySelector('.lxv'),card=strip.children[0];
+ requestAnimationFrame(()=>{const cw=card.getBoundingClientRect().width,gap=parseFloat(getComputedStyle(strip).columnGap)||6,vw=view.getBoundingClientRect().width;
+  const target=WIN*(cw+gap)+cw/2-vw/2+(Math.random()-.5)*cw*.7;strip.style.transition='transform 6.2s cubic-bezier(.06,.62,.13,1)';strip.style.transform=`translateX(${-target}px)`;
+  let last=-1;const tick=()=>{if(!o.isConnected)return;const m=new DOMMatrix(getComputedStyle(strip).transform),x=-m.m41+vw/2,idx=Math.floor(x/(cw+gap));
+   if(idx!==last){last=idx;try{A(null,null,.12,0,(bb,t2)=>tn(bb,t2,.025,'square',1500,1200,.22))}catch(e){}}if(!done)requestAnimationFrame(tick)};let done=false;requestAnimationFrame(tick);
+  strip.addEventListener('transitionend',()=>{done=true;finish()},{once:true})});
+ const finish=()=>{const el=strip.children[WIN];el.classList.add('win');const it=mkItem(win.id,win.n,win.r);if(it.m!=null&&D[win.id].mag)it.m=D[win.id].mag;
+  $('lxR').innerHTML=`${tr(V75.won)}: <b style="color:${RC[win.t]}">${escH(lbName(win))}</b>${win.r?` <small style="color:${RC[win.r]}">${tr(RN[win.r])}</small>`:''}`;
+  try{if(win.t>=3){shk=6;o.classList.add('big')}coinS&&coinS(win.t+1)}catch(e){}
+  const more=inv.findIndex(x=>x&&x.id===b.id);
+  $('lxB').innerHTML=`<button class="btn pr" id="lxT">${tr(V75.take)}</button>${more>=0?`<button class="btn" id="lxA">${tr(V75.again)} (${inv.filter(x=>x&&x.id===b.id).reduce((a,x)=>a+x.n,0)})</button>`:''}`;
+  const collect=()=>{if(win.id==='dollar'){if(!addItem(it))dropIt(it,P.x,P.y,1)}else if(!addItem(it)){dropIt(it,P.x,P.y,1);toast(tr(V75.full),'bad')}hudDirty=1;try{save(true)}catch(e){}};
+  $('lxT').onclick=()=>{S.ui&&S.ui();collect();o.remove();paused=false};
+  if($('lxA'))$('lxA').onclick=()=>{S.ui&&S.ui();collect();const i=inv.findIndex(x=>x&&x.id===b.id);if(i<0){o.remove();paused=false;return}inv[i].n--;if(inv[i].n<=0)inv[i]=null;lbSpin(bi)}}}
+{const _u=useIt;useIt=function(it,ref){const d=it&&D[it.id];if(d&&d.lbox!=null){it.n=(it.n||1)-1;if(it.n<=0){try{if(ref)setS(ref,null);else{const i=inv.indexOf(it);if(i>=0)inv[i]=null}}catch(e){}}S.ui&&S.ui();setTimeout(()=>lbSpin(d.lbox),30);return}return _u.apply(this,arguments)}}
+{const _r=renderInv;renderInv=function(){const x=_r.apply(this,arguments);try{const it=isel&&getS(isel);if(it&&D[it.id]&&D[it.id].lbox!=null){const bt=document.querySelector('#det [data-a="use"]');if(bt)bt.textContent=tr(V75.open)}}catch(e){}return x}}
+{const st=document.createElement('style');st.textContent=`
+#lbx{position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;background:rgba(6,5,4,.92);padding:calc(env(safe-area-inset-top,0px) + 8px) 0 calc(env(safe-area-inset-bottom,0px) + 8px)}
+#lbx .lxw{width:100%;display:flex;flex-direction:column;align-items:center;gap:10px}
+#lbx .lxh{display:flex;align-items:center;gap:10px}#lbx .lxh b{font-size:18px;letter-spacing:2px}#lbx .lxh img{width:32px;height:32px;image-rendering:pixelated}
+#lbx .lxv{position:relative;width:100%;overflow:hidden;padding:8px 0;background:linear-gradient(90deg,rgba(0,0,0,.85),rgba(30,25,20,.4) 18%,rgba(30,25,20,.4) 82%,rgba(0,0,0,.85));border-top:2px solid #3a3026;border-bottom:2px solid #3a3026}
+#lbx .lxs{display:flex;column-gap:6px;width:max-content;padding-left:0;will-change:transform}
+#lbx .lxc{width:clamp(84px,13vw,120px);aspect-ratio:1/1.12;flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;background:var(--noise) #1c1814;border:2px solid #050403;border-bottom-width:5px;box-sizing:border-box;padding:4px}
+#lbx .lxc span img{width:clamp(40px,6vw,56px);height:clamp(40px,6vw,56px);image-rendering:pixelated}
+#lbx .lxc small{font-size:10px;text-align:center;line-height:1.15;color:#cfc3a8;max-height:2.4em;overflow:hidden}
+${[0,1,2,3,4].map(t=>`#lbx .lxc.t${t}{border-bottom-color:${RC[t]};background:var(--noise),linear-gradient(0deg,${RC[t]}33,transparent 55%),#1c1814}`).join('')}
+#lbx.big .lxv{box-shadow:0 0 40px rgba(255,176,32,.35) inset}#lbx .lxc.win{outline:3px solid #ffd23a;box-shadow:0 0 22px rgba(255,210,58,.55);animation:lxWin .6s ease-in-out 3}
+@keyframes lxWin{50%{transform:scale(1.08)}}
+#lbx .lxm{position:absolute;left:50%;top:0;bottom:0;width:3px;margin-left:-1.5px;background:#ffd23a;box-shadow:0 0 10px #ffd23a;pointer-events:none}
+#lbx .lxm::before,#lbx .lxm::after{content:'';position:absolute;left:-6px;border:7px solid transparent}#lbx .lxm::before{top:0;border-top-color:#ffd23a}#lbx .lxm::after{bottom:0;border-bottom-color:#ffd23a}
+#lbx .lxo{display:flex;gap:12px;font-size:11px;opacity:.8}
+#lbx .lxr{min-height:22px;font-size:15px;text-align:center;padding:0 12px}#lbx .lxr small{font-size:11px}
+#lbx .lxb{display:flex;gap:10px;min-height:40px}#lbx .lxb .btn{width:auto!important;min-width:0!important;padding:6px 18px!important;height:auto!important;font-size:13px!important;margin:0!important}`;document.head.appendChild(st)}
+
+// ---------- 2. Faust: echter Box-Schlag (abwechselnd links/rechts) ----------
+{const _m=melee;melee=function(d,r){if(!qs[P.sel])P.pH=P.pH?0:1;return _m.apply(this,arguments)}}
+{const _dw=drawWeapon;drawWeapon=function(){const r=_dw.apply(this,arguments);if(!P||qs[P.sel]||!(P.sw>0)||P.veh||P.sit)return r;
+ const pr=1-P.sw/12,ext=Math.sin(Math.min(1,pr*1.25)*Math.PI),l=Math.hypot(P.ax,P.ay)||1,dx=P.ax/l,dy=P.ay/l,side=P.pH?1:-1,px=-dy*side,py=dx*side;
+ const sx=P.x-cx+px*3.5,sy=P.y-cy-5+py*1.5,fx=sx+dx*(3+ext*9),fy=sy+dy*(3+ext*8);let skin='#e2a77e';try{skin=SKINS[P.look&&P.look.skin]||skin}catch(e){}
+ g.save();g.lineCap='square';g.strokeStyle='#0b0e12';g.lineWidth=4;g.beginPath();g.moveTo(Math.round(sx),Math.round(sy));g.lineTo(Math.round(fx),Math.round(fy));g.stroke();
+ g.strokeStyle=shade(skin,.85);g.lineWidth=2;g.beginPath();g.moveTo(Math.round(sx),Math.round(sy));g.lineTo(Math.round(fx),Math.round(fy));g.stroke();
+ const X=Math.round(fx)-2,Y=Math.round(fy)-2;g.fillStyle='#0b0e12';g.fillRect(X-1,Y-1,6,6);g.fillStyle=skin;g.fillRect(X,Y,4,4);g.fillStyle=shade(skin,1.15);g.fillRect(X,Y,4,1);g.fillStyle=shade(skin,.7);g.fillRect(X,Y+3,4,1);
+ if(ext>.85){g.fillStyle='rgba(255,255,255,.7)';for(const k of[-1,1]){g.fillRect(Math.round(fx+dx*5+(-dy)*k*3),Math.round(fy+dy*5+dx*k*3),2,2)}}g.restore();return r}}
+
+// ---------- 3. Inventar mit Kofferraum/Kiste: klare Zweiteilung ----------
+{const st=document.createElement('style');st.textContent=`
+@media (orientation:landscape){#inv.boxm .wrap{grid-template-columns:minmax(0,1fr) minmax(0,1.3fr)!important;grid-template-rows:auto minmax(0,1fr) auto auto!important;grid-template-areas:"hdr hdr" "box ig" "box det" "qrow det"!important;align-content:stretch!important;height:100%!important;box-sizing:border-box}
+ #inv.boxm #doll,#inv.boxm #ich{display:none!important}
+ #inv.boxm #boxw{grid-area:box;display:flex!important;flex-direction:column;min-height:0;margin:0!important}#inv.boxm #boxw .hdr2{flex:none;display:flex;align-items:center;gap:8px}#inv.boxm #boxw .hdr2>span{font-size:12px!important;line-height:1.3;flex:1;min-width:0}
+ #inv.boxm #boxw #boxAll{flex:none;white-space:nowrap}
+ #inv.boxm #bg{flex:1;min-height:0;overflow-y:auto;align-content:start}
+ #inv.boxm #ig{align-self:stretch;align-content:start;overflow-y:auto}
+ #inv.boxm #det{max-height:none!important;min-height:44px!important;padding:6px 10px!important}#inv.boxm .qrow{align-self:center}}
+.dub{left:auto!important;right:3px!important;top:12%!important;bottom:40%!important;width:3px!important;height:auto!important;display:flex;align-items:flex-end;border-radius:0}.dub i{width:100%!important;height:auto!important;position:relative}`;document.head.appendChild(st)}
+{const _f=fitIG;fitIG=function(){_f();const inv=$('inv'),ig=$('ig');if(!inv||!ig||!inv.classList.contains('boxm')||inv.classList.contains('hide'))return;
+ const z=window.UIZV||1,r=ig.getBoundingClientRect(),dt=$('det').getBoundingClientRect(),W=r.width/z,H=(dt.top-r.top)/z-8,n=Math.max(1,ig.children.length),gp=6;if(W<40||H<40)return;
+ let best=0,bc=6;for(let c=3;c<=14;c++){const rows=Math.ceil(n/c),s=Math.min((W-(c-1)*gp)/c,(H-(rows-1)*gp)/rows);if(s>best){best=s;bc=c}}let s=Math.max(44,Math.min(120,Math.floor(best)));
+ if(best<44)bc=Math.max(1,Math.floor((W+gp)/(s+gp)));
+ ig.style.setProperty('grid-template-columns',`repeat(${bc},minmax(0,1fr))`,'important');ig.style.setProperty('grid-auto-rows',s+'px','important');ig.style.setProperty('--icz',Math.min(72,18*Math.max(1,Math.floor(s*.78/18)))+'px');
+ const bg=$('bg');if(bg){bg.style.setProperty('grid-template-columns',`repeat(auto-fill,minmax(${s}px,1fr))`,'important');bg.style.setProperty('grid-auto-rows',s+'px','important');bg.style.setProperty('--icz',ig.style.getPropertyValue('--icz'))}}}
+// Haltbarkeit senkrecht am rechten Rand füllen (überdeckt keine Zahlen mehr)
+{const _d=durBars;durBars=function(){_d();for(const b of document.querySelectorAll('.dub')){const i=b.firstChild;if(i&&i.style.width){i.style.height=i.style.width;i.style.removeProperty('width')}}}}
+
+// ---------- 4. Fahr-Knöpfe schlicht im Pixel-Stil ----------
+{const st=document.createElement('style');st.textContent=`
+#game #vctl .vb,#game #vctl .vgR .vb{width:clamp(56px,calc(var(--vh1,1vh)*16),80px)!important;height:clamp(56px,calc(var(--vh1,1vh)*16),80px)!important;border-radius:0!important;background:var(--noise) #2a2420!important;background-clip:padding-box!important;border:var(--w-btn) solid transparent!important;border-image:var(--f-btn)!important;box-shadow:none!important}
+#game #vctl .vgR [data-v="u"]{width:clamp(64px,calc(var(--vh1,1vh)*19),92px)!important;height:clamp(64px,calc(var(--vh1,1vh)*19),92px)!important}
+#game #vctl .vb img{width:48%!important;height:48%!important}
+#game #vctl [data-v="u"] img{filter:sepia(1) saturate(4) hue-rotate(50deg) brightness(1.1)}#game #vctl [data-v="d"] img{filter:sepia(1) saturate(5) hue-rotate(-30deg) brightness(.95)}
+#game #vctl .vb.on{filter:brightness(1.4)!important;transform:translateY(2px)!important}`;document.head.appendChild(st)}
+
+// ---------- 5. Pause → Fortschritt: die neuen Herausforderungen ----------
+{const _rp=renderProg;renderProg=function(){const r=_rp.apply(this,arguments);try{const b=$('pgT').querySelector('[data-pt="ach"]');if(b)b.textContent=tr(V75.chP)+' '+PR.ch.length+'/'+CHL.length;
+ if(PGT==='ach'){const L=CHL.slice().sort((a,b2)=>(PR.ch.includes(a.id)?1:0)-(PR.ch.includes(b2.id)?1:0));
+  $('pgB').innerHTML=`<div style="display:flex;flex-direction:column;gap:5px">${L.map(c=>{const dn=PR.ch.includes(c.id),v=Math.min(c.n,chVal(c.k));return`<div class="chr${dn?' dn':''}"><b>${dn?'✔ ':''}${chName(c)}</b><span class="stars">${'★'.repeat(c.st)}</span><small>${chDesc(c)}</small><span class="rwd">${c.rw?rwName(c.rw):''}</span><div class="bar"><u style="width:${Math.round(v/c.n*100)}%"></u></div></div>`}).join('')}</div>`}}catch(e){}return r}}
 applyLang();
 </script><script>if('serviceWorker'in navigator&&location.protocol.startsWith('http'))addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));</script></body></html>
