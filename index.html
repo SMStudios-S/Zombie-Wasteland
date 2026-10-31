@@ -9545,4 +9545,29 @@ function discover(type,x,y){const id=type+':'+Math.round(x/24)+','+Math.round(y/
 {const _n=newGame;newGame=function(s,cc){STP=new Set();DISC=new Set();POIL=[];STC.clear();BKC.clear();return _n.apply(this,arguments)}}
 {const _c=clearWorldCache;clearWorldCache=function(){_c();STC.clear();BKC.clear()}}
 applyLang();
+// ================= v78: Willkommens-Mail nach der Registrierung (EmailJS) =================
+// Trage hier die drei IDs aus EmailJS ein – leer = es wird keine Mail verschickt.
+const MAILCFG={service:'',template:'',key:''};
+{const _up=accUp;accUp=async function(email,pw,name){const r=await _up.apply(this,arguments);
+ try{if(MAILCFG.service&&MAILCFG.template&&MAILCFG.key)fetch('https://api.emailjs.com/api/v1.0/email/send',{method:'POST',headers:{'Content-Type':'application/json'},
+  body:JSON.stringify({service_id:MAILCFG.service,template_id:MAILCFG.template,user_id:MAILCFG.key,template_params:{name:String(name||'').trim(),email,to_email:email,lang:CFG.lang||'de'}})}).catch(()=>{})}catch(e){}
+ return r}}
+
+// ================= v78: Missionen nicht mehr dauerhaft im Bild → Pause › Herausforderungen =================
+{const st=document.createElement('style');st.textContent=`#msn{display:none!important}
+.msBox{border:2px solid #c8902e;background:rgba(200,144,46,.08);padding:7px 9px;margin-bottom:8px}.msBox h4{margin:0 0 4px;font-size:11px;letter-spacing:1.5px;color:#ffd23a;font-weight:normal}
+.msBox details{margin-top:6px}.msBox summary{cursor:pointer;font-size:11px;color:#cfc3a8;padding:3px 0}.msBox details>div{display:flex;flex-direction:column;gap:5px;margin-top:5px}`;document.head.appendChild(st)}
+// Fortschritt kurz als Meldung statt Dauer-Anzeige
+{let lc=-1,li=-1,lt=0,tk=0;const _h=hud;hud=function(){const r=_h.apply(this,arguments);if(++tk%15||state!==1||!P||paused)return r;const m=MS[MI.i];if(!m){lc=-1;return r}
+ const[c,n]=msProg();if(MI.i!==li){li=MI.i;lc=c;return r}if(c>lc&&c<n){const now=performance.now();if(now-lt>6000||c===n-1){lt=now;const f=v=>m[0]==='drive'?(v/1000).toFixed(1)+' km':v;toast('➤ '+tr(m[2])+' · '+f(c)+'/'+f(n))}}lc=c;return r}}
+// Missionen oben im Herausforderungen-Tab
+const msCard=(m,i)=>{const dn=i<MI.i,cur=i===MI.i,[c,n]=cur?msProg():[dn?m[1]:0,m[1]];const f=v=>m[0]==='drive'?(v/1000).toFixed(1)+' km':v;
+ return`<div class="chr${dn?' dn':''}"><b>${dn?'✔ ':cur?'➤ ':''}${tr(m[2])}</b><span class="stars">${cur?f(c)+'/'+f(n):''}</span><small>${tr(V76.rw)}: ${msReward(m)}</small><span class="rwd"></span><div class="bar"><u style="width:${Math.round(c/n*100)}%"></u></div></div>`};
+{const _rp=renderProg;renderProg=function(){if(PGT==='mis')PGT='ach';const r=_rp.apply(this,arguments);try{const T_=$('pgT');const mb=T_&&T_.querySelector('[data-pt="mis"]');if(mb)mb.remove();
+ if(PGT==='ach'){const B=$('pgB');const cur=MS[MI.i];const box=document.createElement('div');box.className='msBox';
+  box.innerHTML=`<h4>${tr(V76.mis).toUpperCase()} ${Math.min(MI.i+1,MS.length)}/${MS.length}</h4>${cur?msCard(cur,MI.i):'<div class="chr dn"><b>✔ '+tr(V76.all)+'</b></div>'}<details><summary>${tr(V78.allM)}</summary><div>${MS.map(msCard).join('')}</div></details>`;B.prepend(box)}}catch(e){}return r}}
+const V78={allM:T4('Alle Missionen anzeigen','Show all missions','Ver todas las misiones','Voir toutes les missions')};
+// Schränke/Kommoden ohne Wartezeit zählen jetzt auch als „Behälter durchsucht“
+{const _ea=extraAct;extraAct=function(a){const k=a&&a.k==='tile'?a.tx*65536+a.ty:null,cnt=k!=null&&!a.dur&&TSTOR[a.tt]&&!own.has(k)&&!stor.has(k);const r=_ea.apply(this,arguments);
+ if(cnt&&stor.has(k)&&window.STATS)STATS.srch=(STATS.srch||0)+1;return r}}
 </script><script>if('serviceWorker'in navigator&&location.protocol.startsWith('http'))addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));</script></body></html>
