@@ -9367,7 +9367,7 @@ const msReward=m=>m[3].map(([id,n,r])=>tr(D[id].n)+(n>1&&id!=='dollar'?' ×'+n:i
 #msn i{display:block;height:4px;background:#0e0c0a;margin-top:4px;border:1px solid #3a3026}#msn i u{display:block;height:100%;background:#c8902e;text-decoration:none}#msn em{display:block;font-style:normal;font-size:9.5px;color:#9ad06a;margin-top:3px}#msn.mini span,#msn.mini em,#msn.mini i{display:none}`;document.head.appendChild(st);
  d.onclick=()=>{d.classList.toggle('mini');S.ui&&S.ui()}}
 {let last='',tk=0;const _h=hud;hud=function(){const r=_h.apply(this,arguments);if(++tk%10)return r;const el=$('msn');if(!el)return r;
- const g=$('guide');const gOn=g&&!g.classList.contains('hide');if(state!==1||!P||paused||gOn||P.daily){el.classList.add('hide');return r}
+ const g=$('guide');const gOn=g&&!g.classList.contains('hide');if(state!==1||!P||paused||P.daily){el.classList.add('hide');return r}
  const m=MS[MI.i];if(!m){el.classList.add('hide');return r}
  const[c,n]=msProg();if(c>=n){const done=m;MI.pend=MI.pend||[];MI.pend.push(MI.i);MI.i++;msStart();
   try{evBanner(tr(V76.done),tr(done[2]));coinS&&coinS(4);toast(tr(V78.claimT),'good')}catch(e){}hudDirty=1;if(!MS[MI.i])setTimeout(()=>toast(tr(V76.all),'good'),2500);last='';return r}
@@ -9824,4 +9824,27 @@ window.NOCARRY=1;
 // ---------- v80b: Zombies hören dich später · Außenposten-Wände sind für Zombies unzerstörbar ----------
 {const _n=noise;noise=function(x,y,r){return _n(x,y,r*[.6,.72,.85][ZDK()])}}
 window.ZNOWALL=(x,y)=>{try{return typeof OUTP!=='undefined'&&OUTP.length&&typeof inOP==='function'&&!!inOP(x,y,1)}catch(e){return false}};
+
+// ================= v81: Möbel mitnehmen · Kamera immer exakt mittig · Missionen auch während der Anleitung =================
+// ---------- 1. Möbel aufheben: dauert etwas und macht Lärm. Mit Bausatz (wenn es einen gibt), sonst Material ----------
+const V81={pick:T4('Mitnehmen','Pick up','Recoger','Ramasser'),got:T4('Mitgenommen','Picked up','Recogido','Ramassé')};
+const PICKX=new Set(['bett','tisch','stuhl','sofa','schrank','kommode','regal','regal_leer','kuehl','kuehl_leer','herd','tv','badewanne','toilette','waschbecken','kuechenzeile','esstisch','sessel','buecherregal','doppelbett','kleiderschrank','nachttisch','tresen','automat','pflanze','kistenstapel','lagerregal','klavier','spind','metallspind','aktenschrank','schreibtisch','buerostuhl','kopierer','wasserspender','waschmaschine','weinregal','werkzeugwand','etagenbett','couchtisch','barhocker','garderobe','kistenstapel','palettenst','blumenkuebel','tonne','muelltonne','fernseher','stehlampe','lampe','bank','kaffeemaschine','jukebox','arcade','billard','kamin']);
+const NOPICK=new Set(['baum','tanne','totbaum','stein','felsen','busch','auto','auto_leer','auto_ausg','ubahn','ubahn_aus','luke','luke_aus','grab','ruinwand','laterne','strassenlaterne','hydrant','ampel','zaun','werkbank','feuer','treppe_ob','treppe']);
+function pickable(tt){const n=TN[tt];if(!n||!TSOL[tt]||TWALL[tt]||DOORS[tt]||NOPICK.has(n))return false;return PICKX.has(n)||!!D['bs_'+n]}
+{const _fa=findAct;findAct=function(){const a=_fa();if(!P||P.veh||BM||LV&&0)return a;if(a&&(a.k==='item'||a.k==='catch'||a.k==='veh'||a.k==='exit'))return a;
+ const[tx,ty]=frontTile(),tt=tile(tx,ty);if(!pickable(tt))return a;const k=tx*65536+ty;
+ if(a&&a.k==='tile'&&a.tx===tx&&a.ty===ty){const st=stor.get(k);if(!(TSTOR[tt]&&st&&st.items.every(x=>!x)))return a}
+ if(a&&!(a.k==='tile'&&a.tx===tx&&a.ty===ty))return a;
+ return{k:'tile',tx,ty,tt,ic:'hand',l:V81.pick,dur:75,pick:1}}}
+{const _fi=finishAct;finishAct=function(a){if(!a||!a.pick)return _fi.apply(this,arguments);const{tx,ty,tt}=a,k=tx*65536+ty;if(tile(tx,ty)!==tt)return;
+ const st=stor.get(k);if(st&&st.items)for(const it of st.items)if(it)dropIt(it,tx*16+8,ty*16+8,1);stor.delete(k);
+ const was=own.has(k);mods.set(k,0);own.delete(k);whp.delete(k);if(typeof TWC!=='undefined')TWC.clear();
+ const n=TN[tt],kit=D['bs_'+n]?'bs_'+n:null;const gets=kit?[[kit,1]]:[['holz',2+((rnd()*2)|0)],['schrott',1]];
+ for(const[id,c]of gets){const it=mkItem(id,c,0);if(!addItem(it))dropIt(it,P.x,P.y,1)}
+ noise(tx*16+8,ty*16+8,150);try{S.wallbreak?S.wallbreak(tx*16+8,ty*16+8):S.chop&&S.chop(tx*16+8,ty*16+8)}catch(e){}debris(tx*16+8,ty*16+8,8,['#7a5a30','#5a4a3a','#8c8f95']);
+ toast(tr(V81.got)+': '+gets.map(([id,c])=>tr(D[id].n)+(c>1?' ×'+c:'')).join(', '),'good');hudDirty=1}}
+// Lärm auch während des Abbauens (alle ~0,5 s)
+{const _st=step;step=function(){_st();if(state===1&&P&&P.job&&P.job.a&&P.job.a.pick&&P.job.p%30===0)noise(P.x,P.y,110)}}
+// ---------- 2. Kamera: immer exakt auf dem Charakter – kein Vorlauf, kein Rückschlag-Wackeln ----------
+{const _c=camTick;camTick=function(){_c();if(!P)return;if(!P.veh){cam.lx=0;cam.ly=0}cam.kx=0;cam.ky=0}}
 </script><script>if('serviceWorker'in navigator&&location.protocol.startsWith('http'))addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));</script></body></html>
