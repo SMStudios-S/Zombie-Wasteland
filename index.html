@@ -1764,12 +1764,12 @@ function vMove(v){const d=VT[v.k],c=Math.cos(v.a),s=Math.sin(v.a),dx=c*v.spd,dy=
   const imp=Math.abs(v.spd);
   if(moved){v.spd*=.93;if(imp>1.8&&t%8===0){v.hp-=1;S.thud(v.x,v.y)}}
   else{if(imp>1.4){v.hp-=imp*6;shk=Math.min(8,shk+imp*2);S.crash(v.x,v.y);debris(v.x+c*d.w/2,v.y+s*d.w/2,8,['#8a9098',VCOL[v.ci],'#2b3946']);noise(v.x,v.y,200);if(P.veh===v&&v.k==='moto'&&imp>2.2){P.hc=0;exitVeh();hurt(imp*8,v.x,v.y,.4)}}v.spd*=-.2;v.av=0}}
- if(Math.abs(v.spd)>.8)for(const z of Zs){const dd=dist(z.x,z.y,v.x,v.y);if(dd<d.w*.45+4&&z.hp>0){dmgZ(z,Math.abs(v.spd)*3.6,c*v.spd*2,s*v.spd*2);v.spd*=.86;v.hp-=1.2;splat(z.x,z.y,1);S.thud(z.x,z.y)}}
+ if(Math.abs(v.spd)>.8)for(const z of Zs){const dd=dist(z.x,z.y,v.x,v.y);if(dd<d.w*.45+4&&z.hp>0&&!(z.vh>t)){z.vh=t+10;dmgZ(z,Math.abs(v.spd)*3.6*2.2,c*v.spd*2,s*v.spd*2);v.spd*=.86;v.hp-=1.2;splat(z.x,z.y,1);S.thud(z.x,z.y)}}
  if(Math.abs(v.spd)>.8)for(const a of As){if(!a.dead&&dist(a.x,a.y,v.x,v.y)<d.w*.45+3)dmgA(a,Math.abs(v.spd)*4)}
  if(v.hp<=0&&!v.wreck){v.wreck=1;v.spd=0;if(P.veh===v){exitVeh()}boom(v.x,v.y);toast(tr(d.n)+' '+tr('ist zerstört!'),'bad')}}
 function vehStep(){if(P.veh)drive(P.veh);for(const v of VS){if(v===P.veh)continue;if(Math.abs(v.spd)>0){v.spd*=.96;if(Math.abs(v.spd)<.03)v.spd=0;vMove(v)}if(v.light&&v!==P.veh)v.light=0;
   if(!v.wreck&&v.hp<VT[v.k].hp*.3&&t%14===0)smoke(v.x+Math.cos(v.a)*VT[v.k].w*.35,v.y+Math.sin(v.a)*VT[v.k].w*.35,1,2);if(v.wreck&&t%20===0&&dist(v.x,v.y,P.x,P.y)<400)smoke(v.x,v.y,1,3)}
- if(t%240===0){const near=VS.filter(v=>dist(v.x,v.y,P.x,P.y)<700).length;if(near<2&&rnd()<.6)vSpawn();if(VS.length>40){VS.sort((a,b)=>(b.used-a.used)||dist(a.x,a.y,P.x,P.y)-dist(b.x,b.y,P.x,P.y));VS.length=40}}}
+ if(t%240===0){const near=VS.filter(v=>dist(v.x,v.y,P.x,P.y)<700).length;if(near<2&&rnd()<.6)vSpawn();}}
 function enterVeh(v){if(v.wreck)return;P.sit=null;P.job=null;P.veh=v;v.used=1;S.door(1);S.engStart(v);toast(tr(VT[v.k].n)+' · '+tr('Benzin')+' '+Math.round(v.fuel)+'%')}
 function exitVeh(){const v=P.veh;if(!v)return;const d=VT[v.k];P.veh=null;S.engStop();v.light=0;const c=Math.cos(v.a),s=Math.sin(v.a);
  for(const[ox,oy]of[[-s,c],[s,-c],[-c,-s],[c,s]]){const r=d.h/2+8,x=v.x+ox*r,y=v.y+oy*r*(Math.abs(oy)>.5?1:1);if(!bl(x,y)){P.x=x;P.y=y;S.door(0);return}}
@@ -2206,7 +2206,7 @@ function mkZ(x,y,gid,reg){const day=dayN(),q=rnd();let k=((day>=2&&q<.07)||(dark
 function alertGroup(z){for(const o of Zs)if(o!==z&&o.st!=='chase'&&(o.g===z.g&&dist(o.x,o.y,z.x,z.y)<140||dist(o.x,o.y,z.x,z.y)<55)){o.st='inv';o.gx=P.x+(rnd()-.5)*24;o.gy=P.y+(rnd()-.5)*24;o.qa=40}}
 const dirOf=(dx,dy)=>Math.abs(dx)>Math.abs(dy)?(dx<0?2:3):(dy<0?1:0);
 function updZ(z){const d=dist(z.x,z.y,P.x,P.y);if(z.al>0)z.al--;if(z.qa>0)z.qa--;if(z.hit>0)z.hit--;if(z.wf>0)z.wf--;if(z.atk<0)z.atk++;
- if((t+z.id)%6===0){let sr=80*(P.mode===0?.6:1)*(P.crouch?.55:1)*(1-dark*.5)*(1-W8.rain*.15);if(z.st==='chase')sr*=1.7;if(sheltered()&&z.st!=='chase')sr*=.8;
+ if((t+z.id)%6===0){let sr=80*(window.ZSR||1)*(P.mode===0?.6:1)*(P.crouch?.55:1)*(1-dark*.5)*(1-W8.rain*.15);if(z.st==='chase')sr*=1.7;if(sheltered()&&z.st!=='chase')sr*=.8;
   if(d<sr&&los(z.x,z.y-6,P.x,P.y-6)&&!(P.crouch&&z.st!=='chase'&&inCover(z))){if(z.st!=='chase'){z.st='chase';z.al=45;if(rnd()<.8)S.groan(z.x,z.y,z.k);alertGroup(z)}z.gx=P.x;z.gy=P.y;z.ls=t}
   else if(z.st==='chase'&&t-z.ls>150)z.st='inv'}
  let tx=z.x,ty=z.y,sp=0;const nm=dark>.4?1.1:1;
@@ -7069,7 +7069,7 @@ const spOf=(tx,ty)=>{const h=houseAt(tx,ty);return h&&h.sp&&tx>=h.x0&&tx<h.x0+h.
 let SPZ=new Set();
 {const _st=step;step=function(){_st();if(state!==1||!P||LV||paused||t%20)return;const h=insideH;if(!h||!h.sp||SPZ.has(h.key))return;SPZ.add(h.key);const D_=V53[h.sp];evBanner(tr(D_[0]),tr(D_[1]));
  if(window.STATS){STATS.sp=STATS.sp||[];if(!STATS.sp.includes(h.sp))STATS.sp.push(h.sp)}
- const types={kh:['r','r','sp','w'],pol:['ar','ar','w','w'],mil:['s','s','ar','b'],sm:['sl','sl','w','w']}[h.sp];const n=3+Math.floor(rnd()*3)+Math.min(2,Math.floor(dayN()/5));
+ const types={kh:['r','r','sp','w'],pol:['ar','ar','w','w'],mil:['s','s','ar','b'],sm:['sl','sl','w','w']}[h.sp];if(!types)return;const n=3+Math.floor(rnd()*3)+Math.min(2,Math.floor(dayN()/5));
  for(let i=0;i<n;i++){for(let q=0;q<10;q++){const x=(h.x0+1+rnd()*(h.w-2))*16,y=(h.y0+1+rnd()*(h.h-3))*16;if(bl(x,y)||dist(x,y,P.x,P.y)<40)continue;window.NOZT=1;const z=mkZ(x,y,++zid,R_S);window.NOZT=0;if(z.hp<=0)break;
   const k=types[i%types.length];if(ZBASE[k])setZK(z,k);else if(ZVI[k]){z.k=k;const L=ZVI[k];z.vi=L[(rnd()*L.length)|0];z.hp=z.mh=(k==='b'?16:k==='r'?4:k==='s'?8:6)*zHpK();if(k==='r')z.cs=1.05}
   z.hp*=1.5;z.mh=z.hp;z.st="idle";break}}}}
@@ -9670,8 +9670,9 @@ function sfxBake(e,fn,key){if(typeof OfflineAudioContext==='undefined'||!AC)retu
   const n=Math.min(d.length,end+Math.round(sr*.03)),b=real.createBuffer(1,n,sr);b.getChannelData(0).set(d.subarray(0,n));e.bufs.push(b)}).catch(()=>{e.pend=0;e.bad=1})}
 function sfxPlay(b,fn,v){if(!AC)return;let key;try{key=fn.toString()+'|'+v}catch(x){return fn(b,AC.currentTime)}
  let e=SFXC.get(key);if(!e){e={bufs:[],pend:0,bad:/setTimeout|setInterval|currentTime|S\.|bus\(/.test(key)?1:0};SFXC.set(key,e)}
+ const now=performance.now();if(e.lt&&now-e.lt<45)return;e.lt=now;
  if(!e.bad&&e.bufs.length&&(e.bufs.length>=3||e.pend||Math.random()<.7)){if(SFXN>28)return;const s=AC.createBufferSource();s.buffer=e.bufs[(Math.random()*e.bufs.length)|0];s.connect(b);SFXN++;s.onended=()=>{SFXN--;try{b.disconnect()}catch(x){}};s.start(AC.currentTime);return}
- fn(b,AC.currentTime);if(!e.bad&&!e.pend&&e.bufs.length<3)sfxBake(e,fn,key)}
+ fn(b,AC.currentTime);if(!e.bad&&!e.pend&&e.bufs.length<3){e.pend=1;setTimeout(()=>{e.pend=0;sfxBake(e,fn,key)},40+Math.random()*400)}}
 // ---------- 2. Klavier-Musik: Töne einmal rendern statt 7 Klang-Bausteine pro Ton ----------
 {const PNC=new Map();const _pn=pnote;pnote=function(m,when,vel,dur){if(!AC||typeof OfflineAudioContext==='undefined')return _pn.apply(this,arguments);const k=m+'|'+Math.round(dur*4);let e=PNC.get(k);
  if(e&&e.b){const s=AC.createBufferSource();s.buffer=e.b;const g0=AC.createGain();g0.gain.value=vel;s.connect(g0);g0.connect(MUSB);const sd=AC.createGain();sd.gain.value=.55;g0.connect(sd);sd.connect(MREV);s.onended=()=>{try{g0.disconnect();sd.disconnect()}catch(x){}};s.start(when);return}
@@ -9740,8 +9741,13 @@ TWC.clear();HSC.clear();CC.clear();
 {const _st=step;let tk=0;step=function(){_st();if(state!==1||!P||P.veh&&P.veh.spd>2)return;if(++tk%35)return;if(typeof isUG==='function'&&isUG())return;if(LV)return;
  const rm=[1,.8,1.7,1.3,1,.7][curReg<0?0:curReg],want=Math.round((ZPOP()+(dark>.4?10:0))*rm);if(Zs.length<want*.85){spawnGroup();if(Zs.length<want*.5)spawnGroup()}}}
 // ---------- 7. Mehr fahrbare Fahrzeuge in der Nähe ----------
-{const _st=step;let tk=0;step=function(){_st();if(state!==1||!P||LV)return;if(++tk%150)return;if(typeof isUG==='function'&&isUG())return;
- const near=VS.filter(v=>Math.abs(v.x-P.x)<700&&Math.abs(v.y-P.y)<700).length;if(near<4&&Math.random()<.7)vSpawn()}}
+function vSpawnAt(ang,spread,r0,r1){for(let tries=0;tries<24;tries++){const a=ang+(rnd()-.5)*spread,r=r0+rnd()*(r1-r0),tx=Math.floor((P.x+Math.cos(a)*r)/16),ty=Math.floor((P.y+Math.sin(a)*r)/16);const gg=gnd(tx,ty);if(!isRoadG(gg)||tile(tx,ty)||solidAt(tx,ty))continue;
+ const reg=regionAt(tx,ty),pool=reg===R_S?['pkw','pkw','sport','moto','suv','pkw','lkw']:['suv','suv','lkw','moto','pkw'],k=pool[(rnd()*pool.length)|0],d=VT[k];if(!d)continue;
+ const vert=gg===G.asph_v||gg===G.ls_v0||gg===G.ls_v1;const v={id:++vid,k,x:tx*16+8,y:ty*16+8,a:vert?(rnd()<.5?-1:1)*Math.PI/2:(rnd()<.5?0:Math.PI),spd:0,fuel:5+rnd()*40|0,hp:Math.round(d.hp*(.4+rnd()*.6)),ci:(rnd()*VCOL.length)|0,items:Array(d.cap).fill(null),light:0,wreck:0,used:0};
+ if(vBlocked(v,v.x,v.y,v.a))continue;const loot=roll(LT.auto);loot.forEach((it,i)=>{if(i<d.cap)v.items[i]=it});VS.push(v);return v}return null}
+{const _st=step;let tk=0;step=function(){_st();if(state!==1||!P||LV||P.veh)return;if(++tk%90)return;if(typeof isUG==='function'&&isUG())return;
+ let near=0;for(const v of VS)if(Math.abs(v.x-P.x)<460&&Math.abs(v.y-P.y)<300)near++;if(near>=3)return;
+ const mv=P.mv&&P.fx!=null,ang=mv?Math.atan2(P.fy,P.fx):rnd()*6.283;vSpawnAt(ang,mv?2.4:6.283,mv?230:220,mv?420:380)}}
 // ---------- 8. Kein Einfrieren bei Treffern / keine Zeitlupe – fühlt sich sonst wie Ruckeln an ----------
 {const _t=tick;tick=function(){if(hstop>1)hstop=1;if(typeof SLOMO!=='undefined'&&SLOMO>0)SLOMO=0;return _t()}}
 // ---------- 9. Einblend-Banner ohne Unschärfe & ohne Buchstaben-Abstand-Animation (die zwingen iOS jedes Bild neu zu layouten) ----------
@@ -9749,4 +9755,37 @@ TWC.clear();HSC.clear();CC.clear();
 @keyframes dropIn2{0%{opacity:0;transform:scale(1.5)}14%{opacity:1;transform:scale(1)}20%{transform:scale(1.05)}26%{transform:scale(1)}82%{opacity:1}100%{opacity:0}}
 #banner.show{animation:bnS2 3.2s ease-out forwards!important;will-change:transform,opacity}#evb.show{animation:dropIn2 4.2s ease-out forwards!important;will-change:transform,opacity}
 #banner b,#evb b{letter-spacing:6px}`;document.head.appendChild(st)}
+// ---------- 10. Waffe tragen: passt immer zur Blickrichtung des Körpers (nicht mehr 16 Zwischenwinkel) ----------
+{const _dw=drawWeapon;drawWeapon=function(){if(!P)return _dw();const it=qs[P.sel],d=it?D[it.id]:null;if(!d||d.thr)return _dw();
+ const fire=(typeof firing!=='undefined'&&firing)||(typeof K!=='undefined'&&K[' ']);if(t-(P.lastAtk||-999)<30||(fire&&P.tg))return _dw();
+ if(typeof mAimOn==='function'&&mAimOn())return _dw();
+ const tg=aimTg(d);if(tg){const o=[P.ax,P.ay,P.fx,P.fy],dx=tg.x-P.x,dy=tg.y-6-(P.y-5),l=Math.hypot(dx,dy)||1;P.ax=P.fx=dx/l;P.ay=P.fy=dy/l;try{return _dw()}finally{[P.ax,P.ay,P.fx,P.fy]=o}}
+ const Q=Math.PI/4,lf=(P.fx||0)<-.2,dir=P.dir;let a;
+ if(dir===3)a=d.mel?Q:0;else if(dir===2)a=d.mel?3*Q:4*Q;else if(dir===0)a=lf?3*Q:Q;else a=lf?-3*Q:-Q;
+ const o=[P.ax,P.ay,P.fx,P.fy];P.ax=P.fx=Math.cos(a);P.ay=P.fy=Math.sin(a);WA=a;WS16=Math.round(a/(Math.PI/8));try{return _dw()}finally{[P.ax,P.ay,P.fx,P.fy]=o}}}
+// ---------- 11. Gefährlichere Zombies – abgestuft nach Schwierigkeitsgrad (Leicht · Normal · Schwer) ----------
+const ZDK=()=>{const k=typeof DK==='function'?DK():1;return k<0?0:k>2?2:k};
+{const _zp=ZPOP;ZPOP=()=>Math.round(_zp()*[1,1.2,1.45][ZDK()]);window.ZPOP=ZPOP}
+{const _st=step;let tk=0;step=function(){_st();if(++tk%60)return;window.ZSR=[.9,1.25,1.5][ZDK()]}}
+{const _m=mkZ;mkZ=function(x,y,gid,reg){const z=_m(x,y,gid,reg);try{const k=ZDK(),day=dayN();
+  if(z.k==='w'){const q=rnd();if(q<[0,.08,.14][k]+Math.min(.08,day*.01))setZK(z,'r');else if(day>=2&&q>1-[0,.035,.07][k])setZK(z,'b');if(z.k!=='w'){z.hp*=[.72,1,1.3][k];z.mh=z.hp}}
+  z.cs*=[1,1.08,1.16][k];z.ws=(z.ws||0)*[1,1.05,1.1][k]}catch(e){}return z}}
+{const _h=hurt;hurt=function(dm,sx,sy,b){if(window.__zk)dm*=[1,1.15,1.3][ZDK()];return _h(dm,sx,sy,b)}}
+// ---------- 12. Sicherheitsnetz: ein einzelner Fehler darf das Spiel nie einfrieren ----------
+{const _l=loop;loop=function(ts){try{return _l(ts)}catch(e){try{console.error(e)}catch(_){}requestAnimationFrame(loop)}}}
+
+// ---------- 13. Handy: Waffe & Blick richten sich auf nahe Zombies (wie beim Zielen), sonst Tragehaltung ----------
+function aimTg(d){const z=P&&P.tg;if(!z||!(z.hp>0)||P.veh||P.sit)return null;const R=d?(d.mel?(d.rg||20)+40:Math.min(190,(d.v||8)*(d.rg||30)*.8)):60;return dist(z.x,z.y,P.x,P.y)<R?z:null}
+{const _st=step;step=function(){_st();if(state!==1||!P||P.veh)return;if(typeof mAimOn==='function'&&mAimOn())return;const it=qs[P.sel],d=it?D[it.id]:D.faust;const z=aimTg(d);if(z)P.dir=dirOf(z.x-P.x,z.y-P.y)}}
+// ---------- 14. PC: Fadenkreuz folgt frei der Maus – kein Einrasten auf Zombies ----------
+{const _t=target;target=function(){if(typeof mAimOn!=='function'||!mAimOn())return _t();const wx=MAIM.sx/Z+cx,wy=MAIM.sy/Z+cy+5;return{x:wx,y:wy,aim:1}}}
+{const st=document.createElement('style');st.textContent='body.maimOn #c{cursor:none!important}';document.head.appendChild(st)}
+{const _df=drawFrame;drawFrame=function(){const r=_df.apply(this,arguments);try{if(typeof mAimOn==='function'&&mAimOn()&&performance.now()-MAIM.t<4000){document.body.classList.add('maimOn');
+  const x=Math.round(MAIM.sx/Z),y=Math.round(MAIM.sy/Z),f=firing?2:0,c1='#f4ead0',c0='#0b0907';g.setTransform(SC,0,0,SC,0,0);
+  for(const[dx,dy,w,h]of[[-7-f,0,4,1],[4+f,0,4,1],[0,-7-f,1,4],[0,4+f,1,4]]){g.fillStyle=c0;g.fillRect(x+dx-1,y+dy-1,w+2,h+2)}
+  for(const[dx,dy,w,h]of[[-7-f,0,4,1],[4+f,0,4,1],[0,-7-f,1,4],[0,4+f,1,4]]){g.fillStyle=c1;g.fillRect(x+dx,y+dy,w,h)}
+  g.fillStyle=c0;g.fillRect(x-1,y-1,3,3);g.fillStyle=firing?'#ff5a3a':c1;g.fillRect(x,y,1,1)}else document.body.classList.remove('maimOn')}catch(e){}return r}}
+// ---------- 15. Fahrzeuge, die du benutzt hast (gefahren oder Kofferraum geöffnet), verschwinden nie ----------
+{const _st=step;step=function(){_st();if(state!==1||!P)return;if(P.veh)P.veh.used=1;if(typeof boxK==='string'&&boxK[0]==='v'){const id=+boxK.slice(1);for(const v of VS)if(v.id===id){v.used=1;break}}
+ if(t%240===1&&VS.length>40){const keep=VS.filter(v=>v.used||v===P.veh),rest=VS.filter(v=>!(v.used||v===P.veh)).sort((a,b)=>dist(a.x,a.y,P.x,P.y)-dist(b.x,b.y,P.x,P.y));VS.length=0;VS.push(...keep,...rest.slice(0,Math.max(12,40-keep.length)))}}}
 </script><script>if('serviceWorker'in navigator&&location.protocol.startsWith('http'))addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));</script></body></html>
