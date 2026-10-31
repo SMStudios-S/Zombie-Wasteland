@@ -2218,7 +2218,7 @@ function updZ(z){const d=dist(z.x,z.y,P.x,P.y);if(z.al>0)z.al--;if(z.qa>0)z.qa--
  const ox=z.x,oy=z.y;
  if(sp>0){const dx=tx-z.x,dy=ty-z.y,dd=Math.hypot(dx,dy)||1,ux=dx/dd,uy=dy/dd;const sl=z.slow?.35:1;mv(z,ux*sp*sl+z.kx,uy*sp*sl+z.ky);
   if(Math.abs(z.x-ox)+Math.abs(z.y-oy)<.05&&z.st!=='idle'){const wx=Math.floor((z.x+ux*9)/16),wy=Math.floor((z.y+uy*9)/16),wt=tile(wx,wy);
-   if(HPD[wt]&&TSOL[wt]){z.wa++;if(z.wa%50===0){const kk=wx*65536+wy,h=(whp.get(kk)??HPD[wt])-(z.k==='b'?4:1);S.wallhit(wx*16+8,wy*16+8);if(wt===T.palisade){z.hp-=1.2;z.wf=3;blood(z.x,z.y-5,2);if(z.hp<=0)killZ(z,0,0)}debris(wx*16+8,wy*16+12,3,['#7a5a30','#5a4a3a']);shakeT.set(kk,6);noise(wx*16+8,wy*16+8,40);
+   if(HPD[wt]&&TSOL[wt]&&!(window.ZNOWALL&&ZNOWALL(wx,wy))){z.wa++;if(z.wa%50===0){const kk=wx*65536+wy,h=(whp.get(kk)??HPD[wt])-(z.k==='b'?4:1);S.wallhit(wx*16+8,wy*16+8);if(wt===T.palisade){z.hp-=1.2;z.wf=3;blood(z.x,z.y-5,2);if(z.hp<=0)killZ(z,0,0)}debris(wx*16+8,wy*16+12,3,['#7a5a30','#5a4a3a']);shakeT.set(kk,6);noise(wx*16+8,wy*16+8,40);
      if(h<=0){restore(wx,wy);S.wallbreak(wx*16+8,wy*16+8);debris(wx*16+8,wy*16+8,14,['#7a5a30','#5a4a3a','#8c8f95']);smoke(wx*16+8,wy*16+8,4,3)}else whp.set(kk,h)}}
    else{mv(z,-uy*sp*1.4*z.dr,ux*sp*1.4*z.dr);if(rnd()<.01)z.dr*=-1}}
   else z.wa=0;
@@ -2293,7 +2293,7 @@ function step(){t++;const h=hourOf(t);dark=darkOf(h);
  for(let i=0;i<Zs.length;i++)for(let j=i+1;j<Zs.length;j++){const a=Zs[i],b=Zs[j],dx=b.x-a.x,dy=b.y-a.y,d=Math.hypot(dx,dy);if(d<8&&d>0){const p=(8-d)*.15;mv(a,-dx/d*p,-dy/d*p);mv(b,dx/d*p,dy/d*p)}}
  Zs=Zs.filter(z=>z.hp>0);
  for(const a of As)updA(a);As=As.filter(a=>!a.dead);
- if(t%100===0){const rm=[1,.8,1.7,1.3,1,.7][curReg<0?0:curReg];const want=Math.round(((window.ZPOP?ZPOP():Math.min(48,15+(dayN()-1)*4))+(dark>.4?10:0))*rm);if(Zs.length<want)spawnGroup();for(const[k]of GRP)if(!Zs.some(z=>z.g===k))GRP.delete(k)}
+ if(t%100===0){const rm=[1,.8,1.7,1.3,1,.7][curReg<0?0:curReg];const want=Math.round(((window.ZPOP?ZPOP():Math.min(48,15+(dayN()-1)*4))+(dark>.4?4:0))*rm);if(Zs.length<want)spawnGroup();for(const[k]of GRP)if(!Zs.some(z=>z.g===k))GRP.delete(k)}
  if(t%60===0)houseSpawns();
  if(t%(window.ANF||240)===0&&As.length<(window.ANC||6)&&dark<.7&&rnd()<.8)spawnAnimal();
  // Region & Haus
@@ -9740,7 +9740,7 @@ TWC.clear();HSC.clear();CC.clear();
 // ---------- 6. Mehr Zombies: höhere Zielzahl und schnelleres Nachfüllen ----------
 {const _zp=ZPOP;ZPOP=()=>Math.round(_zp()*1.45);window.ZPOP=ZPOP}
 {const _st=step;let tk=0;step=function(){_st();if(state!==1||!P||P.veh&&P.veh.spd>2)return;if(++tk%35)return;if(typeof isUG==='function'&&isUG())return;if(LV)return;
- const rm=[1,.8,1.7,1.3,1,.7][curReg<0?0:curReg],want=Math.round((ZPOP()+(dark>.4?10:0))*rm);if(Zs.length<want*.85){spawnGroup();if(Zs.length<want*.5)spawnGroup()}}}
+ const rm=[1,.8,1.7,1.3,1,.7][curReg<0?0:curReg],want=Math.round((ZPOP()+(dark>.4?4:0))*rm);if(Zs.length<want*.85){spawnGroup();if(Zs.length<want*.5)spawnGroup()}}}
 // ---------- 7. Mehr fahrbare Fahrzeuge in der Nähe ----------
 function vSpawnAt(ang,spread,r0,r1){for(let tries=0;tries<24;tries++){const a=ang+(rnd()-.5)*spread,r=r0+rnd()*(r1-r0),tx=Math.floor((P.x+Math.cos(a)*r)/16),ty=Math.floor((P.y+Math.sin(a)*r)/16);const gg=gnd(tx,ty);if(!isRoadG(gg)||tile(tx,ty)||solidAt(tx,ty))continue;
  const reg=regionAt(tx,ty),pool=reg===R_S?['pkw','pkw','sport','moto','suv','pkw','lkw']:['suv','suv','lkw','moto','pkw'],k=pool[(rnd()*pool.length)|0],d=VT[k];if(!d)continue;
@@ -9760,7 +9760,7 @@ function vSpawnAt(ang,spread,r0,r1){for(let tries=0;tries<24;tries++){const a=an
 {const _dw=drawWeapon;drawWeapon=function(){if(!P||window.NOCARRY)return _dw();const it=qs[P.sel],d=it?D[it.id]:null;if(!d||d.thr)return _dw();
  const fire=(typeof firing!=='undefined'&&firing)||(typeof K!=='undefined'&&K[' ']);if(t-(P.lastAtk||-999)<30||(fire&&P.tg))return _dw();
  if(typeof mAimOn==='function'&&mAimOn())return _dw();
- const tg=aimTg(d);if(tg){const o=[P.ax,P.ay,P.fx,P.fy],dx=tg.x-P.x,dy=tg.y-6-(P.y-5),l=Math.hypot(dx,dy)||1;P.ax=P.fx=dx/l;P.ay=P.fy=dy/l;try{return _dw()}finally{[P.ax,P.ay,P.fx,P.fy]=o}}
+ const fire_=(typeof firing!=='undefined'&&firing)||(typeof K!=='undefined'&&K[' ']);const tg=((t-(P.lastAtk||-999)<30||fire_)&&P.tg&&P.tg.hp>0)?P.tg:aimTg(d);if(tg){const o=[P.ax,P.ay,P.fx,P.fy],dx=tg.x-P.x,dy=tg.y-6-(P.y-5),l=Math.hypot(dx,dy)||1;P.ax=P.fx=dx/l;P.ay=P.fy=dy/l;try{return _dw()}finally{[P.ax,P.ay,P.fx,P.fy]=o}}
  const Q=Math.PI/4,lf=(P.fx||0)<-.2,dir=P.dir;let a;
  if(dir===3)a=d.mel?Q:0;else if(dir===2)a=d.mel?3*Q:4*Q;else if(dir===0)a=lf?3*Q:Q;else a=lf?-3*Q:-Q;
  const o=[P.ax,P.ay,P.fx,P.fy];P.ax=P.fx=Math.cos(a);P.ay=P.fy=Math.sin(a);WA=a;WS16=Math.round(a/(Math.PI/8));try{return _dw()}finally{[P.ax,P.ay,P.fx,P.fy]=o}}}
@@ -9769,7 +9769,7 @@ function zKind(z,k){if(ZBASE[k]!=null)return setZK(z,k);const L=ZVI[k];if(!L)ret
 // ---------- 11. Gefährlichere Zombies – abgestuft nach Schwierigkeitsgrad (Leicht · Normal · Schwer) ----------
 const ZDK=()=>{const k=typeof DK==='function'?DK():1;return k<0?0:k>2?2:k};
 {const _zp=ZPOP;ZPOP=()=>Math.round(_zp()*[1,1.2,1.45][ZDK()]);window.ZPOP=ZPOP}
-{const _st=step;let tk=0;step=function(){_st();if(++tk%60)return;window.ZSR=[.9,1.25,1.5][ZDK()]}}
+{const _st=step;let tk=0;step=function(){_st();if(++tk%60)return;window.ZSR=[.75,.9,1.05][ZDK()]}}
 {const _m=mkZ;mkZ=function(x,y,gid,reg){const z=_m(x,y,gid,reg);try{const k=ZDK(),day=dayN();
   if(z.k==='w'){const q=rnd();if(q<[.03,.08,.13][k])zKind(z,'r');else if(day>=2&&q>1-[0,.035,.07][k])zKind(z,'b');if(z.k!=='w'){z.hp*=[.72,1,1.3][k];z.mh=z.hp}}
   z.cs*=[1,1.08,1.16][k];z.ws=(z.ws||0)*[1,1.05,1.1][k]}catch(e){}return z}}
@@ -9805,13 +9805,12 @@ document.addEventListener('visibilitychange',()=>{try{if(!AC)return;if(document.
 // ---------- 1. Jeder Tag würfelt seine eigene Zombie-Menge – mal ruhiger, mal mehr los. Kein Hochschaukeln über die Tage ----------
 const V80={calm:L4('Heute ist es ruhig draußen …','It is quiet out there today …','Hoy está tranquilo ahí fuera …','C’est calme dehors aujourd’hui …'),busy:L4('Heute sind viele Zombies unterwegs – bleib leise.','Lots of zombies out today – stay quiet.','Hoy hay muchos zombis – no hagas ruido.','Beaucoup de zombies aujourd’hui – reste discret.')};
 const dayMul=d=>.7+.65*hh(d*131+7,d*17+3,SEED+9091);
-{const RK=[.9,.6,1,1,.95,1];ZPOP=()=>{const k=ZDK(),d=dayN();return Math.round([22,30,40][k]*dayMul(d)*RK[curReg<0?0:curReg])};window.ZPOP=ZPOP}
+{const RK=[.9,.6,.8,1,.95,1];ZPOP=()=>{const k=ZDK(),d=dayN();return Math.round([13,18,25][k]*dayMul(d)*RK[curReg<0?0:curReg])};window.ZPOP=ZPOP}
 {let lastD=-1;const _st=step;step=function(){_st();if(state!==1||!P||t%120)return;const d=dayN();if(d===lastD)return;const first=lastD<0;lastD=d;if(first)return;const m=dayMul(d);if(m<.85)toast(tr(V80.calm));else if(m>1.15)toast(tr(V80.busy),'bad')}}
 // ---------- 2. Handy: kein Einrasten – du schießt/schlägst dorthin, wohin du läufst; Waffe zeigt exakt in Laufrichtung (8 Richtungen) ----------
-{const _t=target;target=function(){if(typeof mAimOn==='function'&&mAimOn())return _t();if(!P)return _t();const fx=P.fx==null?1:P.fx,fy=P.fy==null?0:P.fy,l=Math.hypot(fx,fy)||1;return{x:P.x+fx/l*90,y:P.y+fy/l*90,aim:1}}}
-window.aimTg=()=>null;aimTg=()=>null;window.NOCARRY=1;
+window.NOCARRY=1;
 {const _dw=drawWeapon;drawWeapon=function(){if(!P||(typeof mAimOn==='function'&&mAimOn()))return _dw();const it=qs[P.sel],d=it?D[it.id]:null;if(!d||d.thr)return _dw();
- const a=Math.atan2(P.fy==null?0:P.fy,P.fx==null?1:P.fx);const o=[P.ax,P.ay,P.fx,P.fy];P.ax=P.fx=Math.cos(a);P.ay=P.fy=Math.sin(a);try{return _dw()}finally{[P.ax,P.ay,P.fx,P.fy]=o}}}
+ const tg=aimTg(d);const a=tg?Math.atan2(tg.y-6-(P.y-5),tg.x-P.x):Math.atan2(P.fy==null?0:P.fy,P.fx==null?1:P.fx);const o=[P.ax,P.ay,P.fx,P.fy];P.ax=P.fx=Math.cos(a);P.ay=P.fy=Math.sin(a);try{return _dw()}finally{[P.ax,P.ay,P.fx,P.fy]=o}}}
 // Körper: 4 Ansichten, mit Verzögerung an der Diagonale (kein Flackern zwischen zwei Ansichten)
 {let ld=null;const _st=step;step=function(){_st();if(state!==1||!P||P.veh||P.sit)return;if(typeof mAimOn==='function'&&mAimOn())return;const fx=P.fx||0,fy=P.fy||0;if(!fx&&!fy)return;
  const ax=Math.abs(fx),ay=Math.abs(fy);let d;if(ld!=null&&Math.abs(ax-ay)<.22){d=ld}else d=dirOf(fx,fy);ld=d;P.dir=d}}
@@ -9821,4 +9820,8 @@ window.aimTg=()=>null;aimTg=()=>null;window.NOCARRY=1;
 #toast{top:calc(env(safe-area-inset-top,0px) + 58px)!important;bottom:auto!important}`;document.head.appendChild(st)}
 {const st=document.createElement('style');st.textContent=`body:has(#evB:not(.hide)) #banner{opacity:0!important;animation:none!important}
 #fpsP{top:auto!important;bottom:calc(env(safe-area-inset-bottom,0px) + 4px)!important;left:calc(env(safe-area-inset-left,0px) + 6px)!important;right:auto!important;margin:0!important}`;document.head.appendChild(st)}
+
+// ---------- v80b: Zombies hören dich später · Außenposten-Wände sind für Zombies unzerstörbar ----------
+{const _n=noise;noise=function(x,y,r){return _n(x,y,r*[.6,.72,.85][ZDK()])}}
+window.ZNOWALL=(x,y)=>{try{return typeof OUTP!=='undefined'&&OUTP.length&&typeof inOP==='function'&&!!inOP(x,y,1)}catch(e){return false}};
 </script><script>if('serviceWorker'in navigator&&location.protocol.startsWith('http'))addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));</script></body></html>
