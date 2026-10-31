@@ -5425,7 +5425,7 @@ V32.noSup=T4('Nicht über dem Haus','Not above the house','No sobre la casa','Pa
 const BAGS=new Set(['rucksack_s','rucksack_l','schulrucksack','huefttasche','mrucksack','erucksack']);
 for(const k in LT){const tb=LT[k];if(tb&&tb.it)for(const e of tb.it)if(BAGS.has(e[0]))e[1]*=2.6}
 addL('schrank','rucksack_s:4 schulrucksack:3');addL('zom','rucksack_s:1 huefttasche:1');addL('auto','rucksack_l:2');
-const DIFF=()=>Math.max(0,Math.min(1,(dayN()-1)/6));window.DIFF=DIFF;const zHpK=()=>2+.4*DIFF(),zDmgK=()=>1.35+.25*DIFF();
+const DIFF=()=>Math.max(0,Math.min(1,(dayN()-1)/6));window.DIFF=DIFF;const zHpK=()=>2.2,zDmgK=()=>1.47;
 {const _m=mkZ;mkZ=function(x,y,gid,reg){const z=_m(x,y,gid,reg);const k=zHpK();z.hp*=k;z.mh=z.hp;z.cs*=1.07;z.is*=1.05;return z}}
 {const _u=updZ;updZ=function(z){window.__zk=1;try{return _u(z)}finally{window.__zk=0}}}
 {const _h=hurt;hurt=function(dm,sx,sy,b){if(window.__zk)dm*=zDmgK();return _h(dm,sx,sy,b)}}
@@ -9505,7 +9505,7 @@ function ugGo(x,y,stairs){mods.set(x*65536+y,T[stairs]);P.x=x*16+8;P.y=(y+1)*16+
 {const _st=step;let tk=0;step=function(){_st();if(state!==1||!P)return;if(!isUG())return;dark=Math.max(dark,.94);if(window.W8)W8.rain=0;Ps=Ps.filter(q=>q.k!=='ff'&&q.k!=='lf');
  if(++tk%45)return;const bk=P.x>=(BKL)*16,cap=bk?7:10;let n=0;for(const z of Zs)if(z.hp>0&&Math.abs(z.x-P.x)<360&&Math.abs(z.y-P.y)<360)n++;if(n>=cap)return;
  for(let tries=0;tries<14;tries++){const a=rnd()*6.283,d=170+rnd()*170,x=P.x+Math.cos(a)*d,y=P.y+Math.sin(a)*d,tx=Math.floor(x/16),ty=Math.floor(y/16);
-  if(gnd(tx,ty)===G.luft||solidAt(tx,ty))continue;const z=mkZ(tx*16+8,ty*16+8,++zid,R_S);const k=['ar','b','sp','r','ar','w','b','sl'][Math.floor(rnd()*8)];try{if(ZVI[k])setZK(z,k)}catch(e){}z.hp=z.mh=Math.round((z.mh||z.hp)*1.6);break}}}
+  if(gnd(tx,ty)===G.luft||solidAt(tx,ty))continue;const z=mkZ(tx*16+8,ty*16+8,++zid,R_S);const k=['ar','b','sp','r','ar','w','b','sl'][Math.floor(rnd()*8)];try{if(ZVI[k])(window.zKind||setZK)(z,k)}catch(e){}z.hp=z.mh=Math.round((z.mh||z.hp)*1.6);break}}}
 {const _ba=banner;banner=function(n){if(isUG()&&typeof RGN!=='undefined'&&RGN.some(r=>tr(r)===n))return;return _ba.apply(this,arguments)}}
 {const _sa=spawnAnimal;spawnAnimal=function(){if(isUG())return;return _sa.apply(this,arguments)}}
 {const _dw=draw;draw=function(){if(state===1&&isUG()){g.setTransform(1,0,0,1,0,0);g.fillStyle='#030406';g.fillRect(0,0,g.canvas.width,g.canvas.height)}return _dw.apply(this,arguments)}}
@@ -9757,19 +9757,21 @@ function vSpawnAt(ang,spread,r0,r1){for(let tries=0;tries<24;tries++){const a=an
 #banner.show{animation:bnS2 3.2s ease-out forwards!important;will-change:transform,opacity}#evb.show{animation:dropIn2 4.2s ease-out forwards!important;will-change:transform,opacity}
 #banner b,#evb b{letter-spacing:6px}`;document.head.appendChild(st)}
 // ---------- 10. Waffe tragen: passt immer zur Blickrichtung des Körpers (nicht mehr 16 Zwischenwinkel) ----------
-{const _dw=drawWeapon;drawWeapon=function(){if(!P)return _dw();const it=qs[P.sel],d=it?D[it.id]:null;if(!d||d.thr)return _dw();
+{const _dw=drawWeapon;drawWeapon=function(){if(!P||window.NOCARRY)return _dw();const it=qs[P.sel],d=it?D[it.id]:null;if(!d||d.thr)return _dw();
  const fire=(typeof firing!=='undefined'&&firing)||(typeof K!=='undefined'&&K[' ']);if(t-(P.lastAtk||-999)<30||(fire&&P.tg))return _dw();
  if(typeof mAimOn==='function'&&mAimOn())return _dw();
  const tg=aimTg(d);if(tg){const o=[P.ax,P.ay,P.fx,P.fy],dx=tg.x-P.x,dy=tg.y-6-(P.y-5),l=Math.hypot(dx,dy)||1;P.ax=P.fx=dx/l;P.ay=P.fy=dy/l;try{return _dw()}finally{[P.ax,P.ay,P.fx,P.fy]=o}}
  const Q=Math.PI/4,lf=(P.fx||0)<-.2,dir=P.dir;let a;
  if(dir===3)a=d.mel?Q:0;else if(dir===2)a=d.mel?3*Q:4*Q;else if(dir===0)a=lf?3*Q:Q;else a=lf?-3*Q:-Q;
  const o=[P.ax,P.ay,P.fx,P.fy];P.ax=P.fx=Math.cos(a);P.ay=P.fy=Math.sin(a);WA=a;WS16=Math.round(a/(Math.PI/8));try{return _dw()}finally{[P.ax,P.ay,P.fx,P.fy]=o}}}
+// Grund-Arten (Renner/Brecher) haben keinen ZBASE-Eintrag – Leben hier direkt setzen (sonst NaN = unsterblich)
+function zKind(z,k){if(ZBASE[k]!=null)return setZK(z,k);const L=ZVI[k];if(!L)return z;z.k=k;z.vi=L[(rnd()*L.length)|0];z.hp=z.mh=(k==='b'?16:k==='r'?4:6)*zHpK();if(k==='r')z.cs=Math.max(z.cs||0,1.05);return z}
 // ---------- 11. Gefährlichere Zombies – abgestuft nach Schwierigkeitsgrad (Leicht · Normal · Schwer) ----------
 const ZDK=()=>{const k=typeof DK==='function'?DK():1;return k<0?0:k>2?2:k};
 {const _zp=ZPOP;ZPOP=()=>Math.round(_zp()*[1,1.2,1.45][ZDK()]);window.ZPOP=ZPOP}
 {const _st=step;let tk=0;step=function(){_st();if(++tk%60)return;window.ZSR=[.9,1.25,1.5][ZDK()]}}
 {const _m=mkZ;mkZ=function(x,y,gid,reg){const z=_m(x,y,gid,reg);try{const k=ZDK(),day=dayN();
-  if(z.k==='w'){const q=rnd();if(q<[0,.08,.14][k]+Math.min(.08,day*.01))setZK(z,'r');else if(day>=2&&q>1-[0,.035,.07][k])setZK(z,'b');if(z.k!=='w'){z.hp*=[.72,1,1.3][k];z.mh=z.hp}}
+  if(z.k==='w'){const q=rnd();if(q<[.03,.08,.13][k])zKind(z,'r');else if(day>=2&&q>1-[0,.035,.07][k])zKind(z,'b');if(z.k!=='w'){z.hp*=[.72,1,1.3][k];z.mh=z.hp}}
   z.cs*=[1,1.08,1.16][k];z.ws=(z.ws||0)*[1,1.05,1.1][k]}catch(e){}return z}}
 {const _h=hurt;hurt=function(dm,sx,sy,b){if(window.__zk)dm*=[1,1.15,1.3][ZDK()];return _h(dm,sx,sy,b)}}
 // ---------- 12. Sicherheitsnetz: ein einzelner Fehler darf das Spiel nie einfrieren ----------
@@ -9798,4 +9800,25 @@ window.LOWFX=0;
 // ---------- 17. Im Hintergrund: Ton anhalten (spart Akku), beim Zurückkommen fortsetzen ----------
 document.addEventListener('visibilitychange',()=>{try{if(!AC)return;if(document.hidden)AC.suspend();else AC.resume()}catch(e){}});
 ['touchend','click','keydown'].forEach(ev=>addEventListener(ev,()=>{try{if(AC&&AC.state!=='running'&&!document.hidden)AC.resume()}catch(e){}},{passive:true,capture:true}));
+
+// ================= v80: Zombie-Menge pro Tag zufällig (nicht immer mehr) · Waffe zeigt exakt in Laufrichtung · Meldungen oben =================
+// ---------- 1. Jeder Tag würfelt seine eigene Zombie-Menge – mal ruhiger, mal mehr los. Kein Hochschaukeln über die Tage ----------
+const V80={calm:L4('Heute ist es ruhig draußen …','It is quiet out there today …','Hoy está tranquilo ahí fuera …','C’est calme dehors aujourd’hui …'),busy:L4('Heute sind viele Zombies unterwegs – bleib leise.','Lots of zombies out today – stay quiet.','Hoy hay muchos zombis – no hagas ruido.','Beaucoup de zombies aujourd’hui – reste discret.')};
+const dayMul=d=>.7+.65*hh(d*131+7,d*17+3,SEED+9091);
+{const RK=[.9,.6,1,1,.95,1];ZPOP=()=>{const k=ZDK(),d=dayN();return Math.round([22,30,40][k]*dayMul(d)*RK[curReg<0?0:curReg])};window.ZPOP=ZPOP}
+{let lastD=-1;const _st=step;step=function(){_st();if(state!==1||!P||t%120)return;const d=dayN();if(d===lastD)return;const first=lastD<0;lastD=d;if(first)return;const m=dayMul(d);if(m<.85)toast(tr(V80.calm));else if(m>1.15)toast(tr(V80.busy),'bad')}}
+// ---------- 2. Handy: kein Einrasten – du schießt/schlägst dorthin, wohin du läufst; Waffe zeigt exakt in Laufrichtung (8 Richtungen) ----------
+{const _t=target;target=function(){if(typeof mAimOn==='function'&&mAimOn())return _t();if(!P)return _t();const fx=P.fx==null?1:P.fx,fy=P.fy==null?0:P.fy,l=Math.hypot(fx,fy)||1;return{x:P.x+fx/l*90,y:P.y+fy/l*90,aim:1}}}
+window.aimTg=()=>null;aimTg=()=>null;window.NOCARRY=1;
+{const _dw=drawWeapon;drawWeapon=function(){if(!P||(typeof mAimOn==='function'&&mAimOn()))return _dw();const it=qs[P.sel],d=it?D[it.id]:null;if(!d||d.thr)return _dw();
+ const a=Math.atan2(P.fy==null?0:P.fy,P.fx==null?1:P.fx);const o=[P.ax,P.ay,P.fx,P.fy];P.ax=P.fx=Math.cos(a);P.ay=P.fy=Math.sin(a);try{return _dw()}finally{[P.ax,P.ay,P.fx,P.fy]=o}}}
+// Körper: 4 Ansichten, mit Verzögerung an der Diagonale (kein Flackern zwischen zwei Ansichten)
+{let ld=null;const _st=step;step=function(){_st();if(state!==1||!P||P.veh||P.sit)return;if(typeof mAimOn==='function'&&mAimOn())return;const fx=P.fx||0,fy=P.fy||0;if(!fx&&!fy)return;
+ const ax=Math.abs(fx),ay=Math.abs(fy);let d;if(ld!=null&&Math.abs(ax-ay)<.22){d=ld}else d=dirOf(fx,fy);ld=d;P.dir=d}}
+// ---------- 3. Meldungen nach oben an den Bildschirmrand statt in die Mitte ----------
+{const st=document.createElement('style');st.textContent=`#evB{top:calc(env(safe-area-inset-top,0px) + 6px)!important}#evB b{font-size:clamp(15px,3.2vw,22px)!important}#evB small{font-size:10px!important;margin-top:2px!important}
+#banner{top:calc(env(safe-area-inset-top,0px) + 6px)!important}#banner b{font-size:clamp(15px,3vw,22px)!important}
+#toast{top:calc(env(safe-area-inset-top,0px) + 58px)!important;bottom:auto!important}`;document.head.appendChild(st)}
+{const st=document.createElement('style');st.textContent=`body:has(#evB:not(.hide)) #banner{opacity:0!important;animation:none!important}
+#fpsP{top:auto!important;bottom:calc(env(safe-area-inset-bottom,0px) + 4px)!important;left:calc(env(safe-area-inset-left,0px) + 6px)!important;right:auto!important;margin:0!important}`;document.head.appendChild(st)}
 </script><script>if('serviceWorker'in navigator&&location.protocol.startsWith('http'))addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));</script></body></html>
